@@ -1,0 +1,17 @@
+Usare heroku per:
+    DB
+    Hosting della API
+
+Usare firebase per:
+    Hosting foto
+    Authentication
+    Hosting modello ML
+
+On-Device:
+    Riconoscimento delle immagini
+    Geo-coding
+
+Fare 2 modelli:
+    Uno che usa anche nome città
+    Uno che non usa nome città
+    
