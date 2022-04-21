@@ -1,27 +1,42 @@
-import { Client } from "pg";
+import { Pool, QueryResult } from "pg";
 
-type DB_credentials = {
-    user: string;
-    password: string;
-    host: string;
+type DB_config = {
+    // user: string;
+    // password: string;
+    // host: string;
+    connectionString: string;
+    // port: number;
 }
 
 
-// Nel caso di long lived connection si crea un client al momento della creazione dell'oggetto, mentre
-// in caso di short lived connection si crea un client per query singola, chiuso al termine dell'esecuzione
-// della query.
+export default class DB_interface {
+    private readonly credentials: DB_config;
+    private readonly pool : Pool;
 
-class DB_interface {
-    private readonly credentials: DB_credentials;
-    private readonly uri: string;
-    private readonly port: number;
-    private readonly client : Client | null = null;
-
-    constructor(credentials: DB_credentials, uri: string, port: number, long_lived_connection: boolean) {
+    constructor(credentials: DB_config) {
         this.credentials = credentials;
-        this.uri = uri;
-        this.port = port;
+        console.log(this.credentials)
+        this.pool = new Pool({
+            ...this.credentials,
+            ssl: {
+                rejectUnauthorized: false
+            }
+        }); //Connects to the DB
+    }
+   
+    async query(query: string, params: any[]): Promise<QueryResult<any> | string> { // String return = error code
+        try {
+            return await this.pool.query(query, params);
+        } catch (error) {
+            console.log(`On query ${query}:\n ${error}: ${error.code}`);
+            return error.code;
+        }
     }
 
-    connect() {}
+    // transaction(queries: string[], params: any[][]) {
+
+
+    close() {
+        this.pool.end();
+    }
 }
