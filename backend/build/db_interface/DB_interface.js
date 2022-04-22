@@ -51,25 +51,39 @@ var pg_1 = require("pg");
 var DB_interface = /** @class */ (function () {
     function DB_interface(credentials) {
         this.credentials = credentials;
-        console.log(this.credentials);
         this.pool = new pg_1.Pool(__assign(__assign({}, this.credentials), { ssl: {
                 rejectUnauthorized: false
             } })); //Connects to the DB
     }
-    DB_interface.prototype.query = function (query, params) {
+    DB_interface.prototype.query = function (query, params, close) {
+        if (close === void 0) { close = true; }
         return __awaiter(this, void 0, void 0, function () {
             var error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _b.trys.push([0, 2, 3, 4]);
+                        _a = {
+                            ok: true
+                        };
                         return [4 /*yield*/, this.pool.query(query, params)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 1: return [2 /*return*/, (_a.result = _b.sent(),
+                            _a)];
                     case 2:
-                        error_1 = _a.sent();
+                        error_1 = _b.sent();
                         console.log("On query ".concat(query, ":\n ").concat(error_1, ": ").concat(error_1.code));
-                        return [2 /*return*/, error_1.code];
-                    case 3: return [2 /*return*/];
+                        return [2 /*return*/, {
+                                ok: false,
+                                error: error_1.code
+                            }];
+                    case 3:
+                        if (close) {
+                            console.log("Closing");
+                            this.close();
+                        }
+                        return [7 /*endfinally*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

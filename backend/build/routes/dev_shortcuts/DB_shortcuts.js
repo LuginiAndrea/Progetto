@@ -42,78 +42,85 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var express_1 = require("express");
+var bodyParser = require("body-parser");
 var DB_interface_1 = require("../../db_interface/DB_interface");
+var types_1 = require("../../db_interface/types");
 var db_shortcut_router = (0, express_1.Router)();
+var get_db_uri = function (req, res, next) {
+    res.locals.db_uri =
+        (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI;
+    next();
+};
+db_shortcut_router.use("/:db", get_db_uri);
 // -------------------- General table stuff --------------------
 // -------------------- GET TABLE SCHEMA --------------------
 db_shortcut_router.get("/:db/table_schema/:table_name", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var table_name, db, result;
+    var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                table_name = req.params.table_name;
-                db = new DB_interface_1["default"]({
-                    connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
-                });
-                return [4 /*yield*/, db.query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [table_name])];
+                ;
+                return [4 /*yield*/, new DB_interface_1["default"]({
+                        connectionString: res.locals.db_uri
+                    }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name])];
             case 1:
                 result = _a.sent();
-                db.close();
-                res.status(200).send({
-                    table_name: table_name,
-                    columns: (typeof result === "string") ? result : result.rows.map(function (row) { return [row.column_name, row.data_type]; })
-                });
+                if (result.ok)
+                    res.status(200).send({
+                        table_name: req.params.table_name,
+                        columns: result.result.rows.map(function (row) { return [row.column_name, row.data_type]; })
+                    });
+                else
+                    res.status(500).send(result.error);
                 return [2 /*return*/];
         }
     });
 }); });
 // -------------------- SELECT * --------------------
 db_shortcut_router.get("/:db/select_table/:table_name", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var table_name, db, result;
+    var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                table_name = req.params.table_name;
-                db = new DB_interface_1["default"]({
-                    connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
-                });
-                return [4 /*yield*/, db.query("SELECT * FROM ".concat(table_name, ";"), [])];
+            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
+                    connectionString: res.locals.db_uri
+                }).query("SELECT * FROM ".concat(req.params.table_name), [])];
             case 1:
                 result = _a.sent();
-                res.status(200).send(result);
-                db.close();
+                if (result.ok)
+                    res.status(200).send(result.result);
+                else
+                    res.status(500).send(result.error);
                 return [2 /*return*/];
         }
     });
 }); });
 // -------------------- DROP TABLE --------------------
 db_shortcut_router.get("/:db/drop_table/:table_name", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var table_name, db, result;
+    var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                table_name = req.params.table_name;
-                db = new DB_interface_1["default"]({
-                    connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
-                });
-                return [4 /*yield*/, db.query("DROP TABLE ".concat(table_name, ";"), [])];
+            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
+                    connectionString: res.locals.db_uri
+                }).query("DROP TABLE ".concat(req.params.table_name), [])];
             case 1:
                 result = _a.sent();
-                res.status(200).send(result);
-                db.close();
+                if (result.ok)
+                    res.status(200).send(result.result);
+                else
+                    res.status(500).send(result.error);
                 return [2 /*return*/];
         }
     });
 }); });
 // -------------------- CREATE TABLE --------------------
 db_shortcut_router.get("/:db/create_table/:table_name", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var table_name, db, table_arguments, table, _a, _b, _i, table;
+    var table_name, db, table_arguments, table, _a, _b, _i, table, result;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 table_name = req.params.table_name;
                 db = new DB_interface_1["default"]({
-                    connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+                    connectionString: res.locals.db_uri
                 });
                 table_arguments = {
                     "continents": create_continents_table,
@@ -143,7 +150,9 @@ db_shortcut_router.get("/:db/create_table/:table_name", function (req, res) { re
                 table = _a[_i];
                 return [4 /*yield*/, db.query(table_arguments[table].query, table_arguments[table].args)];
             case 4:
-                _c.sent();
+                result = _c.sent();
+                if (!result.ok)
+                    res.status(500).send(result.error);
                 _c.label = 5;
             case 5:
                 _i++;
@@ -157,18 +166,18 @@ db_shortcut_router.get("/:db/create_table/:table_name", function (req, res) { re
 }); });
 // -------------------- GET DB SCHEMA --------------------
 db_shortcut_router.get('/:db/db_schema', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db, result;
+    var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                db = new DB_interface_1["default"]({
+            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
                     connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
-                });
-                return [4 /*yield*/, db.query("SELECT table_name FROM information_schema.tables \n        WHERE table_type != 'VIEW' \n        AND table_name NOT LIKE 'pg%'\n        AND table_name NOT LIKE 'sql%'\n        AND table_name NOT LIKE 'spatial%'", [])];
+                }).query("SELECT table_name FROM information_schema.tables \n        WHERE table_type != 'VIEW' \n        AND table_name NOT LIKE 'pg%'\n        AND table_name NOT LIKE 'sql%'\n        AND table_name NOT LIKE 'spatial%'", [])];
             case 1:
                 result = _a.sent();
-                res.status(200).send(result);
-                db.close();
+                if (result.ok)
+                    res.status(200).send(result.result);
+                else
+                    res.status(500).send(result.error);
                 return [2 /*return*/];
         }
     });
@@ -180,18 +189,19 @@ var create_continents_table = {
     args: []
 };
 // -------------------- INSERT CONTINENTS --------------------
-db_shortcut_router.get("/insertContinents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db, result;
+db_shortcut_router.get("/:db/insertContinents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                db = new DB_interface_1["default"]({
-                    connectionString: process.env.PROD_DB_URI
-                });
-                return [4 /*yield*/, db.query("INSERT INTO continents (id, it_name, en_name) VALUES \n    (0, 'Europa', 'Europe'), \n    (1, 'Asia', 'Asia'), \n    (2, 'Nord America', 'North America'), \n    (3, 'Sud America', 'South America'), \n    (4, 'Africa', 'Africa'), \n    (5, 'Oceania', 'Oceania'), \n    (6, 'Antartica', 'Antarctica');", [])];
+            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
+                    connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+                }).query("INSERT INTO continents (id, it_name, en_name) VALUES \n        (0, 'Europa', 'Europe'), \n        (1, 'Asia', 'Asia'), \n        (2, 'Nord America', 'North America'), \n        (3, 'Sud America', 'South America'), \n        (4, 'Africa', 'Africa'), \n        (5, 'Oceania', 'Oceania'), \n        (6, 'Antartica', 'Antarctica');", [])];
             case 1:
                 result = _a.sent();
-                res.status(200).send(result);
+                if (result.ok)
+                    res.status(200).send(result.result);
+                else
+                    res.status(500).send(result.error);
                 return [2 /*return*/];
         }
     });
@@ -202,12 +212,58 @@ var create_countries_table = {
     query: "CREATE TABLE IF NOT EXISTS Countries (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        real_name VARCHAR(50) NOT NULL,\n        it_name VARCHAR(50) DEFAULT NULL,\n        en_name VARCHAR(50) DEFAULT NULL,\n        iso_alpha_3 CHAR(3) UNIQUE NOT NULL,\n        fk_continent_id SMALLINT REFERENCES Continents\n            ON DELETE SET NULL\n            ON UPDATE CASCADE\n    );",
     args: []
 };
+db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(0, types_1.is_countries_body)(req.body)) return [3 /*break*/, 2];
+                return [4 /*yield*/, new DB_interface_1["default"]({
+                        connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+                    }).query("INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES\n            ($1, $2, $3, $4, $5);", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id])];
+            case 1:
+                result = _a.sent();
+                if (result.ok)
+                    res.status(200).send(result.result);
+                else
+                    res.status(500).send(result.error);
+                return [3 /*break*/, 3];
+            case 2:
+                res.status(400).send("Types not matching");
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 // -------------------- Cities table stuff --------------------
 // -------------------- CREATE CITIES TABLE --------------------
 var create_cities_table = {
     query: "CREATE TABLE IF NOT EXISTS Cities (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        real_name VARCHAR(50) NOT NULL,\n        it_name VARCHAR(50) DEFAULT NULL,\n        en_name VARCHAR(50) DEFAULT NULL,\n        rating SMALLINT DEFAULT NULL, \n        fk_country_id INTEGER REFERENCES Countries\n            ON DELETE CASCADE\n            ON UPDATE CASCADE\n    );",
     args: []
 };
+db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(0, types_1.is_cities_body)(req.body)) return [3 /*break*/, 2];
+                return [4 /*yield*/, new DB_interface_1["default"]({
+                        connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+                    }).query("INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES\n            ($1, $2, $3, $4, $5);", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.rating, req.body.fk_country_id])];
+            case 1:
+                result = _a.sent();
+                if (result.ok)
+                    res.status(200).send(result.result);
+                else
+                    res.status(500).send(result.error);
+                return [3 /*break*/, 3];
+            case 2:
+                res.status(400).send("Types not matching");
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 // -------------------- Languages table stuff --------------------
 // -------------------- CREATE LANGUAGES TABLE --------------------
 var create_languages_table = {
