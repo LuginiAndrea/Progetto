@@ -29,7 +29,7 @@ db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res
     if(result.ok) 
         res.status(200).send({
             table_name: req.params.table_name,
-            columns: result.result.rows.map(row => [row.column_name, row.data_type])
+            columns: result.result[0].rows.map(row => [row.column_name, row.data_type])
         });
     else
         res.status(500).send(result.error);

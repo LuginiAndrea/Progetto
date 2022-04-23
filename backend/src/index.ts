@@ -10,7 +10,6 @@ const app = express();
 
 app.use("/db_shortcuts", db_shortcut_router); // Remove this in production code
 
-
 app.get("/", (req, res) => {
     res.status(200).send("Hello World!");
 });

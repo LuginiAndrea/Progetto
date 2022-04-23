@@ -6,11 +6,9 @@ type DB_config = { //Add fields here if needed
 
 type DB_result = {
     ok: boolean;
-    result?: QueryResult<any> | null;
+    result?: Array<QueryResult<any>> | null;
     error?: string | null;
 }
-
-
 export default class DB_interface {
     private readonly credentials: DB_config;
     private pool : Pool;
@@ -58,10 +56,35 @@ export default class DB_interface {
         try {
             return {
                 ok: true,
-                result: await this.pool.query(query, params)
+                result: [await this.pool.query(query, params)]
             };
         } catch (error) {
             console.log(`On query ${query}:\n ${error}: ${error.code}`);
+            return {
+                ok: false,
+                error: error.code
+            };
+        }
+        finally {
+            if(close_connection) this.close();
+        }
+    }
+
+    async transiction(queries: string[], params: any[][], close_connection = true): Promise<DB_result> {
+        try {
+            let result = [];
+            await this.pool.query('BEGIN');
+            for(let i = 0; i < queries.length; i++) {
+                result.push(await this.pool.query(queries[i], params[i]));
+            }
+            await this.pool.query('COMMIT');
+            return {
+                ok: true,
+                result: result
+            };
+        } catch (error) {
+            console.log(`On transiction:\n ${error}: ${error.code}`);
+            await this.pool.query('ROLLBACK');
             return {
                 ok: false,
                 error: error.code
