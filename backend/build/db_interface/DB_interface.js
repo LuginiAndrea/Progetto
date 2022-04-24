@@ -47,51 +47,141 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+exports.get_db_uri = exports.types = exports.DB_interface = void 0;
 var pg_1 = require("pg");
+var types = require("./types");
+exports.types = types;
+var utils_1 = require("./utils");
+exports.get_db_uri = utils_1.get_db_uri;
 var DB_interface = /** @class */ (function () {
-    function DB_interface(credentials) {
+    function DB_interface(credentials, connect) {
+        if (connect === void 0) { connect = true; }
+        this.connection_status = false;
         this.credentials = credentials;
-        this.pool = new pg_1.Pool(__assign(__assign({}, this.credentials), { ssl: {
-                rejectUnauthorized: false
-            } })); //Connects to the DB
+        if (connect)
+            this.connect();
     }
-    DB_interface.prototype.query = function (query, params, close) {
-        if (close === void 0) { close = true; }
+    DB_interface.prototype.connect = function () {
+        if (this.connection_status)
+            return true; //if it is already connected do nothing
+        try {
+            this.pool = new pg_1.Pool(__assign(__assign({}, this.credentials), { ssl: {
+                    rejectUnauthorized: false
+                } })); //Connects to the DB
+            this.connection_status = true;
+        }
+        catch (error) {
+            console.log(error);
+            throw error;
+        }
+        finally {
+            return this.connection_status;
+        }
+    };
+    DB_interface.prototype.query = function (query, params, close_connection) {
+        if (close_connection === void 0) { close_connection = true; }
         return __awaiter(this, void 0, void 0, function () {
             var error_1;
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 2, 3, 4]);
+                        if (!this.connection_status) { //If the connection is not open return error code
+                            return [2 /*return*/, {
+                                    ok: false,
+                                    error: "0"
+                                }];
+                        }
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, 4, 5]);
                         _a = {
                             ok: true
                         };
                         return [4 /*yield*/, this.pool.query(query, params)];
-                    case 1: return [2 /*return*/, (_a.result = _b.sent(),
+                    case 2: return [2 /*return*/, (_a.result = [_b.sent()],
                             _a)];
-                    case 2:
+                    case 3:
                         error_1 = _b.sent();
                         console.log("On query ".concat(query, ":\n ").concat(error_1, ": ").concat(error_1.code));
                         return [2 /*return*/, {
                                 ok: false,
                                 error: error_1.code
                             }];
-                    case 3:
-                        if (close) {
-                            console.log("Closing");
+                    case 4:
+                        if (close_connection)
                             this.close();
-                        }
                         return [7 /*endfinally*/];
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
     };
-    // transaction(queries: string[], params: any[][]) {
+    DB_interface.prototype.transiction = function (queries, params, close_connection) {
+        if (close_connection === void 0) { close_connection = true; }
+        return __awaiter(this, void 0, void 0, function () {
+            var result, i, _a, _b, error_2;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (!this.connection_status) { //If the connection is not open return error code
+                            return [2 /*return*/, {
+                                    ok: false,
+                                    error: "0"
+                                }];
+                        }
+                        _c.label = 1;
+                    case 1:
+                        _c.trys.push([1, 8, 10, 11]);
+                        result = [];
+                        return [4 /*yield*/, this.pool.query('BEGIN')];
+                    case 2:
+                        _c.sent();
+                        i = 0;
+                        _c.label = 3;
+                    case 3:
+                        if (!(i < queries.length)) return [3 /*break*/, 6];
+                        _b = (_a = result).push;
+                        return [4 /*yield*/, this.pool.query(queries[i], params[i])];
+                    case 4:
+                        _b.apply(_a, [_c.sent()]);
+                        _c.label = 5;
+                    case 5:
+                        i++;
+                        return [3 /*break*/, 3];
+                    case 6: return [4 /*yield*/, this.pool.query('COMMIT')];
+                    case 7:
+                        _c.sent();
+                        return [2 /*return*/, {
+                                ok: true,
+                                result: result
+                            }];
+                    case 8:
+                        error_2 = _c.sent();
+                        console.log("On transiction:\n ".concat(error_2, ": ").concat(error_2.code));
+                        return [4 /*yield*/, this.pool.query('ROLLBACK')];
+                    case 9:
+                        _c.sent();
+                        return [2 /*return*/, {
+                                ok: false,
+                                error: error_2.code
+                            }];
+                    case 10:
+                        if (close_connection)
+                            this.close();
+                        return [7 /*endfinally*/];
+                    case 11: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    DB_interface.prototype.get_connect_status = function () {
+        return this.connection_status;
+    };
     DB_interface.prototype.close = function () {
         this.pool.end();
+        this.connection_status = false;
     };
     return DB_interface;
 }());
-exports["default"] = DB_interface;
+exports.DB_interface = DB_interface;

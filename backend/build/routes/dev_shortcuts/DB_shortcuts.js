@@ -44,10 +44,10 @@ exports.__esModule = true;
 var express_1 = require("express");
 var bodyParser = require("body-parser");
 var DB_interface_1 = require("../../db_interface/DB_interface");
-var types_1 = require("../../db_interface/types");
+var table_creates_1 = require("./table_creates");
 var db_shortcut_router = (0, express_1.Router)();
 var get_db_uri = function (req, res, next) {
-    res.locals.db_uri =
+    res.locals.DB_URI =
         (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI;
     next();
 };
@@ -60,15 +60,15 @@ db_shortcut_router.get("/:db/table_schema/:table_name", function (req, res) { re
         switch (_a.label) {
             case 0:
                 ;
-                return [4 /*yield*/, new DB_interface_1["default"]({
-                        connectionString: res.locals.db_uri
+                return [4 /*yield*/, new DB_interface_1.DB_interface({
+                        connectionString: res.locals.DB_URI
                     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name])];
             case 1:
                 result = _a.sent();
                 if (result.ok)
                     res.status(200).send({
                         table_name: req.params.table_name,
-                        columns: result.result.rows.map(function (row) { return [row.column_name, row.data_type]; })
+                        columns: result.result[0].rows.map(function (row) { return [row.column_name, row.data_type]; })
                     });
                 else
                     res.status(500).send(result.error);
@@ -81,8 +81,8 @@ db_shortcut_router.get("/:db/select_table/:table_name", function (req, res) { re
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
-                    connectionString: res.locals.db_uri
+            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
+                    connectionString: res.locals.DB_URI
                 }).query("SELECT * FROM ".concat(req.params.table_name), [])];
             case 1:
                 result = _a.sent();
@@ -99,8 +99,8 @@ db_shortcut_router.get("/:db/drop_table/:table_name", function (req, res) { retu
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
-                    connectionString: res.locals.db_uri
+            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
+                    connectionString: res.locals.DB_URI
                 }).query("DROP TABLE ".concat(req.params.table_name), [])];
             case 1:
                 result = _a.sent();
@@ -114,41 +114,30 @@ db_shortcut_router.get("/:db/drop_table/:table_name", function (req, res) { retu
 }); });
 // -------------------- CREATE TABLE --------------------
 db_shortcut_router.get("/:db/create_table/:table_name", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var table_name, db, table_arguments, table, _a, _b, _i, table, result;
+    var table_name, db, table, _a, _b, _i, table, result;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 table_name = req.params.table_name;
-                db = new DB_interface_1["default"]({
-                    connectionString: res.locals.db_uri
+                db = new DB_interface_1.DB_interface({
+                    connectionString: res.locals.DB_URI
                 });
-                table_arguments = {
-                    "continents": create_continents_table,
-                    "countries": create_countries_table,
-                    "cities": create_cities_table,
-                    "languages": create_languages_table,
-                    "users": create_users_table,
-                    "monuments": create_monuments_table,
-                    "visits": create_visits_table,
-                    "types_of_monuments": create_types_of_monuments_table,
-                    "monuments_types": create_monuments_types_table
-                };
                 if (!(table_name !== "all")) return [3 /*break*/, 2];
-                table = table_arguments[table_name];
-                return [4 /*yield*/, db.query(table.query, table.args)];
+                table = table_creates_1.table_arguments[table_name];
+                return [4 /*yield*/, db.query(table.query, table.args, false)];
             case 1:
                 _c.sent();
                 return [3 /*break*/, 6];
             case 2:
                 _a = [];
-                for (_b in table_arguments)
+                for (_b in table_creates_1.table_arguments)
                     _a.push(_b);
                 _i = 0;
                 _c.label = 3;
             case 3:
                 if (!(_i < _a.length)) return [3 /*break*/, 6];
                 table = _a[_i];
-                return [4 /*yield*/, db.query(table_arguments[table].query, table_arguments[table].args)];
+                return [4 /*yield*/, db.query(table_creates_1.table_arguments[table].query, table_creates_1.table_arguments[table].args, false)];
             case 4:
                 result = _c.sent();
                 if (!result.ok)
@@ -169,8 +158,8 @@ db_shortcut_router.get('/:db/db_schema', function (req, res) { return __awaiter(
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
-                    connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
+                    connectionString: res.locals.DB_URI
                 }).query("SELECT table_name FROM information_schema.tables \n        WHERE table_type != 'VIEW' \n        AND table_name NOT LIKE 'pg%'\n        AND table_name NOT LIKE 'sql%'\n        AND table_name NOT LIKE 'spatial%'", [])];
             case 1:
                 result = _a.sent();
@@ -182,19 +171,13 @@ db_shortcut_router.get('/:db/db_schema', function (req, res) { return __awaiter(
         }
     });
 }); });
-// -------------------- Continents table stuff --------------------
-// -------------------- CREATE CONTINENTS TABLE --------------------
-var create_continents_table = {
-    query: "CREATE TABLE IF NOT EXISTS Continents (\n        id SMALLINT PRIMARY KEY,\n        it_name VARCHAR(20),\n        en_name VARCHAR(20)\n    );",
-    args: []
-};
-// -------------------- INSERT CONTINENTS --------------------
+// -------------------- INSERTS --------------------
 db_shortcut_router.get("/:db/insertContinents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1["default"]({
-                    connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
+                    connectionString: res.locals.DB_URI
                 }).query("INSERT INTO continents (id, it_name, en_name) VALUES \n        (0, 'Europa', 'Europe'), \n        (1, 'Asia', 'Asia'), \n        (2, 'Nord America', 'North America'), \n        (3, 'Sud America', 'South America'), \n        (4, 'Africa', 'Africa'), \n        (5, 'Oceania', 'Oceania'), \n        (6, 'Antartica', 'Antarctica');", [])];
             case 1:
                 result = _a.sent();
@@ -206,20 +189,14 @@ db_shortcut_router.get("/:db/insertContinents", function (req, res) { return __a
         }
     });
 }); });
-// -------------------- Country table stuff --------------------
-// -------------------- CREATE COUNTRIES TABLE --------------------
-var create_countries_table = {
-    query: "CREATE TABLE IF NOT EXISTS Countries (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        real_name VARCHAR(50) NOT NULL,\n        it_name VARCHAR(50) DEFAULT NULL,\n        en_name VARCHAR(50) DEFAULT NULL,\n        iso_alpha_3 CHAR(3) UNIQUE NOT NULL,\n        fk_continent_id SMALLINT REFERENCES Continents\n            ON DELETE SET NULL\n            ON UPDATE CASCADE\n    );",
-    args: []
-};
 db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!(0, types_1.is_countries_body)(req.body)) return [3 /*break*/, 2];
-                return [4 /*yield*/, new DB_interface_1["default"]({
-                        connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+                if (!DB_interface_1.types.is_countries_body(req.body)) return [3 /*break*/, 2];
+                return [4 /*yield*/, new DB_interface_1.DB_interface({
+                        connectionString: res.locals.DB_URI
                     }).query("INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES\n            ($1, $2, $3, $4, $5);", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id])];
             case 1:
                 result = _a.sent();
@@ -235,69 +212,4 @@ db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), function (req
         }
     });
 }); });
-// -------------------- Cities table stuff --------------------
-// -------------------- CREATE CITIES TABLE --------------------
-var create_cities_table = {
-    query: "CREATE TABLE IF NOT EXISTS Cities (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        real_name VARCHAR(50) NOT NULL,\n        it_name VARCHAR(50) DEFAULT NULL,\n        en_name VARCHAR(50) DEFAULT NULL,\n        rating SMALLINT DEFAULT NULL, \n        fk_country_id INTEGER REFERENCES Countries\n            ON DELETE CASCADE\n            ON UPDATE CASCADE\n    );",
-    args: []
-};
-db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                if (!(0, types_1.is_cities_body)(req.body)) return [3 /*break*/, 2];
-                return [4 /*yield*/, new DB_interface_1["default"]({
-                        connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
-                    }).query("INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES\n            ($1, $2, $3, $4, $5);", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.rating, req.body.fk_country_id])];
-            case 1:
-                result = _a.sent();
-                if (result.ok)
-                    res.status(200).send(result.result);
-                else
-                    res.status(500).send(result.error);
-                return [3 /*break*/, 3];
-            case 2:
-                res.status(400).send("Types not matching");
-                _a.label = 3;
-            case 3: return [2 /*return*/];
-        }
-    });
-}); });
-// -------------------- Languages table stuff --------------------
-// -------------------- CREATE LANGUAGES TABLE --------------------
-var create_languages_table = {
-    query: "CREATE TABLE IF NOT EXISTS Languages (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        name VARCHAR(50) NOT NULL,\n        abbreviation CHAR(2) NOT NULL\n        );",
-    args: []
-};
-// -------------------- Users table stuff --------------------
-// -------------------- CREATE Users TABLE --------------------
-var create_users_table = {
-    query: "CREATE TABLE IF NOT EXISTS Users (\n        firebase_id INTEGER PRIMARY KEY,\n        fk_language_id INTEGER DEFAULT 0 REFERENCES Languages\n            ON DELETE SET DEFAULT\n            ON UPDATE CASCADE\n    );",
-    args: []
-};
-// -------------------- Monuments table stuff --------------------
-// -------------------- CREATE Monuments TABLE --------------------
-var create_monuments_table = {
-    query: "CREATE TABLE IF NOT EXISTS Monuments (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        real_name VARCHAR(50) NOT NULL, \n        it_name VARCHAR(50) DEFAULT NULL,\n        en_name VARCHAR(50) DEFAULT NULL,\n        coordinates GEOGRAPHY(POINT), \n        it_description TEXT DEFAULT NULL,\n        en_description TEXT DEFAULT NULL,\n        fk_city_id INTEGER REFERENCES Cities\n            ON DELETE CASCADE\n            ON UPDATE CASCADE\n    );",
-    args: []
-};
-// -------------------- Visits table stuff --------------------
-// -------------------- CREATE Visits TABLE --------------------
-var create_visits_table = {
-    query: "CREATE TABLE IF NOT EXISTS Visits ( \n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        rating SMALLINT NOT NULL, \n        private_description TEXT DEFAULT NULL,\n        date_time TIMESTAMP WITH TIME ZONE NOT NULL,\n        fk_user_id INTEGER REFERENCES Users\n            ON DELETE CASCADE\n            ON UPDATE CASCADE,\n        fk_monument_id INTEGER REFERENCES Monuments\n            ON DELETE CASCADE\n            ON UPDATE CASCADE\n    );",
-    args: []
-};
-// -------------------- Types of monuments table stuff --------------------
-// -------------------- CREATE Types_of_monuments TABLE --------------------
-var create_types_of_monuments_table = {
-    query: "CREATE TABLE IF NOT EXISTS Types_of_Monuments (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        real_name VARCHAR(50) NOT NULL, \n        it_name VARCHAR(50) DEFAULT NULL,\n        en_name VARCHAR(50) DEFAULT NULL,\n        it_description TEXT DEFAULT NULL,\n        en_description TEXT DEFAULT NULL,\n        period_start DATE NOT NULL,\n        period_end DATE DEFAULT NULL\n    );",
-    args: []
-};
-// -------------------- Monuments type table stuff --------------------
-// -------------------- CREATE Monuments_type TABLE --------------------
-var create_monuments_types_table = {
-    query: "CREATE TABLE IF NOT EXISTS Monuments_Types (\n        fk_monument_id INTEGER REFERENCES Monuments\n            ON DELETE CASCADE\n            ON UPDATE CASCADE,\n        fk_type_id INTEGER REFERENCES Types_of_Monuments\n            ON DELETE CASCADE\n            ON UPDATE CASCADE,\n        PRIMARY KEY (fk_monument_id, fk_type_id)\n    );",
-    args: []
-};
 exports["default"] = db_shortcut_router;

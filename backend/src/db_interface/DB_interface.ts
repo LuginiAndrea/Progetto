@@ -1,4 +1,6 @@
 import { Pool, QueryResult } from "pg";
+import * as types from "./types";
+import { get_db_uri } from "./utils";
 
 type DB_config = { //Add fields here if needed
     connectionString: string;
@@ -9,31 +11,20 @@ type DB_result = {
     result?: Array<QueryResult<any>> | null;
     error?: string | null;
 }
-export default class DB_interface {
+
+class DB_interface {
     private readonly credentials: DB_config;
     private pool : Pool;
     private connection_status: boolean = false;
 
     constructor(credentials: DB_config, connect = true) {
         this.credentials = credentials;
-        if(connect) {
-            try {
-                this.pool = new Pool({
-                    ...this.credentials,
-                    ssl: {
-                        rejectUnauthorized: false
-                    }
-                }); //Connects to the DB
-                this.connection_status = true;
-            }
-            catch(error) {
-                console.log(error);
-                throw error;
-            }
-        }
+        if(connect) 
+            this.connect();
     }
 
     connect(): boolean {
+        if(this.connection_status) return true; //if it is already connected do nothing
         try {
             this.pool = new Pool({
                 ...this.credentials,
@@ -53,6 +44,12 @@ export default class DB_interface {
     }
         
     async query(query: string, params: any[], close_connection = true): Promise<DB_result> { // String return = error code
+        if(!this.connection_status) { //If the connection is not open return error code
+            return {
+                ok: false,
+                error: "0"
+            };
+        }
         try {
             return {
                 ok: true,
@@ -71,6 +68,12 @@ export default class DB_interface {
     }
 
     async transiction(queries: string[], params: any[][], close_connection = true): Promise<DB_result> {
+        if(!this.connection_status) { //If the connection is not open return error code
+            return {
+                ok: false,
+                error: "0"
+            };
+        } 
         try {
             let result = [];
             await this.pool.query('BEGIN');
@@ -95,7 +98,7 @@ export default class DB_interface {
         }
     }
 
-    get connect_status(): boolean {
+    get_connect_status(): boolean {
         return this.connection_status;
     }
 
@@ -104,3 +107,5 @@ export default class DB_interface {
         this.connection_status = false;
     }
 }
+
+export { DB_interface, types, get_db_uri}

@@ -6,14 +6,13 @@
 
 import {Router, Request, Response} from 'express';
 import * as bodyParser from 'body-parser';
-import DB_interface from '../../db_interface/DB_interface';
-import { is_cities_body, is_countries_body } from '../../db_interface/types';
+import { DB_interface, types } from '../../db_interface/DB_interface';
 import { table_arguments } from "./table_creates";
 
 const db_shortcut_router: Router = Router();
 
 const get_db_uri = (req, res, next) => {
-    res.locals.db_uri = 
+    res.locals.DB_URI = 
         (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI;
     next();
 };
@@ -23,7 +22,7 @@ db_shortcut_router.use("/:db", get_db_uri);
 // -------------------- GET TABLE SCHEMA --------------------
 db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res: Response) => {;
     const result = await new DB_interface({
-        connectionString: res.locals.db_uri
+        connectionString: res.locals.DB_URI
     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name]);
 
     if(result.ok) 
@@ -37,7 +36,7 @@ db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res
 // -------------------- SELECT * --------------------
 db_shortcut_router.get("/:db/select_table/:table_name", async (req: Request, res: Response) => {
     const result = await new DB_interface({
-        connectionString: res.locals.db_uri
+        connectionString: res.locals.DB_URI
     }).query(`SELECT * FROM ${req.params.table_name}`, []);
     
     if(result.ok)
@@ -48,7 +47,7 @@ db_shortcut_router.get("/:db/select_table/:table_name", async (req: Request, res
 // -------------------- DROP TABLE --------------------
 db_shortcut_router.get("/:db/drop_table/:table_name", async (req: Request, res: Response) => {
     const result = await new DB_interface({
-        connectionString: res.locals.db_uri
+        connectionString: res.locals.DB_URI
     }).query(`DROP TABLE ${req.params.table_name}`, []);
 
     if(result.ok)
@@ -60,7 +59,7 @@ db_shortcut_router.get("/:db/drop_table/:table_name", async (req: Request, res: 
 db_shortcut_router.get("/:db/create_table/:table_name", async (req: Request, res: Response) => {
     const table_name: string = req.params.table_name;
     const db = new DB_interface({
-        connectionString: res.locals.db_uri
+        connectionString: res.locals.DB_URI
     });
     if(table_name !== "all") {
         const table = table_arguments[table_name];
@@ -79,7 +78,7 @@ db_shortcut_router.get("/:db/create_table/:table_name", async (req: Request, res
 // -------------------- GET DB SCHEMA --------------------
 db_shortcut_router.get('/:db/db_schema', async (req: Request, res: Response) => {
     const result = await new DB_interface({
-        connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+        connectionString: res.locals.DB_URI
     }).query(`SELECT table_name FROM information_schema.tables 
         WHERE table_type != 'VIEW' 
         AND table_name NOT LIKE 'pg%'
@@ -95,7 +94,7 @@ db_shortcut_router.get('/:db/db_schema', async (req: Request, res: Response) => 
 // -------------------- INSERTS --------------------
 db_shortcut_router.get("/:db/insertContinents", async (req, res) => {
     const result = await new DB_interface({
-        connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+        connectionString: res.locals.DB_URI
     }).query(
         `INSERT INTO continents (id, it_name, en_name) VALUES 
         (0, 'Europa', 'Europe'), 
@@ -113,9 +112,9 @@ db_shortcut_router.get("/:db/insertContinents", async (req, res) => {
 });
 
 db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), async (req, res) => {
-    if(is_countries_body(req.body)) {
+    if(types.is_countries_body(req.body)) {
         const result = await new DB_interface({
-            connectionString: (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI
+            connectionString: res.locals.DB_URI
         }).query(
             `INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES
             ($1, $2, $3, $4, $5);`, 
