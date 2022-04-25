@@ -1,5 +1,6 @@
+import { Request, Response, NextFunction } from "express";
 import { send_generic_error_email } from "../email/email";
-const get_db_uri = (req, res, next) => {
+const get_db_uri = (req: Request, res: Response, next: NextFunction) => {
     res.locals.DB_URI = process.env.DATABASE_URL || process.env.DEV_DB_URI;
     if(res.locals.DB_URI === undefined) {
         send_generic_error_email(

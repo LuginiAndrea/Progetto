@@ -1,19 +1,12 @@
-type table_args = {
-    query: string,
-    args: any[]
-};
-
-const create_continents_table : table_args=  {
-    query: `CREATE TABLE IF NOT EXISTS Continents (
+const create_continents_table =
+    `CREATE TABLE IF NOT EXISTS Continents (
         id SMALLINT PRIMARY KEY,
         it_name VARCHAR(20),
         en_name VARCHAR(20)
-    );`,
-    args: []
-};
+    );`;
 
-const create_countries_table : table_args =  {
-    query: `CREATE TABLE IF NOT EXISTS Countries (
+const create_countries_table = 
+    `CREATE TABLE IF NOT EXISTS Countries (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         real_name VARCHAR(50) NOT NULL,
         it_name VARCHAR(50) DEFAULT NULL,
@@ -22,12 +15,10 @@ const create_countries_table : table_args =  {
         fk_continent_id SMALLINT REFERENCES Continents
             ON DELETE SET NULL
             ON UPDATE CASCADE
-    );`,
-    args: []
-};
+    );`;
 
-const create_cities_table : table_args = {
-    query: `CREATE TABLE IF NOT EXISTS Cities (
+const create_cities_table =
+    `CREATE TABLE IF NOT EXISTS Cities (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         real_name VARCHAR(50) NOT NULL,
         it_name VARCHAR(50) DEFAULT NULL,
@@ -36,31 +27,25 @@ const create_cities_table : table_args = {
         fk_country_id INTEGER REFERENCES Countries
             ON DELETE CASCADE
             ON UPDATE CASCADE
-    );`,
-    args: []
-};
+    );`;
 
-const create_languages_table : table_args = {
-    query: `CREATE TABLE IF NOT EXISTS Languages (
+const create_languages_table =
+    `CREATE TABLE IF NOT EXISTS Languages (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         name VARCHAR(50) NOT NULL,
         abbreviation CHAR(2) NOT NULL
-        );`,
-    args: []
-};
+    );`;
 
-const create_users_table : table_args= {
-    query: `CREATE TABLE IF NOT EXISTS Users (
+const create_users_table =
+    `CREATE TABLE IF NOT EXISTS Users (
         firebase_id INTEGER PRIMARY KEY,
         fk_language_id INTEGER DEFAULT 0 REFERENCES Languages
             ON DELETE SET DEFAULT
             ON UPDATE CASCADE
-    );`,
-    args: []
-};
+    );`;
 
-const create_monuments_table : table_args = {
-    query: `CREATE TABLE IF NOT EXISTS Monuments (
+const create_monuments_table =
+    `CREATE TABLE IF NOT EXISTS Monuments (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         real_name VARCHAR(50) NOT NULL, 
         it_name VARCHAR(50) DEFAULT NULL,
@@ -71,12 +56,10 @@ const create_monuments_table : table_args = {
         fk_city_id INTEGER REFERENCES Cities
             ON DELETE CASCADE
             ON UPDATE CASCADE
-    );`,
-    args: []
-};
+    );`;
 
-const create_visits_table : table_args = {
-    query: `CREATE TABLE IF NOT EXISTS Visits ( 
+const create_visits_table =
+    `CREATE TABLE IF NOT EXISTS Visits ( 
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         rating SMALLINT NOT NULL, 
         private_description TEXT DEFAULT NULL,
@@ -87,12 +70,10 @@ const create_visits_table : table_args = {
         fk_monument_id INTEGER REFERENCES Monuments
             ON DELETE CASCADE
             ON UPDATE CASCADE
-    );`,
-    args: []
-};
+    );`;
 
-const create_types_of_monuments_table : table_args = {
-    query: `CREATE TABLE IF NOT EXISTS Types_of_Monuments (
+const create_types_of_monuments_table =
+    `CREATE TABLE IF NOT EXISTS Types_of_Monuments (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         real_name VARCHAR(50) NOT NULL, 
         it_name VARCHAR(50) DEFAULT NULL,
@@ -101,12 +82,10 @@ const create_types_of_monuments_table : table_args = {
         en_description TEXT DEFAULT NULL,
         period_start DATE NOT NULL,
         period_end DATE DEFAULT NULL
-    );`,
-    args: []
-};
+    );`;
 
-const create_monuments_types_table : table_args = {
-    query: `CREATE TABLE IF NOT EXISTS Monuments_Types (
+const create_monuments_types_table =
+    `CREATE TABLE IF NOT EXISTS Monuments_Types (
         fk_monument_id INTEGER REFERENCES Monuments
             ON DELETE CASCADE
             ON UPDATE CASCADE,
@@ -114,11 +93,9 @@ const create_monuments_types_table : table_args = {
             ON DELETE CASCADE
             ON UPDATE CASCADE,
         PRIMARY KEY (fk_monument_id, fk_type_id)
-    );`,
-    args: []
-};
+    );`;
 
-const table_arguments : Record<string, table_args> = {
+const table_arguments : Record<string, string> = {
     "continents": create_continents_table,
     "countries": create_countries_table,
     "cities": create_cities_table,

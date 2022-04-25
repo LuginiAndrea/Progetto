@@ -37,9 +37,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var express_1 = require("express");
-var DB_interface_1 = require("../../db_interface/DB_interface");
+var app_1 = require("../../app");
+var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var countries_router = (0, express_1.Router)();
-countries_router.get("/all_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+// Return whole info about country
+countries_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -48,15 +50,12 @@ countries_router.get("/all_countries", function (req, res) { return __awaiter(vo
                 }).query("SELECT * FROM countries", [])];
             case 1:
                 result = _a.sent();
-                if (result.ok)
-                    res.status(200).send(result.result[0].rows);
-                else
-                    res.status(500).send(result.error);
+                (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
 }); });
-countries_router.get("/single_countries/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.get("/list_single/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -65,32 +64,12 @@ countries_router.get("/single_countries/:country_id", function (req, res) { retu
                 }).query("SELECT * FROM countries WHERE id = $1", [req.params.country_id])];
             case 1:
                 result = _a.sent();
-                if (result.ok)
-                    res.status(200).send(result.result[0].rows);
-                else
-                    res.status(500).send(result.error);
+                (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
 }); });
-countries_router.get("/countries_in_continent/:continent_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM countries WHERE fk_continent_id = $1", [req.params.continent_id])];
-            case 1:
-                result = _a.sent();
-                if (result.ok)
-                    res.status(200).send(result.result[0].rows);
-                else
-                    res.status(500).send(result.error);
-                return [2 /*return*/];
-        }
-    });
-}); });
-countries_router.get("/country_by_iso_code/:country_iso_code", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.get("/list_single_by_iso_code/:country_iso_code", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -99,11 +78,82 @@ countries_router.get("/country_by_iso_code/:country_iso_code", function (req, re
                 }).query("SELECT * FROM countries WHERE iso_alpha_3 = $1", [req.params.country_iso_code])];
             case 1:
                 result = _a.sent();
-                if (result.ok)
-                    res.status(200).send(result.result[0].rows);
-                else
-                    res.status(500).send(result.error);
+                (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
+        }
+    });
+}); });
+// Return country id/s
+countries_router.get("/countries_in_continent/:continent_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
+                    connectionString: res.locals.DB_URI
+                }).query("SELECT id FROM countries WHERE fk_continent_id = $1", [req.params.continent_id])];
+            case 1:
+                result = _a.sent();
+                (0, app_1.send_json)(res, result);
+                return [2 /*return*/];
+        }
+    });
+}); });
+countries_router.get("/country_of_city/:city_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
+                    connectionString: res.locals.DB_URI
+                }).query("SELECT fk_country_id FROM Cities WHERE id = $1", [req.params.city_id])];
+            case 1:
+                result = _a.sent();
+                (0, app_1.send_json)(res, result);
+                return [2 /*return*/];
+        }
+    });
+}); });
+countries_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!DB_interface_1.req_types.is_countries_body(req.body)) return [3 /*break*/, 2];
+                return [4 /*yield*/, new DB_interface_1.DB_interface({
+                        connectionString: res.locals.DB_URI
+                    }).query("\n            INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES ($1, $2, $3, $4, $5)\n            RETURNING id;", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id])];
+            case 1:
+                result = _a.sent();
+                (0, app_1.send_json)(res, result);
+                return [3 /*break*/, 3];
+            case 2:
+                (0, app_1.send_json)(res, {
+                    error: "i_1"
+                });
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+countries_router.post("/delete", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(typeof req.body.id === "number")) return [3 /*break*/, 2];
+                return [4 /*yield*/, new DB_interface_1.DB_interface({
+                        connectionString: res.locals.DB_URI
+                    }).query("DELETE FROM Countries WHERE id = $1;", [req.body.id])];
+            case 1:
+                result = _a.sent();
+                console.log(result);
+                (0, app_1.send_json)(res, result);
+                return [3 /*break*/, 3];
+            case 2:
+                (0, app_1.send_json)(res, {
+                    error: "i_1"
+                });
+                _a.label = 3;
+            case 3: return [2 /*return*/];
         }
     });
 }); });

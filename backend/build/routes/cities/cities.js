@@ -39,14 +39,14 @@ exports.__esModule = true;
 var express_1 = require("express");
 var app_1 = require("../../app");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
-var continents_router = (0, express_1.Router)();
-continents_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+var cities_router = (0, express_1.Router)();
+cities_router.get("/all_cities", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
                     connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM continents", [])];
+                }).query("SELECT * FROM cities", [])];
             case 1:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
@@ -54,13 +54,13 @@ continents_router.get("/list_all", function (req, res) { return __awaiter(void 0
         }
     });
 }); });
-continents_router.get("/single_continent/:continent_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+cities_router.get("/single_city", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
                     connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM continents WHERE id = $1", [req.params.continent_id])];
+                }).query("SELECT * FROM cities WHERE id = $1", [req.params.city_id])];
             case 1:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
@@ -68,13 +68,13 @@ continents_router.get("/single_continent/:continent_id", function (req, res) { r
         }
     });
 }); });
-continents_router.get("/continent_of_country/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+cities_router.get("/cities_in_country/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
                     connectionString: res.locals.DB_URI
-                }).query("SELECT fk_continent_id FROM countries WHERE id = $1", [req.params.country_id])];
+                }).query("SELECT * FROM cities WHERE fk_country_id = $1", [req.params.country_id])];
             case 1:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
@@ -82,4 +82,4 @@ continents_router.get("/continent_of_country/:country_id", function (req, res) {
         }
     });
 }); });
-exports["default"] = continents_router;
+exports["default"] = cities_router;

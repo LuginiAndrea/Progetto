@@ -1,0 +1,1 @@
+declare module "nodemailer"; //Serves as dummy to not give error on nodemailer having no types

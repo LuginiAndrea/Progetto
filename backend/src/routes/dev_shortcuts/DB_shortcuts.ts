@@ -4,14 +4,16 @@
 // -------------------- In production also remove the SQL folder and the .env file. -------------- *
 // *************************************************************************************************
 
-import {Router, Request, Response} from 'express';
+import {Router, Request, Response, NextFunction} from 'express';
 import * as bodyParser from 'body-parser';
-import { DB_interface, types } from '../../db_interface/DB_interface';
+import { DB_interface, DB_result, req_types as types } from '../../logic/db_interface/DB_interface';
 import { table_arguments } from "./table_creates";
+import { index_arguments } from "./index_creates";
+import { send_json } from "../../app";
 
 const db_shortcut_router: Router = Router();
 
-const get_db_uri = (req, res, next) => {
+const get_db_uri = (req: Request, res: Response, next: NextFunction) => {
     res.locals.DB_URI = 
         (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI;
     next();
@@ -25,13 +27,12 @@ db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res
         connectionString: res.locals.DB_URI
     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name]);
 
-    if(result.ok) 
-        res.status(200).send({
+    send_json(res, result, (internal_result) => {
+        return {
             table_name: req.params.table_name,
-            columns: result.result[0].rows.map(row => [row.column_name, row.data_type])
-        });
-    else
-        res.status(500).send(result.error);
+            columns: internal_result[0].rows.map(row => [row.column_name, row.data_type])
+        }
+    });
 });    
 // -------------------- SELECT * --------------------
 db_shortcut_router.get("/:db/select_table/:table_name", async (req: Request, res: Response) => {
@@ -39,10 +40,7 @@ db_shortcut_router.get("/:db/select_table/:table_name", async (req: Request, res
         connectionString: res.locals.DB_URI
     }).query(`SELECT * FROM ${req.params.table_name}`, []);
     
-    if(result.ok)
-        res.status(200).send(result.result);
-    else
-        res.status(500).send(result.error);
+    send_json(res, result);
 });
 // -------------------- DROP TABLE --------------------
 db_shortcut_router.get("/:db/drop_table/:table_name", async (req: Request, res: Response) => {
@@ -50,10 +48,7 @@ db_shortcut_router.get("/:db/drop_table/:table_name", async (req: Request, res: 
         connectionString: res.locals.DB_URI
     }).query(`DROP TABLE ${req.params.table_name}`, []);
 
-    if(result.ok)
-        res.status(200).send(result.result);
-    else
-        res.status(500).send(result.error);
+    send_json(res, result);
 });
 // -------------------- CREATE TABLE --------------------
 db_shortcut_router.get("/:db/create_table/:table_name", async (req: Request, res: Response) => {
@@ -61,20 +56,44 @@ db_shortcut_router.get("/:db/create_table/:table_name", async (req: Request, res
     const db = new DB_interface({
         connectionString: res.locals.DB_URI
     });
+    let result : DB_result = {error: "no tables selected"};
     if(table_name !== "all") {
         const table = table_arguments[table_name];
-        await db.query(table.query, table.args, false);
-    } 
-    else 
+        result = await db.query(table, [], false);
+    }
+    else
         for(const table in table_arguments) {
-            const result = await db.query(table_arguments[table].query, table_arguments[table].args, false);
-            if(!result.ok)
-                res.status(500).send(result.error);
+            const single_result = await db.query(table_arguments[table], [], false);
+            if(!single_result.result) {
+                result = single_result
+                break;
+            }
         }
-    res.status(200).send("Created");
+    send_json(res, result);
     db.close();
 });
-
+// -------------------- CREATE INDEXES --------------------
+db_shortcut_router.get("/:db/create_indexes/:index_name", async (req: Request, res: Response) => {
+    const index_name: string = req.params.index_name;
+    const db = new DB_interface({
+        connectionString: res.locals.DB_URI
+    });
+    let result : DB_result = {error: "no indexes selected"};
+    if(index_name !== "all") {
+        const index = index_arguments[index_name];
+        result = await db.query(index, [], false);
+    }
+    else
+        for(const index in index_arguments) {
+            const single_result = await db.query(index_arguments[index], [], false);
+            if(!single_result.result) {
+                result = single_result
+                break;
+            }
+        }
+    send_json(res, result);
+    db.close();
+});
 // -------------------- GET DB SCHEMA --------------------
 db_shortcut_router.get('/:db/db_schema', async (req: Request, res: Response) => {
     const result = await new DB_interface({
@@ -85,10 +104,7 @@ db_shortcut_router.get('/:db/db_schema', async (req: Request, res: Response) => 
         AND table_name NOT LIKE 'sql%'
         AND table_name NOT LIKE 'spatial%'`, []
     );
-    if(result.ok)
-        res.status(200).send(result.result);
-    else
-        res.status(500).send(result.error);
+    send_json(res, result);
 });
 
 // -------------------- INSERTS --------------------
@@ -105,11 +121,18 @@ db_shortcut_router.get("/:db/insertContinents", async (req, res) => {
         (5, 'Oceania', 'Oceania'), 
         (6, 'Antartica', 'Antarctica');`, []
     );
-    if(result.ok)
-        res.status(200).send(result.result);
-    else
-        res.status(500).send(result.error);
+    send_json(res, result);
 });
+db_shortcut_router.get("/:db/insertAmericaCentrale", async (req, res) => {
+    const result = await new DB_interface({
+        connectionString: res.locals.DB_URI
+    }).query(
+        `INSERT INTO continents (id, it_name, en_name) VALUES 
+        (7, 'America Centrale', 'Central America');`, []
+    );
+    send_json(res, result);
+});
+
 
 db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), async (req, res) => {
     if(types.is_countries_body(req.body)) {
@@ -120,10 +143,7 @@ db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), async (req, r
             ($1, $2, $3, $4, $5);`, 
             [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id]
         );  
-        if(result.ok)
-            res.status(200).send(result.result);
-        else
-            res.status(500).send(result.error);
+        send_json(res, result);
     }
     else 
         res.status(400).send("Types not matching");
