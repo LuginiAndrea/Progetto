@@ -1,3 +1,5 @@
+// Check for problems when connecting to db
+// and in case send email
 import { Pool, QueryResult } from "pg";
 import * as req_types from "./types";
 import { get_db_uri } from "./utils";

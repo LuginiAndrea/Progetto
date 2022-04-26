@@ -1,6 +1,7 @@
 import {Router, Request, Response} from 'express';
 import { send_json } from '../../app';
-import { DB_interface, DB_result, req_types as types } from '../../logic/db_interface/DB_interface';
+import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
+import { get_language_of_user } from '../../logic/users/utils';
 
 const countries_router = Router();
 
@@ -31,9 +32,11 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req: R
 
 // Return country id/s
 countries_router.get("/countries_in_continent/:continent_id", async (req: Request, res: Response) => {
-    const result = await new DB_interface({
+    const db_interface = await new DB_interface({
         connectionString: res.locals.DB_URI
-    }).query("SELECT id FROM countries WHERE fk_continent_id = $1", [req.params.continent_id]);
+    });
+    let result = get_language_of_user(res.locals.uid, db_interface);
+    db_interface.query(`SELECT FROM countries WHERE fk_continent_id = $1`, [req.params.continent_id]);
 
     send_json(res, result);
 });

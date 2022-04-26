@@ -1,11 +1,14 @@
 import {Router, Request, Response} from 'express';
 import { send_json } from '../../app';
-import {DB_interface} from '../../logic/db_interface/DB_interface';
+import {DB_interface, req_types as types} from '../../logic/db_interface/DB_interface';
 
 const users_router: Router = Router();
     
 users_router.post("/create_user", async(req: Request, res: Response) => {
-    if(typeof req.body.fk_language_id === "number") {
+    if(types.is_users_body({
+        firebase_id: res.locals.uid,
+        ...req.body
+    })) {
         const result = await new DB_interface({
             connectionString: res.locals.DB_URI
         }).query(`INSERT INTO users (id, language) VALUES ($1, $2)`, [res.locals.uid, req.body.fk_language_id]);

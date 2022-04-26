@@ -28,4 +28,5 @@ continents_router.get("/continent_of_country/:country_id", async (req: Request, 
     send_json(res, result);
 });
 
+
 export default continents_router;

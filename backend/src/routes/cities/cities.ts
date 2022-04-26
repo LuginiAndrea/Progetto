@@ -28,4 +28,12 @@ cities_router.get("/cities_in_country/:country_id", async (req: Request, res: Re
     send_json(res, result);
 });
 
+cities_router.get("/city_of_monument/:monument_id", async (req: Request, res: Response) => {
+    const result = await new DB_interface({
+        connectionString: res.locals.DB_URI
+    }).query("SELECT fk_city_id FROM monuments WHERE id = $1", [req.params.monument_id]);
+
+    send_json(res, result);
+});
+
 export default cities_router;
