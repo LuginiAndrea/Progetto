@@ -7,37 +7,28 @@ const countries_router = Router();
 
 // Return whole info about country
 countries_router.get("/list_all", async (req: Request, res: Response) => {
-    const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const result = await db_interface.query("SELECT * FROM countries");
-
+    const result = await res.locals.DB_INTERFACE.query("SELECT * FROM countries");
     send_json(res, result);
 });
 
 countries_router.get("/list_single/:country_id", async (req: Request, res: Response) => {
-    const result = await new DB_interface({
-        connectionString: res.locals.DB_URI
-    }).query("SELECT * FROM countries WHERE id = $1", [req.params.country_id]);
-
+    const result = await res.locals.DB_INTERFACE.query("SELECT * FROM countries WHERE id = $1", [req.params.country_id]);
     send_json(res, result);
 });
 
 countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req: Request, res: Response) => {
-    const result = await new DB_interface({
-        connectionString: res.locals.DB_URI
-    }).query("SELECT * FROM countries WHERE iso_alpha_3 = $1", [req.params.country_iso_code]);
-
+    const result = await res.locals.DB_INTERFACE.query("SELECT * FROM countries WHERE iso_alpha_3 = $1", [req.params.country_iso_code]);
     send_json(res, result);
 });
 
-
-countries_router.get("/countries_in_continent/:continent_id", async (req: Request, res: Response) => {
+countries_router.get("/countries_in_continent", async (req: Request, res: Response) => { //Passes continent_id/s with it
     const db_interface = await new DB_interface({
         connectionString: res.locals.DB_URI
     });
     const language_of_user = await get_language_of_user(req, "1", db_interface);
-    
+
     const result = await db_interface.query(
-        `SELECT id, real_name, ${language_of_user}_name, iso_alpha_3 FROM countries WHERE fk_continent_id = $1`, [req.params.continent_id]
+        `SELECT id, real_name, ${language_of_user}_name, iso_alpha_3 FROM countries WHERE fk_continent_id IN ($1`, [req.params.continent_ids]
     );
     send_json(res, result);
 });
