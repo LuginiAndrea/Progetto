@@ -45,8 +45,7 @@ function is_languages_body(obj: any): obj is languages_body {
     return typeof obj.name === "string" &&
         obj.name.length <= 50 &&
         typeof obj.abbreviation === "string" &&
-        obj.abbreviation.length === 2 &&
-        typeof obj.fk_country_id === "number";
+        obj.abbreviation.length === 2;
 }
 
 type users_body = {

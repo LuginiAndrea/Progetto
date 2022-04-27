@@ -70,12 +70,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
+exports.validating_db_status = exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
+// Check for problems when connecting to db
+// and in case send email
 var pg_1 = require("pg");
+var email_1 = require("../email/email");
 var req_types = __importStar(require("./types"));
 exports.req_types = req_types;
 var utils_1 = require("./utils");
 exports.get_db_uri = utils_1.get_db_uri;
+exports.validating_db_status = utils_1.validating_db_status;
 var DB_interface = /** @class */ (function () {
     function DB_interface(credentials, connect) {
         if (connect === void 0) { connect = true; }
@@ -93,7 +97,7 @@ var DB_interface = /** @class */ (function () {
                 } })); //Connects to the DB
         }
         catch (error) {
-            console.log(error);
+            (0, email_1.send_generic_error_email)("Error in server", error + "Error code: ".concat(error.code));
             throw error;
         }
         finally {
@@ -101,7 +105,8 @@ var DB_interface = /** @class */ (function () {
         }
     };
     DB_interface.prototype.query = function (query, params, close_connection) {
-        if (close_connection === void 0) { close_connection = true; }
+        if (params === void 0) { params = []; }
+        if (close_connection === void 0) { close_connection = false; }
         return __awaiter(this, void 0, void 0, function () {
             var error_1;
             var _a;
@@ -121,6 +126,8 @@ var DB_interface = /** @class */ (function () {
                     case 3:
                         error_1 = _b.sent();
                         console.log("On query ".concat(query, ":\n ").concat(error_1, ": ").concat(error_1.code));
+                        if (error_1.code === "3D000")
+                            (0, email_1.send_generic_error_email)("Error in server", error_1 + "Error code 3D000");
                         return [2 /*return*/, {
                                 error: error_1.code
                             }];
@@ -134,7 +141,8 @@ var DB_interface = /** @class */ (function () {
         });
     };
     DB_interface.prototype.transiction = function (queries, params, close_connection) {
-        if (close_connection === void 0) { close_connection = true; }
+        if (params === void 0) { params = []; }
+        if (close_connection === void 0) { close_connection = false; }
         return __awaiter(this, void 0, void 0, function () {
             var result, i, _a, _b, error_2;
             return __generator(this, function (_c) {
@@ -157,7 +165,7 @@ var DB_interface = /** @class */ (function () {
                     case 3:
                         if (!(i < queries.length)) return [3 /*break*/, 6];
                         _b = (_a = result).push;
-                        return [4 /*yield*/, this.pool.query(queries[i], params[i])];
+                        return [4 /*yield*/, this.pool.query(queries[i], params[i] || [])];
                     case 4:
                         _b.apply(_a, [_c.sent()]);
                         _c.label = 5;
@@ -176,6 +184,8 @@ var DB_interface = /** @class */ (function () {
                         return [4 /*yield*/, this.pool.query('ROLLBACK')];
                     case 9:
                         _c.sent();
+                        if (error_2.code === "3D000")
+                            (0, email_1.send_generic_error_email)("Error in server", error_2 + "Error code 3D000");
                         return [2 /*return*/, {
                                 error: error_2.code
                             }];

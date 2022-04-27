@@ -1,15 +1,14 @@
 import {Router, Request, Response} from 'express';
 import { send_json } from '../../app';
-import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
+import { DB_interface, DB_result, req_types as types } from '../../logic/db_interface/DB_interface';
 import { get_language_of_user } from '../../logic/users/utils';
 
 const countries_router = Router();
 
 // Return whole info about country
 countries_router.get("/list_all", async (req: Request, res: Response) => {
-    const result = await new DB_interface({
-        connectionString: res.locals.DB_URI
-    }).query("SELECT * FROM countries", []);
+    const db_interface = res.locals.DB_INTERFACE as DB_interface;
+    const result = await db_interface.query("SELECT * FROM countries");
 
     send_json(res, result);
 });
@@ -30,14 +29,16 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req: R
     send_json(res, result);
 });
 
-// Return country id/s
+
 countries_router.get("/countries_in_continent/:continent_id", async (req: Request, res: Response) => {
     const db_interface = await new DB_interface({
         connectionString: res.locals.DB_URI
     });
-    let result = get_language_of_user(res.locals.uid, db_interface);
-    db_interface.query(`SELECT FROM countries WHERE fk_continent_id = $1`, [req.params.continent_id]);
-
+    const language_of_user = await get_language_of_user(req, "1", db_interface);
+    
+    const result = await db_interface.query(
+        `SELECT id, real_name, ${language_of_user}_name, iso_alpha_3 FROM countries WHERE fk_continent_id = $1`, [req.params.continent_id]
+    );
     send_json(res, result);
 });
 

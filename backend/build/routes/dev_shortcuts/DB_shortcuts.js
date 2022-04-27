@@ -282,4 +282,44 @@ db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), function (req
         }
     });
 }); });
+db_shortcut_router.post("/:db/InsertUser", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!DB_interface_1.req_types.is_users_body(req.body)) return [3 /*break*/, 2];
+                return [4 /*yield*/, new DB_interface_1.DB_interface({
+                        connectionString: res.locals.DB_URI
+                    }).query("INSERT INTO Users (firebase_id, fk_language_id) VALUES ($1, $2);", [req.body.firebase_id, req.body.fk_language_id])];
+            case 1:
+                result = _a.sent();
+                (0, app_1.send_json)(res, result);
+                return [3 /*break*/, 3];
+            case 2:
+                res.status(400).send("Types not matching");
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+db_shortcut_router.post("/:db/InsertLanguages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!DB_interface_1.req_types.is_languages_body(req.body)) return [3 /*break*/, 2];
+                return [4 /*yield*/, new DB_interface_1.DB_interface({
+                        connectionString: res.locals.DB_URI
+                    }).query("INSERT INTO Languages (name, abbreviation) VALUES ($1, $2);", [req.body.name, req.body.abbreviation])];
+            case 1:
+                result = _a.sent();
+                (0, app_1.send_json)(res, result);
+                return [3 /*break*/, 3];
+            case 2:
+                res.status(400).send("Types not matching");
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 exports["default"] = db_shortcut_router;

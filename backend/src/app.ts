@@ -10,14 +10,13 @@ import users_router from "./routes/users/users";
 import countries_router from "./routes/countries/countries";
 import continents_router from "./routes/continents/continents";
 import cities_router from "./routes/cities/cities";
-import { get_db_uri, DB_result, QueryResult } from "./logic/db_interface/DB_interface";
+import { validating_db_status, DB_result, QueryResult } from "./logic/db_interface/DB_interface";
 import { authenticate_user } from "./logic/users/utils";
 import bodyParser from "body-parser";
 
 const app = express();
-//Choose Database URI
-app.use(get_db_uri);
 
+app.use(validating_db_status);
 // Authenticate user
 app.use(bodyParser.json());
 app.use(authenticate_user)
@@ -35,13 +34,18 @@ app.get("/", (req, res) => {
 });
 
 
-const send_json = (res: express.Response, result: DB_result, processing_func?: (arg: Array<QueryResult<any>>) => Object) => {
+const send_json = (res: express.Response, result: DB_result | string, processing_func?: (arg: Array<QueryResult<any>>) => Object) => {
+    if(typeof result === "string")
+        result = {
+            error: result
+        } as DB_result;
+
     if (result.result) {
         if(processing_func === undefined) processing_func = (result) => { return result[0].rows; };
         res.status(200).send(processing_func(result.result));
     }
     else {
-        const status = (result.error?.startsWith("i")) ? 400 : 500;
+        const status = (result.error?.startsWith("i")) ? 500 : 400;
         res.status(status).send(result.error);
     }
 }

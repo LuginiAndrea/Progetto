@@ -149,4 +149,28 @@ db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), async (req, r
         res.status(400).send("Types not matching");
 });
 
+db_shortcut_router.post("/:db/InsertUser", async(req, res) => {
+    if(types.is_users_body(req.body)) {
+        const result = await new DB_interface({
+            connectionString: res.locals.DB_URI
+        }).query(`INSERT INTO Users (firebase_id, fk_language_id) VALUES ($1, $2);`, [req.body.firebase_id, req.body.fk_language_id]);
+        send_json(res, result);
+    }
+    else
+        res.status(400).send("Types not matching");
+});
+
+db_shortcut_router.post("/:db/InsertLanguages", async(req, res) => {
+    if(types.is_languages_body(req.body)) {
+        const result = await new DB_interface({
+            connectionString: res.locals.DB_URI
+        }).query(`INSERT INTO Languages (name, abbreviation) VALUES ($1, $2);`, [req.body.name, req.body.abbreviation]);
+        send_json(res, result);
+    }
+    else
+        res.status(400).send("Types not matching");
+});
+
+
+
 export default db_shortcut_router;

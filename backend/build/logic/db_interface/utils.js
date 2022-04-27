@@ -1,14 +1,21 @@
 "use strict";
 exports.__esModule = true;
-exports.get_db_uri = void 0;
-var email_1 = require("../email/email");
-var get_db_uri = function (req, res, next) {
-    res.locals.DB_URI = process.env.DATABASE_URL || process.env.DEV_DB_URI;
-    if (res.locals.DB_URI === undefined) {
-        (0, email_1.send_generic_error_email)("Error connecting to Database", "Can't connect to Database: Database URL is undefined");
-        res.status(500).send("Can't connect to Database");
-    }
+exports.validating_db_status = exports.get_db_uri = void 0;
+var app_1 = require("../../app");
+var get_db_uri = function () {
+    var DB_URI = process.env.DATABASE_URL || process.env.DEV_DB_URI;
+    if (!DB_URI)
+        throw Error("Can't connect to Database: Database URL is ".concat(DB_URI));
     else
-        next();
+        return DB_URI;
 };
 exports.get_db_uri = get_db_uri;
+var validating_db_status = function (req, res, next) {
+    if (!app_1.app.locals.DEFAULT_DB_INTERFACE)
+        res.status(500).send("Database is not available");
+    else {
+        res.locals.DB_INTERFACE = app_1.app.locals.DEFAULT_DB_INTERFACE;
+        next();
+    }
+};
+exports.validating_db_status = validating_db_status;

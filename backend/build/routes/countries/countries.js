@@ -39,15 +39,16 @@ exports.__esModule = true;
 var express_1 = require("express");
 var app_1 = require("../../app");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
+var utils_1 = require("../../logic/users/utils");
 var countries_router = (0, express_1.Router)();
 // Return whole info about country
 countries_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var db_interface, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM countries", [])];
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query("SELECT * FROM countries")];
             case 1:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
@@ -83,15 +84,20 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", function (req
         }
     });
 }); });
-// Return country id/s
 countries_router.get("/countries_in_continent/:continent_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var db_interface, language_of_user, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
                     connectionString: res.locals.DB_URI
-                }).query("SELECT id FROM countries WHERE fk_continent_id = $1", [req.params.continent_id])];
+                })];
             case 1:
+                db_interface = _a.sent();
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, "1", db_interface)];
+            case 2:
+                language_of_user = _a.sent();
+                return [4 /*yield*/, db_interface.query("SELECT id, real_name, ".concat(language_of_user, "_name, iso_alpha_3 FROM countries WHERE fk_continent_id = $1"), [req.params.continent_id])];
+            case 3:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
