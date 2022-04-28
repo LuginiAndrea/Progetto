@@ -27,7 +27,7 @@ db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res
         connectionString: res.locals.DB_URI
     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name]);
 
-    send_json(res, result, (internal_result) => {
+    send_json(res, result, undefined, (internal_result) => {
         return {
             table_name: req.params.table_name,
             columns: internal_result[0].rows.map(row => [row.column_name, row.data_type])

@@ -7,7 +7,8 @@ app.listen(process.env.PORT || 8080, () => { // On start connect to Database
         app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
             connectionString: get_db_uri()
         }, true);
-    } catch (error) {
+    } 
+    catch (error) {
         send_generic_error_email("Error initializing database: ", error);
         app.locals.DEFAULT_DB_INTERFACE = null;
     }

@@ -1,9 +1,8 @@
-// Check for problems when connecting to db
-// and in case send email
 import { Pool, QueryResult } from "pg";
 import { send_generic_error_email } from "../email/email";
 import * as req_types from "./types";
-import { get_db_uri, validating_db_status } from "./utils";
+import { get_db_uri, validating_db_status, error_codes } from "./utils";
+
 
 type DB_config = { //Add fields here if needed
     connectionString: string;
@@ -46,7 +45,7 @@ class DB_interface {
     async query(query: string, params: any[] = [], close_connection = false): Promise<DB_result> { // String return = error code
         if(!this.pool) { //If the connection is not open return error code
             return {
-                error: "i_0"
+                error: error_codes.no_db_connection
             };
         }
         else {
@@ -54,7 +53,8 @@ class DB_interface {
                 return {
                     result: [await this.pool.query(query, params)]
                 };
-            } catch (error) {
+            } 
+            catch (error) {
                 console.log(`On query ${query}:\n ${error}: ${error.code}`);
                 if(error.code === "3D000") send_generic_error_email("Error in server", error + "Error code 3D000");
                 return {
@@ -70,7 +70,7 @@ class DB_interface {
     async transiction(queries: string[], params: any[][] = [], close_connection = false): Promise<DB_result> {
         if(!this.pool) { //If the connection is not open return error code
             return {
-                error: "i_0"
+                error: error_codes.no_db_connection
             };
         } 
         try {
@@ -83,7 +83,8 @@ class DB_interface {
             return {
                 result: result
             };
-        } catch (error) {
+        } 
+        catch (error) {
             console.log(`On transiction:\n ${error}: ${error.code}`);
             await this.pool.query('ROLLBACK');
                 if(error.code === "3D000") send_generic_error_email("Error in server", error + "Error code 3D000");
@@ -107,4 +108,4 @@ class DB_interface {
     }
 }
 
-export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validating_db_status};
+export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validating_db_status, error_codes};

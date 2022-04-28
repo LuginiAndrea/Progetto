@@ -70,9 +70,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.validating_db_status = exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
-// Check for problems when connecting to db
-// and in case send email
+exports.error_codes = exports.validating_db_status = exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
 var pg_1 = require("pg");
 var email_1 = require("../email/email");
 var req_types = __importStar(require("./types"));
@@ -80,6 +78,7 @@ exports.req_types = req_types;
 var utils_1 = require("./utils");
 exports.get_db_uri = utils_1.get_db_uri;
 exports.validating_db_status = utils_1.validating_db_status;
+exports.error_codes = utils_1.error_codes;
 var DB_interface = /** @class */ (function () {
     function DB_interface(credentials, connect) {
         if (connect === void 0) { connect = true; }
@@ -115,7 +114,7 @@ var DB_interface = /** @class */ (function () {
                     case 0:
                         if (!!this.pool) return [3 /*break*/, 1];
                         return [2 /*return*/, {
-                                error: "i_0"
+                                error: utils_1.error_codes.no_db_connection
                             }];
                     case 1:
                         _b.trys.push([1, 3, 4, 5]);
@@ -150,7 +149,7 @@ var DB_interface = /** @class */ (function () {
                     case 0:
                         if (!this.pool) { //If the connection is not open return error code
                             return [2 /*return*/, {
-                                    error: "i_0"
+                                    error: utils_1.error_codes.no_db_connection
                                 }];
                         }
                         _c.label = 1;

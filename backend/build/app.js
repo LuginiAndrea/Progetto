@@ -32,7 +32,7 @@ app.use("/cities", cities_1["default"]);
 app.get("/", function (req, res) {
     res.status(200).send("Hello World!");
 });
-var send_json = function (res, result, processing_func) {
+function send_json(res, result, statusCode, processing_func) {
     var _a;
     if (typeof result === "string")
         result = {
@@ -41,11 +41,11 @@ var send_json = function (res, result, processing_func) {
     if (result.result) {
         if (processing_func === undefined)
             processing_func = function (result) { return result[0].rows; };
-        res.status(200).send(processing_func(result.result));
+        res.status(statusCode || 200).send(processing_func(result.result));
     }
     else {
         var status_1 = ((_a = result.error) === null || _a === void 0 ? void 0 : _a.startsWith("i")) ? 500 : 400;
-        res.status(status_1).send(result.error);
+        res.status(statusCode || status_1).send({ error: result.error });
     }
-};
+}
 exports.send_json = send_json;

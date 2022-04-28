@@ -1,18 +1,25 @@
 import { Response, Request, NextFunction } from "express";
 import { DB_interface } from "../db_interface/DB_interface";
-const authenticate_user = (req: Request, res: Response, next: NextFunction) => {
+
+async function authenticate_user (req: Request, res: Response, next: NextFunction) {
     // Authenticate user with firebase admin
-    // puts the user UID in res.locals.uid
-    res.locals.uid = "";
-    console.log("Authenticated user");
+    // puts the user UID in res.locals.UID
+    // also puts in user.role the role of the user
+    res.locals.UID = req.headers.authorization || "1234";
+    // console.log(res.locals.UID);
+    if(res.locals.UID === "111")
+        res.locals.role = "admin";
+    else
+        res.locals.role = "user";
+    // console.log("Authenticated user");
     next();
 }
 
 //Implementare lettura dall'header della risposta
 // nel caso sia presente 
 
-const get_language_of_user = async (req: Request, uid: string, db_instance: DB_interface) : Promise<string> => {
-    // The user uid is in res.locals.uid
+async function get_language_of_user (req: Request, uid: string, db_instance: DB_interface) : Promise<string>{
+    // The user uid is in res.locals.UID
     // Finish to check this
     if(req.headers["accept-language"] === "*") return "*";
     const result = await db_instance.query(

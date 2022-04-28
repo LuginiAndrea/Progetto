@@ -3,25 +3,37 @@ import { send_json } from '../../app';
 import {DB_interface, req_types as types} from '../../logic/db_interface/DB_interface';
 
 const users_router: Router = Router();
+
+const error_codes = {
+    "no_compatible_insert_body": "users_2",
+}
     
 users_router.post("/create_user", async(req: Request, res: Response) => {
-    if(types.is_users_body({
-        firebase_id: res.locals.uid,
-        ...req.body
-    })) {
-        const result = await new DB_interface({
-            connectionString: res.locals.DB_URI
-        }).query(`INSERT INTO users (id, language) VALUES ($1, $2)`, [res.locals.uid, req.body.fk_language_id]);
-        send_json(res, result);        
+    if(res.locals.role !== "admin") 
+        send_json(res, {
+            error: "Unauthorized",
+        }, 401);
+    else {
+        const data = {
+            firebase_id: res.locals.UID,
+            ...req.body
+        }
+        if(types.is_users_body(data)) {
+            const db_interface = res.locals.DB_INTERFACE as DB_interface;
+            const result = await db_interface.query(`INSERT INTO users (id, language) VALUES ($1, $2)`, [res.locals.UID, req.body.fk_language_id]);
+            send_json(res, result);        
+        }
+        send_json(res, {
+            error: error_codes.no_compatible_insert_body
+        });
     }
-    res.status(400).send("Fk_language_id is not a number");
 });
 
 
 users_router.get("/visited_monuments", async(req: Request, res: Response) => {
     const result = await new DB_interface({
         connectionString: res.locals.DB_URI
-    }).query(`SELECT DISTINCT fk_monument_id FROM visited_monuments WHERE fk_user_id = $1`, [res.locals.uid]);
+    }).query(`SELECT DISTINCT fk_monument_id FROM visited_monuments WHERE fk_user_id = $1`, [res.locals.UID]);
 });
 
 

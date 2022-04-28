@@ -66,7 +66,7 @@ var OAuth2 = googleapis_1.google.auth.OAuth2;
 // Creates a transporter object that can be used to send emails
 // Works like a charm, so don't touch it
 var createTransporter = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var oauth2Client, accessToken, transporter;
+    var oauth2Client, accessToken;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -84,36 +84,37 @@ var createTransporter = function () { return __awaiter(void 0, void 0, void 0, f
                     })];
             case 1:
                 accessToken = _a.sent();
-                transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                        type: "OAuth2",
-                        user: process.env.EMAIL,
-                        accessToken: accessToken,
-                        clientId: process.env.OAUTH_CLIENT_ID,
-                        clientSecret: process.env.OAUTH_CLIENT_SECRET,
-                        refreshToken: process.env.OAUTH_REFRESH_TOKEN
-                    }
-                });
-                return [2 /*return*/, transporter];
+                return [2 /*return*/, nodemailer.createTransport({
+                        service: "gmail",
+                        auth: {
+                            type: "OAuth2",
+                            user: process.env.EMAIL,
+                            accessToken: accessToken,
+                            clientId: process.env.OAUTH_CLIENT_ID,
+                            clientSecret: process.env.OAUTH_CLIENT_SECRET,
+                            refreshToken: process.env.OAUTH_REFRESH_TOKEN
+                        }
+                    })];
         }
     });
 }); };
-var send_generic_error_email = function (subject, body) { return __awaiter(void 0, void 0, void 0, function () {
-    var transporter;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, createTransporter()];
-            case 1:
-                transporter = _a.sent();
-                transporter.sendMail({
-                    from: process.env.EMAIL,
-                    to: process.env.EMAIL,
-                    subject: subject,
-                    text: body
-                });
-                return [2 /*return*/];
-        }
+function send_generic_error_email(subject, body) {
+    return __awaiter(this, void 0, void 0, function () {
+        var transporter;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, createTransporter()];
+                case 1:
+                    transporter = _a.sent();
+                    transporter.sendMail({
+                        from: process.env.EMAIL,
+                        to: process.env.EMAIL,
+                        subject: subject,
+                        text: body
+                    });
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
 exports.send_generic_error_email = send_generic_error_email;

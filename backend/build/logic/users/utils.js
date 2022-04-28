@@ -37,31 +37,44 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.get_language_of_user = exports.authenticate_user = void 0;
-var authenticate_user = function (req, res, next) {
-    // Authenticate user with firebase admin
-    // puts the user UID in res.locals.uid
-    res.locals.uid = "";
-    console.log("Authenticated user");
-    next();
-};
+function authenticate_user(req, res, next) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            // Authenticate user with firebase admin
+            // puts the user UID in res.locals.UID
+            // also puts in user.role the role of the user
+            res.locals.UID = req.headers.authorization || "1234";
+            // console.log(res.locals.UID);
+            if (res.locals.UID === "111")
+                res.locals.role = "admin";
+            else
+                res.locals.role = "user";
+            // console.log("Authenticated user");
+            next();
+            return [2 /*return*/];
+        });
+    });
+}
 exports.authenticate_user = authenticate_user;
 //Implementare lettura dall'header della risposta
 // nel caso sia presente 
-var get_language_of_user = function (req, uid, db_instance) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+function get_language_of_user(req, uid, db_instance) {
     var _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                // The user uid is in res.locals.uid
-                // Finish to check this
-                if (req.headers["accept-language"] === "*")
-                    return [2 /*return*/, "*"];
-                return [4 /*yield*/, db_instance.query("SELECT abbreviation FROM Languages\n        WHERE id = (SELECT fk_language_id FROM Users WHERE firebase_id = $1)", [uid])];
-            case 1:
-                result = _c.sent();
-                return [2 /*return*/, ((_b = (_a = result.result) === null || _a === void 0 ? void 0 : _a[0].rows[0]) === null || _b === void 0 ? void 0 : _b.abbreviation) || "en"]; //return abbreviation or "en"
-        }
+    return __awaiter(this, void 0, void 0, function () {
+        var result;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    // The user uid is in res.locals.UID
+                    // Finish to check this
+                    if (req.headers["accept-language"] === "*")
+                        return [2 /*return*/, "*"];
+                    return [4 /*yield*/, db_instance.query("SELECT abbreviation FROM Languages\n        WHERE id = (SELECT fk_language_id FROM Users WHERE firebase_id = $1)", [uid])];
+                case 1:
+                    result = _c.sent();
+                    return [2 /*return*/, ((_b = (_a = result.result) === null || _a === void 0 ? void 0 : _a[0].rows[0]) === null || _b === void 0 ? void 0 : _b.abbreviation) || "en"]; //return abbreviation or "en"
+            }
+        });
     });
-}); };
+}
 exports.get_language_of_user = get_language_of_user;

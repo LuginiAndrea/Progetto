@@ -24,7 +24,7 @@ const createTransporter = async () => {
         });
     });
 
-    const transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
         service: "gmail",
         auth: {
             type: "OAuth2",
@@ -35,11 +35,10 @@ const createTransporter = async () => {
             refreshToken: process.env.OAUTH_REFRESH_TOKEN
         }
     });
-    return transporter;
 };
 
 
-const send_generic_error_email = async (subject:string, body: string) => {
+async function send_generic_error_email (subject:string, body: string) {
     const transporter = await createTransporter();
     transporter.sendMail({
         from: process.env.EMAIL,

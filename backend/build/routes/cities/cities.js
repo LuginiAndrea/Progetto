@@ -41,16 +41,21 @@ var utils_1 = require("../../logic/users/utils");
 var app_1 = require("../../app");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var cities_router = (0, express_1.Router)();
+function exclude_fields_by_language(language) {
+    return DB_interface_1.req_types.get_continents_fields(function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); });
+}
+/************************************** GET ***************************************************/
 cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, language_of_user, result;
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, "1", db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
-                return [4 /*yield*/, db_interface.query("SELECT id, real_name, ".concat(language_of_user, "_name, rating, fk_country_id FROM Cities"))];
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities"))];
             case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
@@ -58,14 +63,18 @@ cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, vo
         }
     });
 }); });
-cities_router.get("/list_single", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+cities_router.get("/list_single/:city_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM cities WHERE id = $1", [req.params.city_id])];
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
+                language_of_user = _a.sent();
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE id = $1"), [req.params.city_id])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
@@ -73,13 +82,17 @@ cities_router.get("/list_single", function (req, res) { return __awaiter(void 0,
     });
 }); });
 cities_router.get("/cities_in_country/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM cities WHERE fk_country_id = $1", [req.params.country_id])];
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
+                language_of_user = _a.sent();
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE fk_country_id = $1"), [req.params.country_id])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
@@ -87,17 +100,22 @@ cities_router.get("/cities_in_country/:country_id", function (req, res) { return
     });
 }); });
 cities_router.get("/city_of_monument/:monument_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT fk_city_id FROM monuments WHERE id = $1", [req.params.monument_id])];
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
+                language_of_user = _a.sent();
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE id = (SELECT fk_city_id FROM Monuments WHERE id = $1)"), [req.params.monument_id])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
 }); });
+// cities_router.post("/add_city", async (req: Request, res: Response) => {
 exports["default"] = cities_router;

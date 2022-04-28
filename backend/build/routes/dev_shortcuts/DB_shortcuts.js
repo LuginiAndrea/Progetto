@@ -90,7 +90,7 @@ db_shortcut_router.get("/:db/table_schema/:table_name", function (req, res) { re
                     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result, function (internal_result) {
+                (0, app_1.send_json)(res, result, undefined, function (internal_result) {
                     return {
                         table_name: req.params.table_name,
                         columns: internal_result[0].rows.map(function (row) { return [row.column_name, row.data_type]; })

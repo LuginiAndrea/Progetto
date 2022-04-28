@@ -51,22 +51,34 @@ var express_1 = require("express");
 var app_1 = require("../../app");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var users_router = (0, express_1.Router)();
+var error_codes = {
+    "no_compatible_insert_body": "users_2"
+};
 users_router.post("/create_user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var data, db_interface, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!DB_interface_1.req_types.is_users_body(__assign({ firebase_id: res.locals.uid }, req.body))) return [3 /*break*/, 2];
-                return [4 /*yield*/, new DB_interface_1.DB_interface({
-                        connectionString: res.locals.DB_URI
-                    }).query("INSERT INTO users (id, language) VALUES ($1, $2)", [res.locals.uid, req.body.fk_language_id])];
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, app_1.send_json)(res, {
+                    error: "Unauthorized"
+                }, 401);
+                return [3 /*break*/, 4];
             case 1:
+                data = __assign({ firebase_id: res.locals.UID }, req.body);
+                if (!DB_interface_1.req_types.is_users_body(data)) return [3 /*break*/, 3];
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query("INSERT INTO users (id, language) VALUES ($1, $2)", [res.locals.UID, req.body.fk_language_id])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
-                _a.label = 2;
-            case 2:
-                res.status(400).send("Fk_language_id is not a number");
-                return [2 /*return*/];
+                _a.label = 3;
+            case 3:
+                (0, app_1.send_json)(res, {
+                    error: error_codes.no_compatible_insert_body
+                });
+                _a.label = 4;
+            case 4: return [2 /*return*/];
         }
     });
 }); });
@@ -76,7 +88,7 @@ users_router.get("/visited_monuments", function (req, res) { return __awaiter(vo
         switch (_a.label) {
             case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
                     connectionString: res.locals.DB_URI
-                }).query("SELECT DISTINCT fk_monument_id FROM visited_monuments WHERE fk_user_id = $1", [res.locals.uid])];
+                }).query("SELECT DISTINCT fk_monument_id FROM visited_monuments WHERE fk_user_id = $1", [res.locals.UID])];
             case 1:
                 result = _a.sent();
                 return [2 /*return*/];

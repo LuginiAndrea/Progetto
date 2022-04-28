@@ -41,15 +41,28 @@ var app_1 = require("../../app");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var utils_1 = require("../../logic/users/utils");
 var countries_router = (0, express_1.Router)();
+function exclude_fields_by_language(language) {
+    return DB_interface_1.req_types.get_countries_fields(function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); });
+}
+var error_codes = {
+    "no_continent_ids": "countries_1",
+    "no_city_id": "countries_2",
+    "no_compatible_insert_body": "countries_3"
+};
+/************************************** GET ***************************************************/
 // Return whole info about country
 countries_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, result;
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, db_interface.query("SELECT * FROM countries")];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
+                language_of_user = _a.sent();
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries"))];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
@@ -57,13 +70,17 @@ countries_router.get("/list_all", function (req, res) { return __awaiter(void 0,
     });
 }); });
 countries_router.get("/list_single/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM countries WHERE id = $1", [req.params.country_id])];
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
+                language_of_user = _a.sent();
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries WHERE id = $1"), [req.params.country_id])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
@@ -71,93 +88,113 @@ countries_router.get("/list_single/:country_id", function (req, res) { return __
     });
 }); });
 countries_router.get("/list_single_by_iso_code/:country_iso_code", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT * FROM countries WHERE iso_alpha_3 = $1", [req.params.country_iso_code])];
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
+                language_of_user = _a.sent();
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries WHERE iso_alpha_3 = $1"), [req.params.country_iso_code])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
 }); });
-countries_router.get("/countries_in_continent/:continent_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, language_of_user, result;
+countries_router.get("/countries_in_continents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                })];
+            case 0:
+                if (!req.query.continent_ids) return [3 /*break*/, 3];
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
-                db_interface = _a.sent();
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, "1", db_interface)];
-            case 2:
                 language_of_user = _a.sent();
-                return [4 /*yield*/, db_interface.query("SELECT id, real_name, ".concat(language_of_user, "_name, iso_alpha_3 FROM countries WHERE fk_continent_id = $1"), [req.params.continent_id])];
-            case 3:
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries WHERE fk_continent_id = ANY ($1)"), [req.query.continent_ids.split(",")])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
-                return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 3:
+                (0, app_1.send_json)(res, {
+                    error: error_codes.no_continent_ids
+                });
+                _a.label = 4;
+            case 4: return [2 /*return*/];
         }
     });
 }); });
 countries_router.get("/country_of_city/:city_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
+    var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
-                    connectionString: res.locals.DB_URI
-                }).query("SELECT fk_country_id FROM Cities WHERE id = $1", [req.params.city_id])];
+            case 0:
+                if (!req.query.city_id) return [3 /*break*/, 3];
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
+                language_of_user = _a.sent();
+                fields = exclude_fields_by_language(language_of_user);
+                return [4 /*yield*/, db_interface.query("\n            SELECT ".concat(fields, " FROM Countries \n            WHERE id = (\n                SELECT fk_country_id FROM Cities WHERE id = $1\n            )"), [req.query.city_id])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
-                return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 3:
+                (0, app_1.send_json)(res, {
+                    error: error_codes.no_city_id
+                });
+                _a.label = 4;
+            case 4: return [2 /*return*/];
         }
     });
 }); });
-countries_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.post("/insert_single", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!DB_interface_1.req_types.is_countries_body(req.body)) return [3 /*break*/, 2];
-                return [4 /*yield*/, new DB_interface_1.DB_interface({
-                        connectionString: res.locals.DB_URI
-                    }).query("\n            INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES ($1, $2, $3, $4, $5)\n            RETURNING id;", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id])];
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, app_1.send_json)(res, {
+                    error: "Unauthorized"
+                }, 401);
+                return [3 /*break*/, 4];
             case 1:
+                if (!DB_interface_1.req_types.is_countries_body(req.body)) return [3 /*break*/, 3];
+                return [4 /*yield*/, res.locals.DB_INTERFACE.query("\n            INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES ($1, $2, $3, $4, $5)\n            RETURNING id;", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id])];
+            case 2:
                 result = _a.sent();
                 (0, app_1.send_json)(res, result);
-                return [3 /*break*/, 3];
-            case 2:
+                return [3 /*break*/, 4];
+            case 3:
                 (0, app_1.send_json)(res, {
-                    error: "i_1"
+                    error: error_codes.no_compatible_insert_body
                 });
-                _a.label = 3;
-            case 3: return [2 /*return*/];
+                _a.label = 4;
+            case 4: return [2 /*return*/];
         }
     });
 }); });
-countries_router.post("/delete", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.post("/delete/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!(typeof req.body.id === "number")) return [3 /*break*/, 2];
-                return [4 /*yield*/, new DB_interface_1.DB_interface({
-                        connectionString: res.locals.DB_URI
-                    }).query("DELETE FROM Countries WHERE id = $1;", [req.body.id])];
-            case 1:
-                result = _a.sent();
-                console.log(result);
-                (0, app_1.send_json)(res, result);
-                return [3 /*break*/, 3];
-            case 2:
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
                 (0, app_1.send_json)(res, {
-                    error: "i_1"
-                });
+                    error: "Unauthorized"
+                }, 401);
+                return [3 /*break*/, 3];
+            case 1: return [4 /*yield*/, res.locals.DB_INTERFACE.query("DELETE FROM Countries WHERE id = $1;", [req.query.country_id])];
+            case 2:
+                result = _a.sent();
+                (0, app_1.send_json)(res, result);
                 _a.label = 3;
             case 3: return [2 /*return*/];
         }
