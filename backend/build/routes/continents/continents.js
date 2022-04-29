@@ -45,7 +45,7 @@ var error_codes = {
     no_country_id: "continents_1"
 };
 function exclude_fields_by_language(language) {
-    return DB_interface_1.req_types.get_continents_fields(function (x) { return !(x.endsWith("_name") && !x.startsWith(language)); });
+    return DB_interface_1.req_types.get_fields("continents", function (x) { return !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 /************************************** GET ***************************************************/
 continents_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {

@@ -42,7 +42,7 @@ var utils_2 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var cities_router = (0, express_1.Router)();
 function exclude_fields_by_language(language) {
-    return DB_interface_1.req_types.get_continents_fields(function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); });
+    return DB_interface_1.req_types.get_fields("cities", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 /************************************** GET ***************************************************/
 cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {

@@ -136,7 +136,7 @@ describe("Continents-routes-testing", () => {
                 });
             expect(response.status).toBe(401);
             const obj = JSON.parse(response.text);
-            expect(obj).toEqual({error: "unauthorized"});
+            expect(obj).toEqual({error: "Unauthorized"});
         });
         it("Inputs an existing country with authorization", async () => {
             const response = await request
@@ -150,6 +150,10 @@ describe("Continents-routes-testing", () => {
                     "iso_alpha_3": "ITA",
                     "fk_continent_id": 0
                 });
+            expect(response.statusCode).toBe(409);
+            console.log(response.text);
+        });
+    });
 
 
     afterAll(async () => {

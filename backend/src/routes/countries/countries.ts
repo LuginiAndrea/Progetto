@@ -6,8 +6,12 @@ import { get_language_of_user } from '../../logic/users/utils';
 const countries_router = Router();
 
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_countries_fields(x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)));
+    return types.get_fields("countries",
+        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
+        false
+    )[0];
 }
+
 const error_codes = {
     "no_continent_ids": "countries_1",
     "no_city_id": "countries_2",
@@ -84,8 +88,8 @@ countries_router.post("/insert_single", async (req, res) => {
         send_json(res, "Unauthorized");
 
     else if(types.is_countries_body(req.body))  {
-        const [fields, placeholder_sequence] = types.get_countries_fields(Object.keys(req.body));
-        const data = types.extract_countries_fields(req.body, fields);
+        const [fields, placeholder_sequence] = types.get_fields("countries", Object.keys(req.body));
+        const data = types.extract_fields(req.body, fields);
         const result = await res.locals.DB_INTERFACE.query(`
             INSERT INTO Countries (${fields}) VALUES (${placeholder_sequence})
             RETURNING id;`, 

@@ -9,7 +9,10 @@ const error_codes = {
 }
 
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_continents_fields(x => !(x.endsWith("_name") && !x.startsWith(language)));
+    return types.get_fields("continents",
+        x => !(x.endsWith("_name") && !x.startsWith(language)),
+        false
+    )[0];
 }
 
 /************************************** GET ***************************************************/

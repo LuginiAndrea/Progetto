@@ -42,7 +42,7 @@ var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var utils_2 = require("../../logic/users/utils");
 var countries_router = (0, express_1.Router)();
 function exclude_fields_by_language(language) {
-    return DB_interface_1.req_types.get_countries_fields(function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); });
+    return DB_interface_1.req_types.get_fields("countries", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 var error_codes = {
     "no_continent_ids": "countries_1",
@@ -165,8 +165,8 @@ countries_router.post("/insert_single", function (req, res) { return __awaiter(v
                 return [3 /*break*/, 4];
             case 1:
                 if (!DB_interface_1.req_types.is_countries_body(req.body)) return [3 /*break*/, 3];
-                _a = DB_interface_1.req_types.get_countries_fields(Object.keys(req.body)), fields = _a[0], placeholder_sequence = _a[1];
-                data = DB_interface_1.req_types.extract_countries_fields(req.body, fields);
+                _a = DB_interface_1.req_types.get_fields("countries", Object.keys(req.body)), fields = _a[0], placeholder_sequence = _a[1];
+                data = DB_interface_1.req_types.extract_fields(req.body, fields);
                 return [4 /*yield*/, res.locals.DB_INTERFACE.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), [data])];
             case 2:
                 result = _b.sent();

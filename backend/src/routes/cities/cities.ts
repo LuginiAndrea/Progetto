@@ -6,7 +6,10 @@ import { DB_interface, req_types as types } from '../../logic/db_interface/DB_in
 const cities_router: Router = Router();
 
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_continents_fields(x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)));
+    return types.get_fields("cities",
+        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
+        false
+    )[0];
 }
 
 /************************************** GET ***************************************************/
