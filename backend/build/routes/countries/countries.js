@@ -37,9 +37,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var express_1 = require("express");
-var app_1 = require("../../app");
+var utils_1 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
-var utils_1 = require("../../logic/users/utils");
+var utils_2 = require("../../logic/users/utils");
 var countries_router = (0, express_1.Router)();
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_countries_fields(function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); });
@@ -57,14 +57,14 @@ countries_router.get("/list_all", function (req, res) { return __awaiter(void 0,
         switch (_a.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries"))];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -75,14 +75,14 @@ countries_router.get("/list_single/:country_id", function (req, res) { return __
         switch (_a.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries WHERE id = $1"), [req.params.country_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -93,14 +93,14 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", function (req
         switch (_a.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries WHERE iso_alpha_3 = $1"), [req.params.country_iso_code])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -112,17 +112,17 @@ countries_router.get("/countries_in_continents", function (req, res) { return __
             case 0:
                 if (!req.query.continent_ids) return [3 /*break*/, 3];
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries WHERE fk_continent_id = ANY ($1)"), [req.query.continent_ids.split(",")])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [3 /*break*/, 4];
             case 3:
-                (0, app_1.send_json)(res, {
+                (0, utils_1.send_json)(res, {
                     error: error_codes.no_continent_ids
                 });
                 _a.label = 4;
@@ -137,17 +137,17 @@ countries_router.get("/country_of_city/:city_id", function (req, res) { return _
             case 0:
                 if (!req.query.city_id) return [3 /*break*/, 3];
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
                 return [4 /*yield*/, db_interface.query("\n            SELECT ".concat(fields, " FROM Countries \n            WHERE id = (\n                SELECT fk_country_id FROM Cities WHERE id = $1\n            )"), [req.query.city_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [3 /*break*/, 4];
             case 3:
-                (0, app_1.send_json)(res, {
+                (0, utils_1.send_json)(res, {
                     error: error_codes.no_city_id
                 });
                 _a.label = 4;
@@ -156,27 +156,31 @@ countries_router.get("/country_of_city/:city_id", function (req, res) { return _
     });
 }); });
 countries_router.post("/insert_single", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a, fields, placeholder_sequence, data, result;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
-                (0, app_1.send_json)(res, {
-                    error: "Unauthorized"
-                }, 401);
+                (0, utils_1.send_json)(res, "Unauthorized");
                 return [3 /*break*/, 4];
             case 1:
                 if (!DB_interface_1.req_types.is_countries_body(req.body)) return [3 /*break*/, 3];
-                return [4 /*yield*/, res.locals.DB_INTERFACE.query("\n            INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES ($1, $2, $3, $4, $5)\n            RETURNING id;", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id])];
+                _a = DB_interface_1.req_types.get_countries_fields(Object.keys(req.body)), fields = _a[0], placeholder_sequence = _a[1];
+                data = DB_interface_1.req_types.extract_countries_fields(req.body, fields);
+                return [4 /*yield*/, res.locals.DB_INTERFACE.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), [data])];
             case 2:
-                result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                result = _b.sent();
+                (0, utils_1.send_json)(res, result, {
+                    statusCode: {
+                        success: 201
+                    }
+                });
                 return [3 /*break*/, 4];
             case 3:
-                (0, app_1.send_json)(res, {
+                (0, utils_1.send_json)(res, {
                     error: error_codes.no_compatible_insert_body
                 });
-                _a.label = 4;
+                _b.label = 4;
             case 4: return [2 /*return*/];
         }
     });
@@ -187,14 +191,14 @@ countries_router.post("/delete/:country_id", function (req, res) { return __awai
         switch (_a.label) {
             case 0:
                 if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
-                (0, app_1.send_json)(res, {
+                (0, utils_1.send_json)(res, {
                     error: "Unauthorized"
-                }, 401);
+                });
                 return [3 /*break*/, 3];
             case 1: return [4 /*yield*/, res.locals.DB_INTERFACE.query("DELETE FROM Countries WHERE id = $1;", [req.query.country_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 _a.label = 3;
             case 3: return [2 /*return*/];
         }

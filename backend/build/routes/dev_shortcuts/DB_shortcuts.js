@@ -69,7 +69,7 @@ var bodyParser = __importStar(require("body-parser"));
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var table_creates_1 = require("./table_creates");
 var index_creates_1 = require("./index_creates");
-var app_1 = require("../../app");
+var utils_1 = require("../../utils");
 var db_shortcut_router = (0, express_1.Router)();
 var get_db_uri = function (req, res, next) {
     res.locals.DB_URI =
@@ -90,11 +90,13 @@ db_shortcut_router.get("/:db/table_schema/:table_name", function (req, res) { re
                     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result, undefined, function (internal_result) {
-                    return {
-                        table_name: req.params.table_name,
-                        columns: internal_result[0].rows.map(function (row) { return [row.column_name, row.data_type]; })
-                    };
+                (0, utils_1.send_json)(res, result, {
+                    processing_func: function (internal_result) {
+                        return {
+                            table_name: req.params.table_name,
+                            columns: internal_result[0].rows.map(function (row) { return [row.column_name, row.data_type]; })
+                        };
+                    }
                 });
                 return [2 /*return*/];
         }
@@ -110,7 +112,7 @@ db_shortcut_router.get("/:db/select_table/:table_name", function (req, res) { re
                 }).query("SELECT * FROM ".concat(req.params.table_name), [])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -125,7 +127,7 @@ db_shortcut_router.get("/:db/drop_table/:table_name", function (req, res) { retu
                 }).query("DROP TABLE ".concat(req.params.table_name), [])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -168,7 +170,7 @@ db_shortcut_router.get("/:db/create_table/:table_name", function (req, res) { re
                 _i++;
                 return [3 /*break*/, 3];
             case 6:
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 db.close();
                 return [2 /*return*/];
         }
@@ -212,7 +214,7 @@ db_shortcut_router.get("/:db/create_indexes/:index_name", function (req, res) { 
                 _i++;
                 return [3 /*break*/, 3];
             case 6:
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 db.close();
                 return [2 /*return*/];
         }
@@ -228,7 +230,7 @@ db_shortcut_router.get('/:db/db_schema', function (req, res) { return __awaiter(
                 }).query("SELECT table_name FROM information_schema.tables \n        WHERE table_type != 'VIEW' \n        AND table_name NOT LIKE 'pg%'\n        AND table_name NOT LIKE 'sql%'\n        AND table_name NOT LIKE 'spatial%'", [])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -243,7 +245,7 @@ db_shortcut_router.get("/:db/insertContinents", function (req, res) { return __a
                 }).query("INSERT INTO continents (id, it_name, en_name) VALUES \n        (0, 'Europa', 'Europe'), \n        (1, 'Asia', 'Asia'), \n        (2, 'Nord America', 'North America'), \n        (3, 'Sud America', 'South America'), \n        (4, 'Africa', 'Africa'), \n        (5, 'Oceania', 'Oceania'), \n        (6, 'Antartica', 'Antarctica');", [])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -257,7 +259,7 @@ db_shortcut_router.get("/:db/insertAmericaCentrale", function (req, res) { retur
                 }).query("INSERT INTO continents (id, it_name, en_name) VALUES \n        (7, 'America Centrale', 'Central America');", [])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -273,7 +275,7 @@ db_shortcut_router.post("/:db/insertCountries", bodyParser.json(), function (req
                     }).query("INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES\n            ($1, $2, $3, $4, $5);", [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [3 /*break*/, 3];
             case 2:
                 res.status(400).send("Types not matching");
@@ -293,7 +295,7 @@ db_shortcut_router.post("/:db/InsertUser", function (req, res) { return __awaite
                     }).query("INSERT INTO Users (firebase_id, fk_language_id) VALUES ($1, $2);", [req.body.firebase_id, req.body.fk_language_id])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [3 /*break*/, 3];
             case 2:
                 res.status(400).send("Types not matching");
@@ -313,7 +315,7 @@ db_shortcut_router.post("/:db/InsertLanguages", function (req, res) { return __a
                     }).query("INSERT INTO Languages (name, abbreviation) VALUES ($1, $2);", [req.body.name, req.body.abbreviation])];
             case 1:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 return [3 /*break*/, 3];
             case 2:
                 res.status(400).send("Types not matching");

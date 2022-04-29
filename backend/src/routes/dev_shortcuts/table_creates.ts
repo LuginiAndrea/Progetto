@@ -13,7 +13,7 @@ const create_countries_table =
         en_name VARCHAR(50) DEFAULT NULL,
         iso_alpha_3 CHAR(3) UNIQUE NOT NULL,
         fk_continent_id SMALLINT REFERENCES Continents
-            ON DELETE SET NULL
+            ON DELETE CASCADE
             ON UPDATE CASCADE
     );`;
 

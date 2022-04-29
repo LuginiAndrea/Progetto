@@ -1,6 +1,6 @@
 import {Router, Request, Response} from 'express';
 import { get_language_of_user } from "../../logic/users/utils";
-import { send_json } from '../../app';
+import { send_json } from '../../utils';
 import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
 
 const continents_router: Router = Router();

@@ -1,5 +1,5 @@
 import {Router, Request, Response} from 'express';
-import { send_json } from '../../app';
+import { send_json } from '../../utils';
 import {DB_interface, req_types as types} from '../../logic/db_interface/DB_interface';
 
 const users_router: Router = Router();
@@ -12,7 +12,7 @@ users_router.post("/create_user", async(req: Request, res: Response) => {
     if(res.locals.role !== "admin") 
         send_json(res, {
             error: "Unauthorized",
-        }, 401);
+        });
     else {
         const data = {
             firebase_id: res.locals.UID,

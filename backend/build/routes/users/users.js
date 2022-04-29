@@ -48,7 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var express_1 = require("express");
-var app_1 = require("../../app");
+var utils_1 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var users_router = (0, express_1.Router)();
 var error_codes = {
@@ -60,9 +60,9 @@ users_router.post("/create_user", function (req, res) { return __awaiter(void 0,
         switch (_a.label) {
             case 0:
                 if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
-                (0, app_1.send_json)(res, {
+                (0, utils_1.send_json)(res, {
                     error: "Unauthorized"
-                }, 401);
+                });
                 return [3 /*break*/, 4];
             case 1:
                 data = __assign({ firebase_id: res.locals.UID }, req.body);
@@ -71,10 +71,10 @@ users_router.post("/create_user", function (req, res) { return __awaiter(void 0,
                 return [4 /*yield*/, db_interface.query("INSERT INTO users (id, language) VALUES ($1, $2)", [res.locals.UID, req.body.fk_language_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_1.send_json)(res, result);
                 _a.label = 3;
             case 3:
-                (0, app_1.send_json)(res, {
+                (0, utils_1.send_json)(res, {
                     error: error_codes.no_compatible_insert_body
                 });
                 _a.label = 4;

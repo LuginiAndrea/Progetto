@@ -9,7 +9,7 @@ import * as bodyParser from 'body-parser';
 import { DB_interface, DB_result, req_types as types } from '../../logic/db_interface/DB_interface';
 import { table_arguments } from "./table_creates";
 import { index_arguments } from "./index_creates";
-import { send_json } from "../../app";
+import { send_json } from "../../utils";
 
 const db_shortcut_router: Router = Router();
 
@@ -27,10 +27,12 @@ db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res
         connectionString: res.locals.DB_URI
     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name]);
 
-    send_json(res, result, undefined, (internal_result) => {
-        return {
-            table_name: req.params.table_name,
-            columns: internal_result[0].rows.map(row => [row.column_name, row.data_type])
+    send_json(res, result, {
+        processing_func: (internal_result) => {
+            return {
+                table_name: req.params.table_name,
+                columns: internal_result[0].rows.map(row => [row.column_name, row.data_type])
+            }
         }
     });
 });    

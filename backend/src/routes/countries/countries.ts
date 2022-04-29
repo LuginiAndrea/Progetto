@@ -1,5 +1,5 @@
 import {Router, Request, Response} from 'express';
-import { send_json } from '../../app';
+import { send_json } from '../../utils';
 import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
 import { get_language_of_user } from '../../logic/users/utils';
 
@@ -81,17 +81,21 @@ countries_router.get("/country_of_city/:city_id", async (req: Request, res: Resp
 
 countries_router.post("/insert_single", async (req, res) => {
     if(res.locals.role !== "admin")
-        send_json(res, {
-            error: "Unauthorized",
-        }, 401);
+        send_json(res, "Unauthorized");
 
     else if(types.is_countries_body(req.body))  {
+        const [fields, placeholder_sequence] = types.get_countries_fields(Object.keys(req.body));
+        const data = types.extract_countries_fields(req.body, fields);
         const result = await res.locals.DB_INTERFACE.query(`
-            INSERT INTO Countries (real_name, it_name, en_name, iso_alpha_3, fk_continent_id) VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO Countries (${fields}) VALUES (${placeholder_sequence})
             RETURNING id;`, 
-            [req.body.real_name, req.body.it_name, req.body.en_name, req.body.iso_alpha_3, req.body.fk_continent_id]
-        );  
-        send_json(res, result);
+            [data]
+        ); 
+        send_json(res, result, {
+            statusCode: {
+                success: 201
+            }
+        });
     }
 
     else
@@ -104,7 +108,7 @@ countries_router.post("/delete/:country_id", async (req, res) => {
     if(res.locals.role !== "admin")
         send_json(res, {
             error: "Unauthorized",
-        }, 401);
+        });
     else {
         const result = await res.locals.DB_INTERFACE.query(`DELETE FROM Countries WHERE id = $1;`, [req.query.country_id]);
         send_json(res, result);

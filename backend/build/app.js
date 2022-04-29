@@ -7,7 +7,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.app = exports.send_json = void 0;
+exports.app = void 0;
 require("dotenv/config");
 var express_1 = __importDefault(require("express"));
 var DB_shortcuts_1 = __importDefault(require("./routes/dev_shortcuts/DB_shortcuts")); // Remove this in production code
@@ -30,22 +30,5 @@ app.use("/users", users_1["default"]);
 app.use("/continents", continents_1["default"]);
 app.use("/cities", cities_1["default"]);
 app.get("/", function (req, res) {
-    res.status(200).send("Hello World!");
+    res.status(200).send({ "Status": "Running" });
 });
-function send_json(res, result, statusCode, processing_func) {
-    var _a;
-    if (typeof result === "string")
-        result = {
-            error: result
-        };
-    if (result.result) {
-        if (processing_func === undefined)
-            processing_func = function (result) { return result[0].rows; };
-        res.status(statusCode || 200).send(processing_func(result.result));
-    }
-    else {
-        var status_1 = ((_a = result.error) === null || _a === void 0 ? void 0 : _a.startsWith("i")) ? 500 : 400;
-        res.status(statusCode || status_1).send({ error: result.error });
-    }
-}
-exports.send_json = send_json;

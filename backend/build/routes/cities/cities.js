@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("../../logic/users/utils");
-var app_1 = require("../../app");
+var utils_2 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var cities_router = (0, express_1.Router)();
 function exclude_fields_by_language(language) {
@@ -58,7 +58,7 @@ cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, vo
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities"))];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_2.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -76,7 +76,7 @@ cities_router.get("/list_single/:city_id", function (req, res) { return __awaite
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE id = $1"), [req.params.city_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_2.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -94,7 +94,7 @@ cities_router.get("/cities_in_country/:country_id", function (req, res) { return
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE fk_country_id = $1"), [req.params.country_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_2.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -112,7 +112,7 @@ cities_router.get("/city_of_monument/:monument_id", function (req, res) { return
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE id = (SELECT fk_city_id FROM Monuments WHERE id = $1)"), [req.params.monument_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_2.send_json)(res, result);
                 return [2 /*return*/];
         }
     });

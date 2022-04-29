@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("../../logic/users/utils");
-var app_1 = require("../../app");
+var utils_2 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var continents_router = (0, express_1.Router)();
 var error_codes = {
@@ -61,7 +61,7 @@ continents_router.get("/list_all", function (req, res) { return __awaiter(void 0
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Continents"))];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_2.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -79,7 +79,7 @@ continents_router.get("/list_single/:continent_id", function (req, res) { return
                 return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Continents WHERE id = $1"), [req.params.continent_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_2.send_json)(res, result);
                 return [2 /*return*/];
         }
     });
@@ -98,10 +98,10 @@ continents_router.get("/continent_of_country", function (req, res) { return __aw
                 return [4 /*yield*/, db_interface.query("\n            SELECT ".concat(fields, " FROM Continents \n            WHERE id = (\n                SELECT fk_continent_id FROM Countries WHERE id = $1\n            )"), [req.query.country_id])];
             case 2:
                 result = _a.sent();
-                (0, app_1.send_json)(res, result);
+                (0, utils_2.send_json)(res, result);
                 return [3 /*break*/, 4];
             case 3:
-                (0, app_1.send_json)(res, {
+                (0, utils_2.send_json)(res, {
                     error: error_codes.no_country_id
                 });
                 _a.label = 4;

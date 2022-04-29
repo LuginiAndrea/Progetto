@@ -30,25 +30,7 @@ app.use("/cities", cities_router);
 
 
 app.get("/", (req, res) => {
-    res.status(200).send("Hello World!");
+    res.status(200).send({"Status": "Running"});
 });
 
-
-function send_json(res: express.Response, result: DB_result | string, statusCode?: number, processing_func?: (arg: Array<QueryResult<any>>) => Object) {
-    if(typeof result === "string")
-        result = {
-            error: result
-        } as DB_result;
-
-    if (result.result) {
-        if(processing_func === undefined) processing_func = (result) => { return result[0].rows; };
-        res.status(statusCode || 200).send(processing_func(result.result));
-    }
-    else {
-        const status = 
-            (result.error?.startsWith("i")) ? 500 : 400;
-        res.status(statusCode || status).send({error: result.error});
-    }
-}
-
-export { send_json, app };
+export { app };

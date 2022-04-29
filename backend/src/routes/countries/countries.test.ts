@@ -123,6 +123,35 @@ describe("Continents-routes-testing", () => {
         });
     });
 
+    describe("Inserts into countries tests", () => {
+        it("Inputs a new country with no authorization", async () => {
+            const response = await request
+                .post(base_url+"/insert_single")
+                .send({
+                    "real_name": "中国",
+                    "it_name": "Cina",
+                    "en_name": "China",
+                    "iso_alpha_3": "CHN",
+                    "fk_continent_id": 1
+                });
+            expect(response.status).toBe(401);
+            const obj = JSON.parse(response.text);
+            expect(obj).toEqual({error: "unauthorized"});
+        });
+        it("Inputs an existing country with authorization", async () => {
+            const response = await request
+                .post(base_url+"/insert_single")
+                .set("Authorization", "1")
+                .send({
+                    "id": 5,
+                    "real_name": "Italia",
+                    "it_name": "Italia",
+                    "en_name": "Italy",
+                    "iso_alpha_3": "ITA",
+                    "fk_continent_id": 0
+                });
+
+
     afterAll(async () => {
         app.locals.DEFAULT_DB_INTERFACE.close();
     });
