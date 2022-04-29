@@ -13,9 +13,11 @@ function exclude_fields_by_language(language: string) { //Exclude the fields in 
 }
 
 const error_codes = {
-    "no_continent_ids": "countries_1",
-    "no_city_id": "countries_2",
-    "no_compatible_insert_body": "countries_3",
+    no_continent_ids: "countries_1",
+    no_city_id: "countries_2",
+    no_compatible_insert_body: "countries_3",
+    no_country_found: "countries_4",
+    no_compatible_update_body: "countries_5",
 }
 
 /************************************** GET ***************************************************/
@@ -83,17 +85,19 @@ countries_router.get("/country_of_city/:city_id", async (req: Request, res: Resp
         });
 });
 
-countries_router.post("/insert_single", async (req, res) => {
+/************************************** POST ***************************************************/
+countries_router.post("/insert", async (req, res) => {
     if(res.locals.role !== "admin")
         send_json(res, "Unauthorized");
 
     else if(types.is_countries_body(req.body))  {
-        const [fields, placeholder_sequence] = types.get_fields("countries", Object.keys(req.body));
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
+        const [fields, placeholder_sequence] = types.get_fields("countries", Object.keys(req.body), true, true);
         const data = types.extract_fields(req.body, fields);
-        const result = await res.locals.DB_INTERFACE.query(`
+        const result = await db_interface.query(`
             INSERT INTO Countries (${fields}) VALUES (${placeholder_sequence})
             RETURNING id;`, 
-            [data]
+            data
         ); 
         send_json(res, result, {
             statusCode: {
@@ -107,15 +111,64 @@ countries_router.post("/insert_single", async (req, res) => {
             error: error_codes.no_compatible_insert_body
         });
 });
+/************************************** PUT ***************************************************/
+countries_router.put("/update/:country_id", async (req, res) => {
+    const updating_fields = req.body.updating_fields;
+    if(res.locals.role !== "admin")
+        send_json(res, "Unauthorized");
+    else if(types.is_countries_body(req.body) && typeof updating_fields === "string") {
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
+        const [fields, placeholder_sequence] = types.get_fields("countries", updating_fields.split(","), 2);
+        const data = types.extract_fields(req.body, fields);
 
-countries_router.post("/delete/:country_id", async (req, res) => {
+        if(fields.length === 0) { //Check if there is at least one field to update
+            send_json(res, {
+                error: error_codes.no_compatible_update_body
+            });
+        }
+        else {
+            const result = fields.length > 1 ? //If there are more than 1 field to update we need to change syntax
+                await db_interface.query(`
+                    UPDATE Countries SET (${fields}) = (${placeholder_sequence})
+                    WHERE id = $1
+                    RETURNING *;`,
+                    [req.params.country_id, ...data]
+                ) :
+                await db_interface.query(`
+                    UPDATE Countries SET ${fields} = $2
+                    WHERE id = $1
+                    RETURNING *;`,
+                    [req.params.country_id, ...data]
+                );
+
+            if(result?.result?.[0].rowCount === 0) // Check if a row was affected
+                send_json(res, error_codes.no_country_found, { statusCode: { error: 404 } });
+            else
+                send_json(res, result);
+        }
+    }
+    else
+        send_json(res, {
+            error: error_codes.no_compatible_update_body
+        });
+});
+/************************************** DELETE ***************************************************/
+countries_router.delete("/delete/:country_id", async (req, res) => {
     if(res.locals.role !== "admin")
         send_json(res, {
             error: "Unauthorized",
         });
     else {
-        const result = await res.locals.DB_INTERFACE.query(`DELETE FROM Countries WHERE id = $1;`, [req.query.country_id]);
-        send_json(res, result);
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
+        const result = await db_interface.query(`
+            DELETE FROM Countries WHERE id = $1
+            RETURNING id;`, 
+            [req.params.country_id]
+        );
+        if(result?.result?.[0].rowCount === 0) //Check if a row was affected
+            send_json(res, error_codes.no_country_found, { statusCode: { error: 404 } });
+        else
+            send_json(res, result);
     }
 });
 

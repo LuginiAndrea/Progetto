@@ -9,7 +9,7 @@ const error_codes = {
 function get_db_uri() {
     const DB_URI = process.env.DATABASE_URL || process.env.DEV_DB_URI;
     if(!DB_URI) 
-        throw Error(`Can't connect to Database: Database URL is ${DB_URI}`);
+        throw new Error(`Can't connect to Database: Database URL is ${DB_URI}`);
     else
         return DB_URI;
 }

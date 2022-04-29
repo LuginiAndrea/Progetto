@@ -1,14 +1,14 @@
 type filter = ((x: string) => boolean) | string[];
 const fields_dictionary = {
-    "continents": ["id", "it_name", "en_name"],
-    "countries": ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
-    "cities": ["id", "real_name", "it_name", "en_name", "rating", "fk_country_id"],
-    "languages": ["id", "name", "abbreviation"],
-    "users": ["firebase_id", "fk_language_id"],
-    "monuments": ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "fk_city_id"],
-    "visits": ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
-    "type_of_monuments": ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
-    "monument_types": ["fk_monument_id", "fk_type_of_monument_id"]
+    continents: ["id", "it_name", "en_name"],
+    countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
+    cities: ["id", "real_name", "it_name", "en_name", "rating", "fk_country_id"],
+    languages: ["id", "name", "abbreviation"],
+    users: ["firebase_id", "fk_language_id"],
+    monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "fk_city_id"],
+    visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
+    type_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
+    monument_types: ["fk_monument_id", "fk_type_of_monument_id"]
 };
 type accepted_get_types = keyof typeof fields_dictionary;
 type accepted_extract_types = 
@@ -22,21 +22,26 @@ function set_filter_by(filter_by: filter) {
     }
     return filter_by;
 }
-function generate_placeholder_sequnce(obj: string[]): string {
-    let i = 0;
-    return obj.map(_ => `$${++i}`).join(", ");
+
+declare function assert(x: unknown): asserts x;
+
+function generate_placeholder_sequnce(obj: string[], gen_placeholder_seq: number | boolean = 1): string {
+    if(gen_placeholder_seq === false) return "";
+    if(gen_placeholder_seq <= 1) throw new Error("gen_placeholder_seq must be greater than 1");
+    let i = (typeof gen_placeholder_seq === "number") ? gen_placeholder_seq : 1;
+    return obj.map(_ => `$${i++}`).join(", ");
 }
-function get_fields(type: accepted_get_types, filter_by?: filter, gen_placeholder_seq = true) : [string[], string] {
+
+function get_fields(type: accepted_get_types, filter_by?: filter, gen_placeholder_seq: number | boolean = 1, no_id = false) : [string[], string] {
     let fields = fields_dictionary[type];
     if(filter_by) {
         filter_by = set_filter_by(filter_by);
-        fields = fields.filter(filter_by);
+        fields = fields.filter(x => !(x === "id" && no_id)).filter(filter_by);
     }
-    let placeholder_sequence = (gen_placeholder_seq) ? generate_placeholder_sequnce(fields) : "";
-    return [fields, placeholder_sequence];
+    return [fields, generate_placeholder_sequnce(fields, gen_placeholder_seq)];
 }
-const extract_fields = (body: accepted_extract_types, fields: string[], no_id = true): any => 
-    fields.filter(x => !(x === "id" && no_id)).map(field => (body as any)[field]);
+const extract_fields = (body: accepted_extract_types, fields: string[]): any => 
+    fields.map(field => (body as any)[field]);
 
 // ***************** COUNTRIES *****************
 type countries_body = {

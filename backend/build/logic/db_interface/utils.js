@@ -10,7 +10,7 @@ exports.error_codes = error_codes;
 function get_db_uri() {
     var DB_URI = process.env.DATABASE_URL || process.env.DEV_DB_URI;
     if (!DB_URI)
-        throw Error("Can't connect to Database: Database URL is ".concat(DB_URI));
+        throw new Error("Can't connect to Database: Database URL is ".concat(DB_URI));
     else
         return DB_URI;
 }

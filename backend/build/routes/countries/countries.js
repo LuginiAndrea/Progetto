@@ -35,6 +35,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("../../utils");
@@ -45,9 +54,11 @@ function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("countries", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 var error_codes = {
-    "no_continent_ids": "countries_1",
-    "no_city_id": "countries_2",
-    "no_compatible_insert_body": "countries_3"
+    no_continent_ids: "countries_1",
+    no_city_id: "countries_2",
+    no_compatible_insert_body: "countries_3",
+    no_country_found: "countries_4",
+    no_compatible_update_body: "countries_5"
 };
 /************************************** GET ***************************************************/
 // Return whole info about country
@@ -155,8 +166,9 @@ countries_router.get("/country_of_city/:city_id", function (req, res) { return _
         }
     });
 }); });
-countries_router.post("/insert_single", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, fields, placeholder_sequence, data, result;
+/************************************** POST ***************************************************/
+countries_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, _a, fields, placeholder_sequence, data, result;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -165,9 +177,10 @@ countries_router.post("/insert_single", function (req, res) { return __awaiter(v
                 return [3 /*break*/, 4];
             case 1:
                 if (!DB_interface_1.req_types.is_countries_body(req.body)) return [3 /*break*/, 3];
-                _a = DB_interface_1.req_types.get_fields("countries", Object.keys(req.body)), fields = _a[0], placeholder_sequence = _a[1];
+                db_interface = res.locals.DB_INTERFACE;
+                _a = DB_interface_1.req_types.get_fields("countries", Object.keys(req.body), true, true), fields = _a[0], placeholder_sequence = _a[1];
                 data = DB_interface_1.req_types.extract_fields(req.body, fields);
-                return [4 /*yield*/, res.locals.DB_INTERFACE.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), [data])];
+                return [4 /*yield*/, db_interface.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), data)];
             case 2:
                 result = _b.sent();
                 (0, utils_1.send_json)(res, result, {
@@ -185,21 +198,76 @@ countries_router.post("/insert_single", function (req, res) { return __awaiter(v
         }
     });
 }); });
-countries_router.post("/delete/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+/************************************** PUT ***************************************************/
+countries_router.put("/update/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var updating_fields, db_interface, _a, fields, placeholder_sequence, data, result, _b;
+    var _c;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
+            case 0:
+                updating_fields = req.body.updating_fields;
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, utils_1.send_json)(res, "Unauthorized");
+                return [3 /*break*/, 9];
+            case 1:
+                if (!(DB_interface_1.req_types.is_countries_body(req.body) && typeof updating_fields === "string")) return [3 /*break*/, 8];
+                db_interface = res.locals.DB_INTERFACE;
+                _a = DB_interface_1.req_types.get_fields("countries", updating_fields.split(","), 2), fields = _a[0], placeholder_sequence = _a[1];
+                data = DB_interface_1.req_types.extract_fields(req.body, fields);
+                if (!(fields.length === 0)) return [3 /*break*/, 2];
+                (0, utils_1.send_json)(res, {
+                    error: error_codes.no_compatible_update_body
+                });
+                return [3 /*break*/, 7];
+            case 2:
+                if (!(fields.length > 1)) return [3 /*break*/, 4];
+                return [4 /*yield*/, db_interface.query("\n                    UPDATE Countries SET (".concat(fields, ") = (").concat(placeholder_sequence, ")\n                    WHERE id = $1\n                    RETURNING *;"), __spreadArray([req.params.country_id], data, true))];
+            case 3:
+                _b = _d.sent();
+                return [3 /*break*/, 6];
+            case 4: return [4 /*yield*/, db_interface.query("\n                    UPDATE Countries SET ".concat(fields, " = $2\n                    WHERE id = $1\n                    RETURNING *;"), __spreadArray([req.params.country_id], data, true))];
+            case 5:
+                _b = _d.sent();
+                _d.label = 6;
+            case 6:
+                result = _b;
+                if (((_c = result === null || result === void 0 ? void 0 : result.result) === null || _c === void 0 ? void 0 : _c[0].rowCount) === 0) // Check if a row was affected
+                    (0, utils_1.send_json)(res, error_codes.no_country_found, { statusCode: { error: 404 } });
+                else
+                    (0, utils_1.send_json)(res, result);
+                _d.label = 7;
+            case 7: return [3 /*break*/, 9];
+            case 8:
+                (0, utils_1.send_json)(res, {
+                    error: error_codes.no_compatible_update_body
+                });
+                _d.label = 9;
+            case 9: return [2 /*return*/];
+        }
+    });
+}); });
+/************************************** DELETE ***************************************************/
+countries_router["delete"]("/delete/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, result;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
                 (0, utils_1.send_json)(res, {
                     error: "Unauthorized"
                 });
                 return [3 /*break*/, 3];
-            case 1: return [4 /*yield*/, res.locals.DB_INTERFACE.query("DELETE FROM Countries WHERE id = $1;", [req.query.country_id])];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query("\n            DELETE FROM Countries WHERE id = $1\n            RETURNING id;", [req.params.country_id])];
             case 2:
-                result = _a.sent();
-                (0, utils_1.send_json)(res, result);
-                _a.label = 3;
+                result = _b.sent();
+                if (((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0) //Check if a row was affected
+                    (0, utils_1.send_json)(res, error_codes.no_country_found, { statusCode: { error: 404 } });
+                else
+                    (0, utils_1.send_json)(res, result);
+                _b.label = 3;
             case 3: return [2 /*return*/];
         }
     });

@@ -21,6 +21,7 @@ const get_db_uri = (req: Request, res: Response, next: NextFunction) => {
 db_shortcut_router.use("/:db", get_db_uri);
 
 // -------------------- General table stuff --------------------
+
 // -------------------- GET TABLE SCHEMA --------------------
 db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res: Response) => {;
     const result = await new DB_interface({
