@@ -15,7 +15,7 @@ describe("Continents-routes-testing", () => {
         {id: 5, it_name: "Oceania"},
         {id: 6, it_name: "Antartica"},
         {id: 7, it_name: "America Centrale"}
-    ];
+    ].sort((a, b) => a.it_name > b.it_name ? 1 : -1);
     const en_continents_response = [
         {id: 0, en_name: "Europe"},
         {id: 1, en_name: "Asia"},
@@ -25,12 +25,12 @@ describe("Continents-routes-testing", () => {
         {id: 5, en_name: "Oceania"},
         {id: 6, en_name: "Antarctica"},
         {id: 7, en_name: "Central America"}
-    ];
+    ].sort((a, b) => a.en_name > b.en_name ? 1 : -1);
 
     const countries = {
         "Italy": {id: 5, continent_id: 0},
         "France": {id: 7, continent_id: 0},
-        "Mexico": {id: 8, continent_id: 2},
+        "Mexico": {id: 13, continent_id: 2},
     };
 
     app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
@@ -56,7 +56,7 @@ describe("Continents-routes-testing", () => {
             const response = await request.get(`${base_url}/list_single/0`);
             expect(response.status).toBe(200);
             const obj = JSON.parse(response.text);
-            expect(obj[0]).toEqual(it_continents_response[0]);
+            expect(obj[0]).toEqual(it_continents_response.filter(c => c.id === 0)[0]);
         });
     });
 
@@ -67,7 +67,7 @@ describe("Continents-routes-testing", () => {
                 .set("Authorization", "1");
             expect(response.status).toBe(200);
             const obj = JSON.parse(response.text);
-            expect(obj[0]).toEqual(en_continents_response[0]);
+            expect(obj[0]).toEqual(en_continents_response.filter(c => c.id === 0)[0]);
         });
     });
 

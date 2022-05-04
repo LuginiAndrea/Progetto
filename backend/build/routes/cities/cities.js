@@ -35,6 +35,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("../../logic/users/utils");
@@ -44,6 +53,13 @@ var cities_router = (0, express_1.Router)();
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("cities", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
+var error_codes = {
+    no_country_ids: "cities_1",
+    no_monument_id: "cities_2",
+    no_compatible_insert_body: "cities_3",
+    no_compatible_update_body: "cities_4",
+    no_city_found: "cities_5"
+};
 /************************************** GET ***************************************************/
 cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language_of_user, fields, result;
@@ -81,41 +97,159 @@ cities_router.get("/list_single/:city_id", function (req, res) { return __awaite
         }
     });
 }); });
-cities_router.get("/cities_in_country/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+cities_router.get("/cities_in_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                if (!req.query.country_ids) return [3 /*break*/, 3];
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
-                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE fk_country_id = $1"), [req.params.country_id])];
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM cities WHERE fk_country_id = ANY ($1)"), [req.query.country_ids.split(",")])];
             case 2:
                 result = _a.sent();
                 (0, utils_2.send_json)(res, result);
-                return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 3:
+                (0, utils_2.send_json)(res, {
+                    error: error_codes.no_country_ids
+                });
+                _a.label = 4;
+            case 4: return [2 /*return*/];
         }
     });
 }); });
-cities_router.get("/city_of_monument/:monument_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+cities_router.get("/city_of_monument", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                if (!req.query.monument_id) return [3 /*break*/, 3];
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
-                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Cities WHERE id = (SELECT fk_city_id FROM Monuments WHERE id = $1)"), [req.params.monument_id])];
+                return [4 /*yield*/, db_interface.query("\n            SELECT ".concat(fields, " FROM Cities WHERE id = (\n                SELECT fk_city_id FROM Monuments WHERE id = $1\n            )"), [req.query.monument_id])];
             case 2:
                 result = _a.sent();
                 (0, utils_2.send_json)(res, result);
-                return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 3:
+                (0, utils_2.send_json)(res, {
+                    error: error_codes.no_monument_id
+                });
+                _a.label = 4;
+            case 4: return [2 /*return*/];
         }
     });
 }); });
-// cities_router.post("/add_city", async (req: Request, res: Response) => {
+/************************************** POST ***************************************************/
+cities_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, _a, fields, placeholder_sequence, data, result;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, utils_2.send_json)(res, "Unauthorized");
+                return [3 /*break*/, 4];
+            case 1:
+                if (!DB_interface_1.req_types.is_cities_body(req.body)) return [3 /*break*/, 3];
+                db_interface = res.locals.DB_INTERFACE;
+                _a = DB_interface_1.req_types.get_fields("countries", Object.keys(req.body), true, true), fields = _a[0], placeholder_sequence = _a[1];
+                data = DB_interface_1.req_types.extract_values_of_fields(req.body, fields);
+                return [4 /*yield*/, db_interface.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), data)];
+            case 2:
+                result = _b.sent();
+                (0, utils_2.send_json)(res, result, {
+                    statusCode: {
+                        success: 201
+                    }
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                (0, utils_2.send_json)(res, {
+                    error: error_codes.no_compatible_insert_body
+                });
+                _b.label = 4;
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+cities_router.put("/update/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var updating_fields, db_interface, _a, fields, placeholder_sequence, data, result, _b;
+    var _c;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
+            case 0:
+                updating_fields = req.body.updating_fields;
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, utils_2.send_json)(res, "Unauthorized");
+                return [3 /*break*/, 9];
+            case 1:
+                if (!(DB_interface_1.req_types.is_cities_body(req.body) && typeof updating_fields === "string")) return [3 /*break*/, 8];
+                db_interface = res.locals.DB_INTERFACE;
+                _a = DB_interface_1.req_types.get_fields("countries", updating_fields.split(","), 2), fields = _a[0], placeholder_sequence = _a[1];
+                data = DB_interface_1.req_types.extract_values_of_fields(req.body, fields);
+                if (!(fields.length === 0)) return [3 /*break*/, 2];
+                (0, utils_2.send_json)(res, {
+                    error: error_codes.no_compatible_update_body
+                });
+                return [3 /*break*/, 7];
+            case 2:
+                if (!(fields.length > 1)) return [3 /*break*/, 4];
+                return [4 /*yield*/, db_interface.query("\n                    UPDATE Countries SET (".concat(fields, ") = (").concat(placeholder_sequence, ")\n                    WHERE id = $1\n                    RETURNING *;"), __spreadArray([req.params.country_id], data, true))];
+            case 3:
+                _b = _d.sent();
+                return [3 /*break*/, 6];
+            case 4: return [4 /*yield*/, db_interface.query("\n                    UPDATE Countries SET ".concat(fields, " = $2\n                    WHERE id = $1\n                    RETURNING *;"), __spreadArray([req.params.country_id], data, true))];
+            case 5:
+                _b = _d.sent();
+                _d.label = 6;
+            case 6:
+                result = _b;
+                if (((_c = result === null || result === void 0 ? void 0 : result.result) === null || _c === void 0 ? void 0 : _c[0].rowCount) === 0) // Check if a row was affected
+                    (0, utils_2.send_json)(res, error_codes.no_city_found, { statusCode: { error: 404 } });
+                else
+                    (0, utils_2.send_json)(res, result);
+                _d.label = 7;
+            case 7: return [3 /*break*/, 9];
+            case 8:
+                (0, utils_2.send_json)(res, {
+                    error: error_codes.no_compatible_update_body
+                });
+                _d.label = 9;
+            case 9: return [2 /*return*/];
+        }
+    });
+}); });
+/************************************** DELETE ***************************************************/
+cities_router["delete"]("/delete/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, result;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, utils_2.send_json)(res, {
+                    error: "Unauthorized"
+                });
+                return [3 /*break*/, 3];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query("\n            DELETE FROM Countries WHERE id = $1\n            RETURNING id;", [req.params.country_id])];
+            case 2:
+                result = _b.sent();
+                if (((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0) //Check if a row was affected
+                    (0, utils_2.send_json)(res, error_codes.no_city_found, { statusCode: { error: 404 } });
+                else
+                    (0, utils_2.send_json)(res, result);
+                _b.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 exports["default"] = cities_router;

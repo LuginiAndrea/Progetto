@@ -22,7 +22,7 @@ continents_router.get("/list_all", async (req: Request, res: Response) => {
     const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
     //Filter out the fields that are for different languages
     const fields = exclude_fields_by_language(language_of_user);
-    const result = await db_interface.query(`SELECT ${fields} FROM Continents`);
+    const result = await db_interface.query(`SELECT ${fields} FROM Continents ORDER BY ${language_of_user}_name`);
     send_json(res, result);
 });
 

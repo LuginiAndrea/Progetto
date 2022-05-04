@@ -18,6 +18,7 @@ var cities_1 = __importDefault(require("./routes/cities/cities"));
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var utils_1 = require("./logic/users/utils");
 var body_parser_1 = __importDefault(require("body-parser"));
+var utils_2 = require("./utils");
 var app = (0, express_1["default"])();
 exports.app = app;
 app.use(DB_interface_1.validating_db_status);
@@ -31,4 +32,11 @@ app.use("/continents", continents_1["default"]);
 app.use("/cities", cities_1["default"]);
 app.get("/", function (req, res) {
     res.status(200).send({ "Status": "Running" });
+});
+app.use("*", function (req, res) {
+    (0, utils_2.send_json)(res, {
+        error: "Method not found"
+    }, {
+        statusCode: { error: 404 }
+    });
 });

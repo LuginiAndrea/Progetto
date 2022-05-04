@@ -61,7 +61,6 @@ var error_codes = {
     no_compatible_update_body: "countries_5"
 };
 /************************************** GET ***************************************************/
-// Return whole info about country
 countries_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
@@ -127,7 +126,7 @@ countries_router.get("/countries_in_continents", function (req, res) { return __
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
-                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM countries WHERE fk_continent_id = ANY ($1)"), [req.query.continent_ids.split(",")])];
+                return [4 /*yield*/, db_interface.query("\n            SELECT ".concat(fields, " FROM countries \n            WHERE fk_continent_id = ANY ($1)\n            ORDER BY fk_continent_id, ").concat(language_of_user, "_name"), [req.query.continent_ids.split(",")])];
             case 2:
                 result = _a.sent();
                 (0, utils_1.send_json)(res, result);
@@ -141,7 +140,7 @@ countries_router.get("/countries_in_continents", function (req, res) { return __
         }
     });
 }); });
-countries_router.get("/country_of_city/:city_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.get("/country_of_city", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language_of_user, fields, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -179,7 +178,7 @@ countries_router.post("/insert", function (req, res) { return __awaiter(void 0, 
                 if (!DB_interface_1.req_types.is_countries_body(req.body)) return [3 /*break*/, 3];
                 db_interface = res.locals.DB_INTERFACE;
                 _a = DB_interface_1.req_types.get_fields("countries", Object.keys(req.body), true, true), fields = _a[0], placeholder_sequence = _a[1];
-                data = DB_interface_1.req_types.extract_fields(req.body, fields);
+                data = DB_interface_1.req_types.extract_values_of_fields(req.body, fields);
                 return [4 /*yield*/, db_interface.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), data)];
             case 2:
                 result = _b.sent();
@@ -212,8 +211,9 @@ countries_router.put("/update/:country_id", function (req, res) { return __await
             case 1:
                 if (!(DB_interface_1.req_types.is_countries_body(req.body) && typeof updating_fields === "string")) return [3 /*break*/, 8];
                 db_interface = res.locals.DB_INTERFACE;
-                _a = DB_interface_1.req_types.get_fields("countries", updating_fields.split(","), 2), fields = _a[0], placeholder_sequence = _a[1];
-                data = DB_interface_1.req_types.extract_fields(req.body, fields);
+                _a = DB_interface_1.req_types.get_fields("countries", updating_fields.split(","), 2, true), fields = _a[0], placeholder_sequence = _a[1];
+                console.log(fields);
+                data = DB_interface_1.req_types.extract_values_of_fields(req.body, fields);
                 if (!(fields.length === 0)) return [3 /*break*/, 2];
                 (0, utils_1.send_json)(res, {
                     error: error_codes.no_compatible_update_body

@@ -23,11 +23,9 @@ function set_filter_by(filter_by: filter) {
     return filter_by;
 }
 
-declare function assert(x: unknown): asserts x;
-
-function generate_placeholder_sequnce(obj: string[], gen_placeholder_seq: number | boolean = 1): string {
+function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: number | boolean = 1): string {
     if(gen_placeholder_seq === false) return "";
-    if(gen_placeholder_seq <= 1) throw new Error("gen_placeholder_seq must be greater than 1");
+    if(gen_placeholder_seq < 1) throw new Error("gen_placeholder_seq must be greater than 1");
     let i = (typeof gen_placeholder_seq === "number") ? gen_placeholder_seq : 1;
     return obj.map(_ => `$${i++}`).join(", ");
 }
@@ -38,10 +36,10 @@ function get_fields(type: accepted_get_types, filter_by?: filter, gen_placeholde
         filter_by = set_filter_by(filter_by);
         fields = fields.filter(x => !(x === "id" && no_id)).filter(filter_by);
     }
-    return [fields, generate_placeholder_sequnce(fields, gen_placeholder_seq)];
+    return [fields, generate_placeholder_sequence(fields, gen_placeholder_seq)];
 }
-const extract_fields = (body: accepted_extract_types, fields: string[]): any => 
-    fields.map(field => (body as any)[field]);
+const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any => 
+    fields.map(field => (body as any)[field]); //Gets the values 
 
 // ***************** COUNTRIES *****************
 type countries_body = {
@@ -163,7 +161,7 @@ function is_monument_types_body(obj: any): obj is monument_types_body {
 }
 
 export { 
-    get_fields, extract_fields,
+    get_fields, extract_values_of_fields,
     countries_body, is_countries_body, 
     cities_body, is_cities_body, 
     languages_body, is_languages_body,

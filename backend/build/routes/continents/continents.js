@@ -58,7 +58,7 @@ continents_router.get("/list_all", function (req, res) { return __awaiter(void 0
             case 1:
                 language_of_user = _a.sent();
                 fields = exclude_fields_by_language(language_of_user);
-                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Continents"))];
+                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Continents ORDER BY ").concat(language_of_user, "_name"))];
             case 2:
                 result = _a.sent();
                 (0, utils_2.send_json)(res, result);

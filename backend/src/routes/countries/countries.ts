@@ -22,7 +22,6 @@ const error_codes = {
 
 /************************************** GET ***************************************************/
 
-// Return whole info about country
 countries_router.get("/list_all", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
     const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
@@ -56,7 +55,12 @@ countries_router.get("/countries_in_continents", async (req: Request, res: Respo
         const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
         //Filter out the fields that are for different languages
         const fields = exclude_fields_by_language(language_of_user);
-        const result = await db_interface.query(`SELECT ${fields} FROM countries WHERE fk_continent_id = ANY ($1)`, [(req.query.continent_ids as string).split(",")]);
+        const result = await db_interface.query(`
+            SELECT ${fields} FROM countries 
+            WHERE fk_continent_id = ANY ($1)
+            ORDER BY fk_continent_id, ${language_of_user}_name`, 
+            [(req.query.continent_ids as string).split(",")]
+        );
         send_json(res, result);
     }
     else 
@@ -65,7 +69,7 @@ countries_router.get("/countries_in_continents", async (req: Request, res: Respo
         });
 });
 
-countries_router.get("/country_of_city/:city_id", async (req: Request, res: Response) => {
+countries_router.get("/country_of_city", async (req: Request, res: Response) => {
     if(req.query.city_id) {
         const db_interface = res.locals.DB_INTERFACE;
         const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
@@ -93,7 +97,7 @@ countries_router.post("/insert", async (req, res) => {
     else if(types.is_countries_body(req.body))  {
         const db_interface = res.locals.DB_INTERFACE as DB_interface;
         const [fields, placeholder_sequence] = types.get_fields("countries", Object.keys(req.body), true, true);
-        const data = types.extract_fields(req.body, fields);
+        const data = types.extract_values_of_fields(req.body, fields);
         const result = await db_interface.query(`
             INSERT INTO Countries (${fields}) VALUES (${placeholder_sequence})
             RETURNING id;`, 
@@ -118,8 +122,9 @@ countries_router.put("/update/:country_id", async (req, res) => {
         send_json(res, "Unauthorized");
     else if(types.is_countries_body(req.body) && typeof updating_fields === "string") {
         const db_interface = res.locals.DB_INTERFACE as DB_interface;
-        const [fields, placeholder_sequence] = types.get_fields("countries", updating_fields.split(","), 2);
-        const data = types.extract_fields(req.body, fields);
+        const [fields, placeholder_sequence] = types.get_fields("countries", updating_fields.split(","), 2, true);
+        console.log(fields);
+        const data = types.extract_values_of_fields(req.body, fields); 
 
         if(fields.length === 0) { //Check if there is at least one field to update
             send_json(res, {

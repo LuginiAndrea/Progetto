@@ -13,6 +13,7 @@ import cities_router from "./routes/cities/cities";
 import { validating_db_status, DB_result, QueryResult } from "./logic/db_interface/DB_interface";
 import { authenticate_user } from "./logic/users/utils";
 import bodyParser from "body-parser";
+import { send_json } from "./utils";
 
 const app = express();
 
@@ -31,6 +32,15 @@ app.use("/cities", cities_router);
 
 app.get("/", (req, res) => {
     res.status(200).send({"Status": "Running"});
+});
+
+app.use("*", (req, res) => {
+    send_json(res, {
+            error: "Method not found",
+        }, {
+            statusCode: { error: 404 }
+        }
+    )
 });
 
 export { app };
