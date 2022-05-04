@@ -2,6 +2,7 @@
 exports.__esModule = true;
 exports.index_arguments = void 0;
 var create_country_continents_idx = "CREATE INDEX country_continents_idx ON Countries USING HASH (fk_continent_id);";
+var create_country_name_idx = "CREATE INDEX country_name_idx ON Countries USING (real_name);";
 var create_city_country_idx = "CREATE INDEX city_country_idx ON Cities USING HASH (fk_country_id);";
 var create_city_rating_idx = "CREATE INDEX city_rating_idx ON Cities (rating);";
 var create_monument_city_idx = "CREATE INDEX monument_city_idx ON Monuments USING HASH (fk_city_id);";

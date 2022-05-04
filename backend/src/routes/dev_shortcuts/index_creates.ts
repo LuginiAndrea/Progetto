@@ -1,5 +1,7 @@
 const create_country_continents_idx = 
     `CREATE INDEX country_continents_idx ON Countries USING HASH (fk_continent_id);`;
+const create_country_name_idx = 
+    `CREATE INDEX country_name_idx ON Countries USING (real_name);`;
 
 const create_city_country_idx =
     `CREATE INDEX city_country_idx ON Cities USING HASH (fk_country_id);`;
