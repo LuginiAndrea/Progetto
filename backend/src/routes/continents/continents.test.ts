@@ -11,20 +11,20 @@ describe("Continents-routes-testing", () => {
         {id: 1, it_name: "Asia"},
         {id: 2, it_name: "Nord America"},
         {id: 3, it_name: "Sud America"},
-        {id: 4, it_name: "Africa"},
-        {id: 5, it_name: "Oceania"},
-        {id: 6, it_name: "Antartica"},
-        {id: 7, it_name: "America Centrale"}
+        {id: 4, it_name: "America Centrale"},
+        {id: 5, it_name: "Africa"},
+        {id: 6, it_name: "Oceania"},
+        {id: 7, it_name: "Antartica"}
     ].sort((a, b) => a.it_name > b.it_name ? 1 : -1);
     const en_continents_response = [
         {id: 0, en_name: "Europe"},
         {id: 1, en_name: "Asia"},
         {id: 2, en_name: "North America"},
         {id: 3, en_name: "South America"},
-        {id: 4, en_name: "Africa"},
-        {id: 5, en_name: "Oceania"},
-        {id: 6, en_name: "Antarctica"},
-        {id: 7, en_name: "Central America"}
+        {id: 4, en_name: "Central America"},
+        {id: 5, en_name: "Africa"},
+        {id: 6, en_name: "Oceania"},
+        {id: 7, en_name: "Antarctica"}
     ].sort((a, b) => a.en_name > b.en_name ? 1 : -1);
 
     const countries = {

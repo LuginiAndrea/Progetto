@@ -2,23 +2,63 @@ import {Router, Request, Response} from 'express';
 import { get_language_of_user } from "../../logic/users/utils";
 import { send_json } from "../../utils"
 import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
+import { table_creates } from '../dev_shortcuts/table_creates';
 
 const cities_router: Router = Router();
-
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
     return types.get_fields("cities",
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     )[0];
 }
-
 const error_codes = {
-    no_country_ids: "cities_1",
-    no_monument_id: "cities_2",
-    no_compatible_insert_body: "cities_3",
-    no_compatible_update_body: "cities_4",
-    no_city_found: "cities_5"
+    no_cities_table: "cities_1_1",
+    city_not_found: "cities_1_2",
+    no_compatible_insert_body: "cities_2_1",
+    no_compatible_update_body: "cities_2_2",
+    no_country_ids: "cities_2_3",
+    no_monument_id: "cities_2_4"
 }
+
+cities_router.options("/", (req: Request, res: Response) => {
+    let method_list = [
+        { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "get", method: "table_schema", description: "Gets the schema of the table", role: "admin" },
+        { verb: "get", method: "list_all", description: "Gives the fields of all the cities"},
+        { verb: "get", method: "list_single/:city_id", description: "Gives the fields of a single city" },
+        { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
+        { verb: "get", method: "city_of_monument", description: "Gives the city of a monument passed with the query string" },
+        { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", role: "admin" },
+        { verb: "put", method: "update/:country_id", description: "Updates a city. Parameters passed in the body", role: "admin" },
+        { verb: "delete", method: "delete/:country_id", description: "Deletes a city", role: "admin" }
+    ];
+    res.status(200).json(
+        res.locals.role === "admin" ?
+            method_list : 
+            method_list.filter(x => x.role !== "admin")
+    );
+});
+/************************************** TABLE ***************************************************/
+cities_router.post("/create_table", async (req: Request, res: Response) => {
+    if(res.locals.role !== "admin")
+        send_json(res, "Unauthorized");
+    else {
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
+        const result = await db_interface.query(table_creates.cities);
+        send_json(res, result, { success: 201 });
+    }
+});
+cities_router.get("/table_schema", async (req: Request, res: Response) => {
+    const db_interface = res.locals.DB_INTERFACE as DB_interface;
+    const result = await db_interface.query(`
+        SELECT column_name, data_type, character_maximum_length, is_nullable
+        FROM information_schema.columns
+        WHERE table_name = 'cities'
+    `);
+    result?.result?.[0].rowCount === 0 ? 
+        send_json(res, {error: error_codes.no_cities_table}) :
+        send_json(res, result);
+});
 /************************************** GET ***************************************************/
 cities_router.get("/list_all", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
@@ -40,7 +80,6 @@ cities_router.get("/cities_in_countries", async (req: Request, res: Response) =>
     if(req.query.country_ids) {
         const db_interface = res.locals.DB_INTERFACE;
         const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-        //Filter out the fields that are for different languages
         const fields = exclude_fields_by_language(language_of_user);
         const result = await db_interface.query(`SELECT ${fields} FROM cities WHERE fk_country_id = ANY ($1)`, [(req.query.country_ids as string).split(",")]);
         send_json(res, result);
@@ -83,11 +122,7 @@ cities_router.post("/insert", async (req, res) => {
             RETURNING id;`, 
             data
         ); 
-        send_json(res, result, {
-            statusCode: {
-                success: 201
-            }
-        });
+        send_json(res, result, { success: 201 });
     }
 
     else
@@ -99,6 +134,7 @@ cities_router.put("/update/:country_id", async (req, res) => {
     const updating_fields = req.body.updating_fields;
     if(res.locals.role !== "admin")
         send_json(res, "Unauthorized");
+
     else if(types.is_cities_body(req.body) && typeof updating_fields === "string") {
         const db_interface = res.locals.DB_INTERFACE as DB_interface;
         const [fields, placeholder_sequence] = types.get_fields("countries", updating_fields.split(","), 2);
@@ -125,7 +161,7 @@ cities_router.put("/update/:country_id", async (req, res) => {
                 );
 
             if(result?.result?.[0].rowCount === 0) // Check if a row was affected
-                send_json(res, error_codes.no_city_found, { statusCode: { error: 404 } });
+                send_json(res, error_codes.city_not_found);
             else
                 send_json(res, result);
         }
@@ -149,7 +185,7 @@ cities_router.delete("/delete/:country_id", async (req, res) => {
             [req.params.country_id]
         );
         if(result?.result?.[0].rowCount === 0) //Check if a row was affected
-            send_json(res, error_codes.no_city_found, { statusCode: { error: 404 } });
+            send_json(res, error_codes.city_not_found);
         else
             send_json(res, result);
     }

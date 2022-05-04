@@ -49,17 +49,73 @@ var express_1 = require("express");
 var utils_1 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var utils_2 = require("../../logic/users/utils");
+var table_creates_1 = require("../dev_shortcuts/table_creates");
 var countries_router = (0, express_1.Router)();
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("countries", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 var error_codes = {
-    no_continent_ids: "countries_1",
-    no_city_id: "countries_2",
-    no_compatible_insert_body: "countries_3",
-    no_country_found: "countries_4",
-    no_compatible_update_body: "countries_5"
+    no_countries_table: "countries_1_1",
+    country_not_found: "countries_1_2",
+    no_compatible_insert_body: "countries_2_1",
+    no_compatible_update_body: "countries_2_2",
+    no_continent_ids: "countries_2_3",
+    no_city_id: "countries_2_4"
 };
+countries_router.options("/", function (req, res) {
+    var method_list = [
+        { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "get", method: "table_schema", description: "Gets the schema of the table", role: "admin" },
+        { verb: "get", method: "list_all", description: "Gives the fields of all the countries" },
+        { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single country" },
+        { verb: "get", method: "list_single_by_iso_code/:country_iso_code", description: "Gives the fields of a single country" },
+        { verb: "get", method: "countries_in_continents", description: "Gives list of all countries in the continents passed with the query string" },
+        { verb: "get", method: "country_of_city", description: "Gives the country of a city passed with the query string" },
+        { verb: "post", method: "insert", description: "Inserts a new country. Parameters passed in the body", role: "admin" },
+        { verb: "put", method: "update/:country_id", description: "Updates a country. Parameters passed in the body", role: "admin" },
+        { verb: "delete", method: "delete/:country_id", description: "Deletes a country", role: "admin" },
+    ];
+    res.status(200).json(res.locals.role === "admin" ?
+        method_list :
+        method_list.filter(function (x) { return x.role !== "admin"; }));
+});
+/************************************** TABLE ***************************************************/
+countries_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, utils_1.send_json)(res, "Unauthorized");
+                return [3 /*break*/, 3];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query(table_creates_1.table_creates.countries)];
+            case 2:
+                result = _a.sent();
+                (0, utils_1.send_json)(res, result, { success: 201 });
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+countries_router.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, result;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query("\n        SELECT column_name, data_type, character_maximum_length, is_nullable\n        FROM information_schema.columns\n        WHERE table_name = 'countries'\n    ")];
+            case 1:
+                result = _b.sent();
+                ((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0 ?
+                    (0, utils_1.send_json)(res, { error: error_codes.no_countries_table }) :
+                    (0, utils_1.send_json)(res, result);
+                return [2 /*return*/];
+        }
+    });
+}); });
 /************************************** GET ***************************************************/
 countries_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language_of_user, fields, result;
@@ -179,14 +235,11 @@ countries_router.post("/insert", function (req, res) { return __awaiter(void 0, 
                 db_interface = res.locals.DB_INTERFACE;
                 _a = DB_interface_1.req_types.get_fields("countries", Object.keys(req.body), true, true), fields = _a[0], placeholder_sequence = _a[1];
                 data = DB_interface_1.req_types.extract_values_of_fields(req.body, fields);
+                console.log(data);
                 return [4 /*yield*/, db_interface.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), data)];
             case 2:
                 result = _b.sent();
-                (0, utils_1.send_json)(res, result, {
-                    statusCode: {
-                        success: 201
-                    }
-                });
+                (0, utils_1.send_json)(res, result, { success: 201 });
                 return [3 /*break*/, 4];
             case 3:
                 (0, utils_1.send_json)(res, {
@@ -232,7 +285,7 @@ countries_router.put("/update/:country_id", function (req, res) { return __await
             case 6:
                 result = _b;
                 if (((_c = result === null || result === void 0 ? void 0 : result.result) === null || _c === void 0 ? void 0 : _c[0].rowCount) === 0) // Check if a row was affected
-                    (0, utils_1.send_json)(res, error_codes.no_country_found, { statusCode: { error: 404 } });
+                    (0, utils_1.send_json)(res, error_codes.country_not_found);
                 else
                     (0, utils_1.send_json)(res, result);
                 _d.label = 7;
@@ -264,7 +317,7 @@ countries_router["delete"]("/delete/:country_id", function (req, res) { return _
             case 2:
                 result = _b.sent();
                 if (((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0) //Check if a row was affected
-                    (0, utils_1.send_json)(res, error_codes.no_country_found, { statusCode: { error: 404 } });
+                    (0, utils_1.send_json)(res, error_codes.country_not_found);
                 else
                     (0, utils_1.send_json)(res, result);
                 _b.label = 3;

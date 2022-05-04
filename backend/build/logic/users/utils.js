@@ -64,12 +64,10 @@ function get_language_of_user(req, uid, db_instance) {
         var result;
         return __generator(this, function (_c) {
             switch (_c.label) {
-                case 0:
-                    // The user uid is in res.locals.UID
-                    // Finish to check this
-                    if (req.headers["accept-language"] === "*")
-                        return [2 /*return*/, "*"];
-                    return [4 /*yield*/, db_instance.query("SELECT abbreviation FROM Languages\n        WHERE id = (SELECT fk_language_id FROM Users WHERE firebase_id = $1)", [uid])];
+                case 0: 
+                // The user uid is in res.locals.UID
+                // Finish to check this
+                return [2 /*return*/, "en"];
                 case 1:
                     result = _c.sent();
                     return [2 /*return*/, ((_b = (_a = result.result) === null || _a === void 0 ? void 0 : _a[0].rows[0]) === null || _b === void 0 ? void 0 : _b.abbreviation) || "en"]; //return abbreviation or "en"

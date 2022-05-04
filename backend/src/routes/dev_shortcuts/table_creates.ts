@@ -26,14 +26,15 @@ const create_cities_table =
         rating SMALLINT DEFAULT NULL, 
         fk_country_id INTEGER REFERENCES Countries
             ON DELETE CASCADE
-            ON UPDATE CASCADE
+            ON UPDATE CASCADE,
+        UNIQUE(real_name, fk_country_id)
     );`;
 
 const create_languages_table =
     `CREATE TABLE IF NOT EXISTS Languages (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         name VARCHAR(50) NOT NULL,
-        abbreviation CHAR(2) NOT NULL
+        abbreviation CHAR(2) UNIQUE NOT NULL
     );`;
 
 const create_users_table = // 1 = English
@@ -55,7 +56,8 @@ const create_monuments_table =
         en_description TEXT DEFAULT NULL,
         fk_city_id INTEGER REFERENCES Cities
             ON DELETE CASCADE
-            ON UPDATE CASCADE
+            ON UPDATE CASCADE,
+        UNIQUE(real_name, coordinates)
     );`;
 
 const create_visits_table =
@@ -69,13 +71,14 @@ const create_visits_table =
             ON UPDATE CASCADE,
         fk_monument_id INTEGER REFERENCES Monuments
             ON DELETE CASCADE
-            ON UPDATE CASCADE
+            ON UPDATE CASCADE,
+        UNIQUE(date_time, fk_user_id, fk_monument_id)
     );`;
 
 const create_types_of_monuments_table =
     `CREATE TABLE IF NOT EXISTS Types_of_Monuments (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        real_name VARCHAR(50) NOT NULL, 
+        real_name VARCHAR(50) UNIQUE NOT NULL, 
         it_name VARCHAR(50) DEFAULT NULL,
         en_name VARCHAR(50) DEFAULT NULL,
         it_description TEXT DEFAULT NULL,
@@ -95,7 +98,7 @@ const create_monuments_types_table =
         PRIMARY KEY (fk_monument_id, fk_type_id)
     );`;
 
-const table_arguments : Record<string, string> = {
+const table_creates : Record<string, string> = {
     "continents": create_continents_table,
     "countries": create_countries_table,
     "cities": create_cities_table,
@@ -107,4 +110,4 @@ const table_arguments : Record<string, string> = {
     "monuments_types": create_monuments_types_table
 }
 
-export { table_arguments }
+export { table_creates }

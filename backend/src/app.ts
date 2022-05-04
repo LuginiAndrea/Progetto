@@ -37,9 +37,7 @@ app.get("/", (req, res) => {
 app.use("*", (req, res) => {
     send_json(res, {
             error: "Method not found",
-        }, {
-            statusCode: { error: 404 }
-        }
+        }, { error: 404 }
     )
 });
 

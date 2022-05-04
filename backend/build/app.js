@@ -36,7 +36,5 @@ app.get("/", function (req, res) {
 app.use("*", function (req, res) {
     (0, utils_2.send_json)(res, {
         error: "Method not found"
-    }, {
-        statusCode: { error: 404 }
-    });
+    }, { error: 404 });
 });

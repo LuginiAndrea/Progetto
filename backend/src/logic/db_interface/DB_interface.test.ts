@@ -1,5 +1,5 @@
 // import { DB_interface, get_db_uri } from "./DB_interface"
-
+it("", () => {expect(1).toBe(1);});
 // describe("DB_interface", () => {
 //     it("Connection on initialization", async () => {
 //         const db = new DB_interface({

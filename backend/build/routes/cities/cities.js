@@ -49,17 +49,72 @@ var express_1 = require("express");
 var utils_1 = require("../../logic/users/utils");
 var utils_2 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
+var table_creates_1 = require("../dev_shortcuts/table_creates");
 var cities_router = (0, express_1.Router)();
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("cities", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 var error_codes = {
-    no_country_ids: "cities_1",
-    no_monument_id: "cities_2",
-    no_compatible_insert_body: "cities_3",
-    no_compatible_update_body: "cities_4",
-    no_city_found: "cities_5"
+    no_cities_table: "cities_1_1",
+    city_not_found: "cities_1_2",
+    no_compatible_insert_body: "cities_2_1",
+    no_compatible_update_body: "cities_2_2",
+    no_country_ids: "cities_2_3",
+    no_monument_id: "cities_2_4"
 };
+cities_router.options("/", function (req, res) {
+    var method_list = [
+        { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "get", method: "table_schema", description: "Gets the schema of the table", role: "admin" },
+        { verb: "get", method: "list_all", description: "Gives the fields of all the cities" },
+        { verb: "get", method: "list_single/:city_id", description: "Gives the fields of a single city" },
+        { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
+        { verb: "get", method: "city_of_monument", description: "Gives the city of a monument passed with the query string" },
+        { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", role: "admin" },
+        { verb: "put", method: "update/:country_id", description: "Updates a city. Parameters passed in the body", role: "admin" },
+        { verb: "delete", method: "delete/:country_id", description: "Deletes a city", role: "admin" }
+    ];
+    res.status(200).json(res.locals.role === "admin" ?
+        method_list :
+        method_list.filter(function (x) { return x.role !== "admin"; }));
+});
+/************************************** TABLE ***************************************************/
+cities_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
+                (0, utils_2.send_json)(res, "Unauthorized");
+                return [3 /*break*/, 3];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query(table_creates_1.table_creates.cities)];
+            case 2:
+                result = _a.sent();
+                (0, utils_2.send_json)(res, result, { success: 201 });
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+cities_router.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, result;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, db_interface.query("\n        SELECT column_name, data_type, character_maximum_length, is_nullable\n        FROM information_schema.columns\n        WHERE table_name = 'cities'\n    ")];
+            case 1:
+                result = _b.sent();
+                ((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0 ?
+                    (0, utils_2.send_json)(res, { error: error_codes.no_cities_table }) :
+                    (0, utils_2.send_json)(res, result);
+                return [2 /*return*/];
+        }
+    });
+}); });
 /************************************** GET ***************************************************/
 cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language_of_user, fields, result;
@@ -164,11 +219,7 @@ cities_router.post("/insert", function (req, res) { return __awaiter(void 0, voi
                 return [4 /*yield*/, db_interface.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), data)];
             case 2:
                 result = _b.sent();
-                (0, utils_2.send_json)(res, result, {
-                    statusCode: {
-                        success: 201
-                    }
-                });
+                (0, utils_2.send_json)(res, result, { success: 201 });
                 return [3 /*break*/, 4];
             case 3:
                 (0, utils_2.send_json)(res, {
@@ -212,7 +263,7 @@ cities_router.put("/update/:country_id", function (req, res) { return __awaiter(
             case 6:
                 result = _b;
                 if (((_c = result === null || result === void 0 ? void 0 : result.result) === null || _c === void 0 ? void 0 : _c[0].rowCount) === 0) // Check if a row was affected
-                    (0, utils_2.send_json)(res, error_codes.no_city_found, { statusCode: { error: 404 } });
+                    (0, utils_2.send_json)(res, error_codes.city_not_found);
                 else
                     (0, utils_2.send_json)(res, result);
                 _d.label = 7;
@@ -244,7 +295,7 @@ cities_router["delete"]("/delete/:country_id", function (req, res) { return __aw
             case 2:
                 result = _b.sent();
                 if (((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0) //Check if a row was affected
-                    (0, utils_2.send_json)(res, error_codes.no_city_found, { statusCode: { error: 404 } });
+                    (0, utils_2.send_json)(res, error_codes.city_not_found);
                 else
                     (0, utils_2.send_json)(res, result);
                 _b.label = 3;

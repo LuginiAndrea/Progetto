@@ -7,7 +7,7 @@
 import {Router, Request, Response, NextFunction} from 'express';
 import * as bodyParser from 'body-parser';
 import { DB_interface, DB_result, req_types as types } from '../../logic/db_interface/DB_interface';
-import { table_arguments } from "./table_creates";
+import { table_creates as table_arguments } from "./table_creates";
 import { index_arguments } from "./index_creates";
 import { send_json } from "../../utils";
 
@@ -111,7 +111,7 @@ db_shortcut_router.get('/:db/db_schema', async (req: Request, res: Response) => 
 });
 
 // -------------------- INSERTS --------------------
-db_shortcut_router.get("/:db/insertContinents", async (req, res) => {
+db_shortcut_router.post("/:db/insertContinents", async (req, res) => {
     const result = await new DB_interface({
         connectionString: res.locals.DB_URI
     }).query(
@@ -119,10 +119,11 @@ db_shortcut_router.get("/:db/insertContinents", async (req, res) => {
         (0, 'Europa', 'Europe'), 
         (1, 'Asia', 'Asia'), 
         (2, 'Nord America', 'North America'), 
-        (3, 'Sud America', 'South America'), 
-        (4, 'Africa', 'Africa'), 
-        (5, 'Oceania', 'Oceania'), 
-        (6, 'Antartica', 'Antarctica');`, []
+        (3, 'Sud America', 'South America'),
+        (4, 'America Centrale', 'Central America'), 
+        (5, 'Africa', 'Africa'), 
+        (6, 'Oceania', 'Oceania'), 
+        (7, 'Antartica', 'Antarctica');`, []
     );
     send_json(res, result);
 });

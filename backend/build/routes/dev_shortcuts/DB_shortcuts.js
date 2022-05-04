@@ -144,21 +144,21 @@ db_shortcut_router.get("/:db/create_table/:table_name", function (req, res) { re
                 });
                 result = { error: "no tables selected" };
                 if (!(table_name !== "all")) return [3 /*break*/, 2];
-                table = table_creates_1.table_arguments[table_name];
+                table = table_creates_1.table_creates[table_name];
                 return [4 /*yield*/, db.query(table, [], false)];
             case 1:
                 result = _c.sent();
                 return [3 /*break*/, 6];
             case 2:
                 _a = [];
-                for (_b in table_creates_1.table_arguments)
+                for (_b in table_creates_1.table_creates)
                     _a.push(_b);
                 _i = 0;
                 _c.label = 3;
             case 3:
                 if (!(_i < _a.length)) return [3 /*break*/, 6];
                 table = _a[_i];
-                return [4 /*yield*/, db.query(table_creates_1.table_arguments[table], [], false)];
+                return [4 /*yield*/, db.query(table_creates_1.table_creates[table], [], false)];
             case 4:
                 single_result = _c.sent();
                 if (!single_result.result) {
@@ -236,13 +236,13 @@ db_shortcut_router.get('/:db/db_schema', function (req, res) { return __awaiter(
     });
 }); });
 // -------------------- INSERTS --------------------
-db_shortcut_router.get("/:db/insertContinents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+db_shortcut_router.post("/:db/insertContinents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, new DB_interface_1.DB_interface({
                     connectionString: res.locals.DB_URI
-                }).query("INSERT INTO continents (id, it_name, en_name) VALUES \n        (0, 'Europa', 'Europe'), \n        (1, 'Asia', 'Asia'), \n        (2, 'Nord America', 'North America'), \n        (3, 'Sud America', 'South America'), \n        (4, 'Africa', 'Africa'), \n        (5, 'Oceania', 'Oceania'), \n        (6, 'Antartica', 'Antarctica');", [])];
+                }).query("INSERT INTO continents (id, it_name, en_name) VALUES \n        (0, 'Europa', 'Europe'), \n        (1, 'Asia', 'Asia'), \n        (2, 'Nord America', 'North America'), \n        (3, 'Sud America', 'South America'),\n        (4, 'America Centrale', 'Central America'), \n        (5, 'Africa', 'Africa'), \n        (6, 'Oceania', 'Oceania'), \n        (7, 'Antartica', 'Antarctica');", [])];
             case 1:
                 result = _a.sent();
                 (0, utils_1.send_json)(res, result);

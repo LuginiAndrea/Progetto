@@ -1,0 +1,543 @@
+Statistical profiling result from isolate-0x671b7a0-25180-v8.log, (2178 ticks, 0 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+   1810   83.1%          /usr/bin/node
+     30    1.4%          /usr/lib/x86_64-linux-gnu/libc-2.31.so
+      2    0.1%          /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+     11    0.5%    3.3%  LazyCompile: *resolve node:path:1091:10
+      2    0.1%    0.6%  Function: ^pushAsyncContext node:internal/async_hooks:540:26
+      1    0.0%    0.3%  RegExp: ;\s*charset\s*=
+      1    0.0%    0.3%  LazyCompile: *readPackage node:internal/modules/cjs/loader:290:21
+      1    0.0%    0.3%  LazyCompile: *Module._nodeModulePaths node:internal/modules/cjs/loader:629:37
+      1    0.0%    0.3%  Function: ^writeOrBuffer node:internal/streams/writable:365:23
+      1    0.0%    0.3%  Function: ^validateString node:internal/validators:118:24
+      1    0.0%    0.3%  Function: ^updateOutgoingData node:_http_server:554:28
+      1    0.0%    0.3%  Function: ^tryPackage node:internal/modules/cjs/loader:338:20
+      1    0.0%    0.3%  Function: ^step /home/lugio/Scrivania/progetto/backend/build/routes/continents/continents.js:15:18
+      1    0.0%    0.3%  Function: ^step /home/lugio/Scrivania/progetto/backend/build/logic/db_interface/DB_interface.js:49:18
+      1    0.0%    0.3%  Function: ^stat node:internal/modules/cjs/loader:151:14
+      1    0.0%    0.3%  Function: ^send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1    0.0%    0.3%  Function: ^resume_ node:internal/streams/readable:984:17
+      1    0.0%    0.3%  Function: ^resolve node:path:1091:10
+      1    0.0%    0.3%  Function: ^read node:internal/modules/package_json_reader:16:14
+      1    0.0%    0.3%  Function: ^push node:internal/fixed_queue:99:7
+      1    0.0%    0.3%  Function: ^parseDataRowMessage /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:208:24
+      1    0.0%    0.3%  Function: ^onwrite node:internal/streams/writable:425:17
+      1    0.0%    0.3%  Function: ^makeRequireFunction node:internal/modules/cjs/helpers:58:29
+      1    0.0%    0.3%  Function: ^isEmpty node:internal/fixed_queue:95:10
+      1    0.0%    0.3%  Function: ^getHeader node:_http_outgoing:590:57
+      1    0.0%    0.3%  Function: ^get node:internal/bootstrap/pre_execution:319:8
+      1    0.0%    0.3%  Function: ^get /home/lugio/Scrivania/progetto/backend/node_modules/google-auth-library/build/src/index.js:32:73
+      1    0.0%    0.3%  Function: ^free node:internal/freelist:21:7
+      1    0.0%    0.3%  Function: ^format /home/lugio/Scrivania/progetto/backend/node_modules/content-type/index.js:65:17
+      1    0.0%    0.3%  Function: ^end node:_http_outgoing:833:45
+      1    0.0%    0.3%  Function: ^emit node:events:474:44
+      1    0.0%    0.3%  Function: ^callFinal node:internal/streams/writable:662:19
+      1    0.0%    0.3%  Function: ^allocate node:buffer:398:18
+      1    0.0%    0.3%  Function: ^Module._load node:internal/modules/cjs/loader:757:24
+      1    0.0%    0.3%  Function: ^Module._findPath node:internal/modules/cjs/loader:494:28
+
+ [C++]:
+   ticks  total  nonlib   name
+    163    7.5%   48.5%  epoll_pwait@@GLIBC_2.6
+     41    1.9%   12.2%  __write@@GLIBC_2.2.5
+     29    1.3%    8.6%  fwrite@@GLIBC_2.2.5
+      8    0.4%    2.4%  __pthread_cond_wait
+      7    0.3%    2.1%  _IO_file_xsputn@@GLIBC_2.2.5
+      6    0.3%    1.8%  accept4@@GLIBC_2.10
+      6    0.3%    1.8%  __libc_read
+      5    0.2%    1.5%  std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)@@GLIBCXX_3.4.9
+      4    0.2%    1.2%  __mprotect@@GLIBC_PRIVATE
+      3    0.1%    0.9%  shutdown@@GLIBC_2.2.5
+      3    0.1%    0.9%  __GI___pthread_mutex_unlock
+      2    0.1%    0.6%  __mmap@@GLIBC_PRIVATE
+      2    0.1%    0.6%  __libc_write
+      2    0.1%    0.6%  __libc_malloc@@GLIBC_2.2.5
+      2    0.1%    0.6%  __GI___pthread_mutex_lock
+      1    0.0%    0.3%  syscall@@GLIBC_2.2.5
+      1    0.0%    0.3%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      1    0.0%    0.3%  std::ostream::operator<<(int)@@GLIBCXX_3.4
+      1    0.0%    0.3%  std::_Rb_tree_decrement(std::_Rb_tree_node_base*)@@GLIBCXX_3.4
+      1    0.0%    0.3%  operator new(unsigned long)@@GLIBCXX_3.4
+      1    0.0%    0.3%  llseek@GLIBC_2.2.5
+      1    0.0%    0.3%  epoll_ctl@@GLIBC_2.3.2
+      1    0.0%    0.3%  cfree@GLIBC_2.2.5
+      1    0.0%    0.3%  __pthread_cond_signal
+      1    0.0%    0.3%  __munmap@@GLIBC_PRIVATE
+
+ [Summary]:
+   ticks  total  nonlib   name
+     43    2.0%   12.8%  JavaScript
+    293   13.5%   87.2%  C++
+     74    3.4%   22.0%  GC
+   1842   84.6%          Shared libraries
+
+ [C++ entry points]:
+   ticks    cpp   total   name
+     32   38.6%    1.5%  __write@@GLIBC_2.2.5
+     26   31.3%    1.2%  fwrite@@GLIBC_2.2.5
+      7    8.4%    0.3%  _IO_file_xsputn@@GLIBC_2.2.5
+      5    6.0%    0.2%  std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)@@GLIBCXX_3.4.9
+      4    4.8%    0.2%  __mprotect@@GLIBC_PRIVATE
+      1    1.2%    0.0%  syscall@@GLIBC_2.2.5
+      1    1.2%    0.0%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      1    1.2%    0.0%  std::ostream::operator<<(int)@@GLIBCXX_3.4
+      1    1.2%    0.0%  std::_Rb_tree_decrement(std::_Rb_tree_node_base*)@@GLIBCXX_3.4
+      1    1.2%    0.0%  operator new(unsigned long)@@GLIBCXX_3.4
+      1    1.2%    0.0%  cfree@GLIBC_2.2.5
+      1    1.2%    0.0%  __libc_malloc@@GLIBC_2.2.5
+      1    1.2%    0.0%  __GI___pthread_mutex_unlock
+      1    1.2%    0.0%  __GI___pthread_mutex_lock
+
+ [Bottom up (heavy) profile]:
+  Note: percentage shows a share of a particular caller in the total
+  amount of its parent calls.
+  Callers occupying less than 1.0% are not shown.
+
+   ticks parent  name
+   1810   83.1%  /usr/bin/node
+   1453   80.3%    /usr/bin/node
+    974   67.0%      Function: ^compileFunction node:vm:308:25
+    970   99.6%        Function: ^wrapSafe node:internal/modules/cjs/loader:1017:18
+    970  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1057:37
+    961   99.1%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1112:37
+     57    3.9%      Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+     50   87.7%        Function: ^nativeModuleRequire node:internal/bootstrap/loaders:332:29
+      7   14.0%          Function: ~<anonymous> node:http2:1:1
+      7  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      7   14.0%          Function: ~<anonymous> node:crypto:1:1
+      7  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      4    8.0%          Function: ~<anonymous> node:tty:1:1
+      4  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      4    8.0%          Function: ~<anonymous> node:http:1:1
+      4  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      3    6.0%          Function: ~<anonymous> node:tls:1:1
+      3  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      3    6.0%          Function: ~<anonymous> node:_http_client:1:1
+      3  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      2    4.0%          Function: ~<anonymous> node:internal/http2/compat:1:1
+      2  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      2    4.0%          Function: ~<anonymous> node:child_process:1:1
+      2  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          LazyCompile: ~lazyRequire node:internal/crypto/util:67:21
+      1  100.0%            LazyCompile: ~get node:crypto:287:8
+      1    2.0%          LazyCompile: ~lazyLoadStreams node:fs:2845:25
+      1  100.0%            LazyCompile: ~get ReadStream node:fs:2988:17
+      1    2.0%          LazyCompile: ~get node:dns:334:8
+      1  100.0%            /usr/bin/node
+      1    2.0%          Function: ~<anonymous> node:net:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:internal/http2/core:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:internal/crypto/util:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:internal/crypto/pbkdf2:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:internal/crypto/hkdf:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:internal/cluster/round_robin_handle:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:internal/child_process:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:internal/blocklist:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:https:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:dns:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:cluster:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:assert:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:_tls_common:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:_http_server:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    2.0%          Function: ~<anonymous> node:_http_common:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      6   10.5%        Function: ^compileForPublicLoader node:internal/bootstrap/loaders:246:25
+      6  100.0%          Function: ^loadNativeModule node:internal/modules/cjs/helpers:44:26
+      6  100.0%            Function: ^Module._load node:internal/modules/cjs/loader:757:24
+      1    1.8%        LazyCompile: ~compileForPublicLoader node:internal/bootstrap/loaders:246:25
+      1  100.0%          LazyCompile: ~loadNativeModule node:internal/modules/cjs/helpers:44:26
+      1  100.0%            LazyCompile: ~Module._load node:internal/modules/cjs/loader:757:24
+     25    1.7%      /usr/bin/node
+      6   24.0%        Function: ^readPackage node:internal/modules/cjs/loader:290:21
+      5   83.3%          Function: ^readPackageScope node:internal/modules/cjs/loader:321:26
+      4   80.0%            Function: ^trySelf node:internal/modules/cjs/loader:441:17
+      1   20.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1   16.7%          LazyCompile: ~resolveExports node:internal/modules/cjs/loader:472:24
+      1  100.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:494:28
+      2    8.0%        Function: ^compileFunction node:vm:308:25
+      2  100.0%          Function: ^wrapSafe node:internal/modules/cjs/loader:1017:18
+      2  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1057:37
+      2    8.0%        Function: ^checkInvalidHeaderChar node:_http_common:232:32
+      2  100.0%          Function: ^<anonymous> node:_http_outgoing:564:45
+      2  100.0%            Function: ^setHeader node:_http_outgoing:574:57
+      1    4.0%        LazyCompile: ~resolvePackageTargetString node:internal/modules/esm/resolve:488:36
+      1  100.0%          LazyCompile: ~resolvePackageTarget node:internal/modules/esm/resolve:553:30
+      1  100.0%            LazyCompile: ~resolvePackageTarget node:internal/modules/esm/resolve:553:30
+      1    4.0%        LazyCompile: ~isIPv6 node:internal/net:35:16
+      1  100.0%          LazyCompile: ~isIP node:internal/net:39:14
+      1  100.0%            LazyCompile: ~lookupAndConnect node:net:995:26
+      1    4.0%        LazyCompile: ~header /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:759:29
+      1  100.0%          LazyCompile: ~send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1  100.0%            LazyCompile: ~json /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:239:25
+      1    4.0%        LazyCompile: ~createStatusCodeList /home/lugio/Scrivania/progetto/backend/node_modules/body-parser/node_modules/statuses/index.js:82:31
+      1  100.0%          Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/body-parser/node_modules/statuses/index.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1057:37
+      1    4.0%        LazyCompile: ~checkInvalidHeaderChar node:_http_common:232:32
+      1  100.0%          LazyCompile: ~<anonymous> node:_http_outgoing:564:45
+      1  100.0%            LazyCompile: ~setHeader node:_http_outgoing:574:57
+      1    4.0%        LazyCompile: *Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%          Function: ^Module._resolveFilename node:internal/modules/cjs/loader:848:35
+      1  100.0%            LazyCompile: *Module._load node:internal/modules/cjs/loader:757:24
+      1    4.0%        Function: ^stat node:internal/modules/cjs/loader:151:14
+      1  100.0%          Function: ^tryFile node:internal/modules/cjs/loader:384:17
+      1  100.0%            Function: ^tryExtensions node:internal/modules/cjs/loader:400:23
+      1    4.0%        Function: ^resolve node:path:1091:10
+      1  100.0%          Function: ^readPackage node:internal/modules/cjs/loader:290:21
+      1  100.0%            Function: ^readPackageScope node:internal/modules/cjs/loader:321:26
+      1    4.0%        Function: ^readPackageScope node:internal/modules/cjs/loader:321:26
+      1  100.0%          Function: ^trySelf node:internal/modules/cjs/loader:441:17
+      1  100.0%            Function: ^Module._resolveFilename node:internal/modules/cjs/loader:848:35
+      1    4.0%        Function: ^parse /home/lugio/Scrivania/progetto/backend/node_modules/content-type/index.js:106:16
+      1  100.0%          Function: ^setCharset /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/utils.js:247:41
+      1  100.0%            Function: ^send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1    4.0%        Function: ^format /home/lugio/Scrivania/progetto/backend/node_modules/content-type/index.js:65:17
+      1  100.0%          Function: ^setCharset /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/utils.js:247:41
+      1  100.0%            Function: ^send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1    4.0%        Function: ^Module.load node:internal/modules/cjs/loader:969:33
+      1  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:757:24
+      1  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:997:36
+      1    4.0%        Function: ^Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%          Function: ^Module._resolveFilename node:internal/modules/cjs/loader:848:35
+      1  100.0%            LazyCompile: *Module._load node:internal/modules/cjs/loader:757:24
+      1    4.0%        Function: ^Module node:internal/modules/cjs/loader:172:16
+      1  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:757:24
+      1  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:997:36
+      1    4.0%        /usr/bin/node
+      1  100.0%          Function: ^<anonymous> /home/lugio/Scrivania/progetto/backend/build/routes/continents/continents.js:119:39
+      1  100.0%            Function: ^step /home/lugio/Scrivania/progetto/backend/build/routes/continents/continents.js:15:18
+     24    1.7%      LazyCompile: ~configSecureContext node:internal/tls/secure-context:120:29
+     24  100.0%        LazyCompile: ~createSecureContext node:_tls_common:99:29
+     24  100.0%          LazyCompile: ~connect node:_tls_wrap:1597:35
+     24  100.0%            LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/connection.js:64:39
+     15    1.0%      LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+     15  100.0%        LazyCompile: ~nativeModuleRequire node:internal/bootstrap/loaders:332:29
+      5   33.3%          Function: ~<anonymous> node:internal/modules/esm/loader:1:1
+      5  100.0%            LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      3   20.0%          LazyCompile: ~initializeCJSLoader node:internal/bootstrap/pre_execution:414:29
+      3  100.0%            LazyCompile: ~prepareMainThreadExecution node:internal/bootstrap/pre_execution:22:36
+      2   13.3%          Function: ~<anonymous> node:internal/process/esm_loader:1:1
+      2  100.0%            LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      2   13.3%          Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    6.7%          Function: ~<anonymous> node:internal/modules/esm/module_map:1:1
+      1  100.0%            LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    6.7%          Function: ~<anonymous> node:internal/modules/esm/get_source:1:1
+      1  100.0%            LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1    6.7%          Function: ~<anonymous> node:internal/fs/promises:1:1
+      1  100.0%            LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+
+    163    7.5%  epoll_pwait@@GLIBC_2.6
+
+     41    1.9%  __write@@GLIBC_2.2.5
+     32   78.0%    /usr/bin/node
+      2    6.3%      LazyCompile: ~processTicksAndRejections node:internal/process/task_queues:68:35
+      1    3.1%      LazyCompile: ~wrapSafe node:internal/modules/cjs/loader:1017:18
+      1  100.0%        LazyCompile: ~Module._compile node:internal/modules/cjs/loader:1057:37
+      1  100.0%          LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:969:33
+      1    3.1%      LazyCompile: ~updateChildren node:internal/modules/cjs/loader:165:24
+      1  100.0%        LazyCompile: ~Module._load node:internal/modules/cjs/loader:757:24
+      1  100.0%          LazyCompile: ~Module.require node:internal/modules/cjs/loader:997:36
+      1  100.0%            LazyCompile: ~require node:internal/modules/cjs/helpers:101:31
+      1    3.1%      LazyCompile: ~toRealPath node:internal/modules/cjs/loader:393:20
+      1  100.0%        LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%          LazyCompile: ~resolveMainPath node:internal/modules/run_main:15:25
+      1  100.0%            LazyCompile: ~executeUserEntryPoint node:internal/modules/run_main:70:31
+      1    3.1%      LazyCompile: ~shift node:internal/fixed_queue:80:8
+      1  100.0%        Function: ^shift node:internal/fixed_queue:108:8
+      1  100.0%          LazyCompile: ~processTicksAndRejections node:internal/process/task_queues:68:35
+      1    3.1%      LazyCompile: ~setCharset /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/utils.js:247:41
+      1  100.0%        LazyCompile: ~send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1  100.0%          LazyCompile: ~json /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:239:25
+      1  100.0%            LazyCompile: ~send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1    3.1%      LazyCompile: ~res.get /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:793:19
+      1  100.0%        LazyCompile: ~json /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:239:25
+      1  100.0%          LazyCompile: ~send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1  100.0%            LazyCompile: ~send_json /home/lugio/Scrivania/progetto/backend/build/utils.js:15:19
+      1    3.1%      LazyCompile: ~readPackage node:internal/modules/cjs/loader:290:21
+      1  100.0%        LazyCompile: ~resolveExports node:internal/modules/cjs/loader:472:24
+      1  100.0%          LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%            LazyCompile: ~Module._resolveFilename node:internal/modules/cjs/loader:848:35
+      1    3.1%      LazyCompile: ~percolateUp node:internal/priority_queue:73:14
+      1  100.0%        Function: ^insert node:internal/priority_queue:34:9
+      1  100.0%          Function: ^insert node:internal/timers:350:16
+      1  100.0%            LazyCompile: ~setTimeout node:timers:140:20
+      1    3.1%      LazyCompile: ~parseReadyForQueryMessage /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:143:30
+      1  100.0%        LazyCompile: ~handlePacket /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:93:17
+      1  100.0%          LazyCompile: ~parse /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:28:10
+      1  100.0%            LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/index.js:11:23
+      1    3.1%      LazyCompile: ~onconnection node:net:1544:22
+      1    3.1%      LazyCompile: ~normalizeParseOptions /home/lugio/Scrivania/progetto/backend/node_modules/qs/lib/parse.js:203:59
+      1  100.0%        LazyCompile: ~module.exports /home/lugio/Scrivania/progetto/backend/node_modules/qs/lib/parse.js:237:27
+      1  100.0%          Function: ^parseExtendedQueryString /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/utils.js:288:34
+      1  100.0%            Function: ^query /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/middleware/query.js:39:24
+      1    3.1%      LazyCompile: ~matchKnownFields node:_http_incoming:231:26
+      1  100.0%        Function: ^_addHeaderLine node:_http_incoming:337:24
+      1  100.0%          Function: ^get node:_http_incoming:108:16
+      1  100.0%            Function: ^ServerResponse node:_http_server:178:24
+      1    3.1%      LazyCompile: ~initSocketHandle node:net:254:26
+      1  100.0%        LazyCompile: ~Socket node:net:283:16
+      1  100.0%          LazyCompile: ~WriteStream node:tty:85:21
+      1  100.0%            LazyCompile: ~createWritableStdioStream node:internal/bootstrap/switches/is_main_thread:41:35
+      1    3.1%      LazyCompile: ~etag /home/lugio/Scrivania/progetto/backend/node_modules/etag/index.js:70:15
+      1  100.0%        LazyCompile: ~generateETag /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/utils.js:272:32
+      1  100.0%          LazyCompile: ~send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1  100.0%            LazyCompile: ~json /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:239:25
+      1    3.1%      LazyCompile: ~emitReadable_ node:internal/streams/readable:574:23
+      1  100.0%        Function: ^processTicksAndRejections node:internal/process/task_queues:68:35
+      1    3.1%      LazyCompile: ~defaultTriggerAsyncIdScope node:internal/async_hooks:456:36
+      1  100.0%        LazyCompile: ~connectionListener node:_http_server:437:28
+      1  100.0%          Function: ^emit node:events:474:44
+      1  100.0%            LazyCompile: ~onconnection node:net:1544:22
+      1    3.1%      LazyCompile: ~debug node:internal/util/debuglog:76:15
+      1  100.0%        LazyCompile: ~logger node:internal/util/debuglog:95:18
+      1  100.0%          LazyCompile: ~loadNativeModule node:internal/modules/cjs/helpers:44:26
+      1  100.0%            LazyCompile: ~Module._load node:internal/modules/cjs/loader:757:24
+      1    3.1%      LazyCompile: ~createHash node:crypto:129:20
+      1  100.0%        LazyCompile: ~md5 /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/utils.js:167:22
+      1  100.0%          LazyCompile: ~postgresMd5PasswordHash /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/utils.js:172:42
+      1  100.0%            LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:243:23
+      1    3.1%      LazyCompile: ~_storeHeader node:_http_outgoing:374:22
+      1  100.0%        LazyCompile: ~writeHead node:_http_server:269:19
+      1  100.0%          Function: ^_implicitHeader node:_http_server:264:68
+      1  100.0%            LazyCompile: ~write_ node:_http_outgoing:730:16
+      1    3.1%      LazyCompile: ~_implicitHeader node:_http_server:264:68
+      1  100.0%        LazyCompile: ~write_ node:_http_outgoing:730:16
+      1  100.0%          LazyCompile: ~end node:_http_outgoing:833:45
+      1  100.0%            LazyCompile: ~send /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/response.js:107:25
+      1    3.1%      LazyCompile: ~_handleCommandComplete /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:358:25
+      1  100.0%        Function: ^emit node:events:474:44
+      1  100.0%          Function: ^<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/connection.js:109:19
+      1  100.0%            Function: ^parse /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:28:10
+      1    3.1%      LazyCompile: ~_handleAuthMD5Password /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:242:25
+      1  100.0%        Function: ^emit node:events:474:44
+      1  100.0%          Function: ^<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/connection.js:109:19
+      1  100.0%            Function: ^parse /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:28:10
+      1    3.1%      LazyCompile: ~_dump node:_http_incoming:364:49
+      1  100.0%        LazyCompile: ~resOnFinish node:_http_server:788:21
+      1  100.0%          Function: ^emit node:events:474:44
+      1  100.0%            LazyCompile: ~onFinish node:_http_outgoing:828:18
+      1    3.1%      LazyCompile: ~_destroy node:internal/streams/destroy:70:18
+      1  100.0%        LazyCompile: ~destroy node:internal/streams/destroy:32:17
+      1  100.0%          LazyCompile: ~endReadableNT node:internal/streams/readable:1338:23
+      1  100.0%            LazyCompile: ~processTicksAndRejections node:internal/process/task_queues:68:35
+      1    3.1%      LazyCompile: ~Writable.uncork node:internal/streams/writable:341:37
+      1  100.0%        LazyCompile: ~_flushOutput node:_http_outgoing:951:63
+      1  100.0%          LazyCompile: ~_writeRaw node:_http_outgoing:344:19
+      1  100.0%            LazyCompile: ~_send node:_http_outgoing:319:49
+      1    3.1%      LazyCompile: ~Socket._destroy node:net:667:37
+      1  100.0%        Function: ^_destroy node:internal/streams/destroy:70:18
+      1  100.0%          Function: ^destroy node:internal/streams/destroy:32:17
+      1  100.0%            Function: ^onceWrapper node:events:640:21
+      1    3.1%      LazyCompile: ~Parser /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:18:16
+      1  100.0%        LazyCompile: ~parse /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/index.js:9:15
+      1  100.0%          LazyCompile: ~attachListeners /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/connection.js:105:18
+      1  100.0%            LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/connection.js:64:39
+      1    3.1%      LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/build/logic/db_interface/DB_interface.js:48:40
+      1  100.0%        LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/build/logic/db_interface/DB_interface.js:38:46
+      1  100.0%          /usr/bin/node
+      1  100.0%            LazyCompile: ~__awaiter /home/lugio/Scrivania/progetto/backend/build/logic/db_interface/DB_interface.js:36:54
+      1    3.1%      Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/http-errors/index.js:1:1
+      1  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1057:37
+      1  100.0%          LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:969:33
+      1    3.1%      Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/express/lib/utils.js:1:1
+      1  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1057:37
+      1  100.0%          LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:969:33
+
+     30    1.4%  /usr/lib/x86_64-linux-gnu/libc-2.31.so
+     25   83.3%    /usr/bin/node
+      3   12.0%      Function: ^Module._load node:internal/modules/cjs/loader:757:24
+      3  100.0%        Function: ^Module.require node:internal/modules/cjs/loader:997:36
+      3  100.0%          Function: ^require node:internal/modules/cjs/helpers:101:31
+      1   33.3%            Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/googleapis/build/src/apis/storagetransfer/index.js:1:1
+      1   33.3%            Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/googleapis/build/src/apis/remotebuildexecution/v1alpha.js:1:1
+      1   33.3%            Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/googleapis/build/src/apis/recommendationengine/index.js:1:1
+      2    8.0%      LazyCompile: *readPackage node:internal/modules/cjs/loader:290:21
+      2  100.0%        LazyCompile: *readPackageScope node:internal/modules/cjs/loader:321:26
+      2  100.0%          Function: ^trySelf node:internal/modules/cjs/loader:441:17
+      2  100.0%            Function: ^Module._resolveFilename node:internal/modules/cjs/loader:848:35
+      2    8.0%      /usr/bin/node
+      1   50.0%        Function: ^FastBuffer node:internal/buffer:958:14
+      1  100.0%          Function: ^createUnsafeBuffer node:internal/buffer:1059:28
+      1  100.0%            Function: ^allocate node:buffer:398:18
+      1   50.0%        Function: ^<anonymous> node:internal/fs/utils:357:35
+      1  100.0%          Function: ^<anonymous> node:internal/fs/utils:668:38
+      1  100.0%            Function: ^realpathSync node:fs:2412:22
+      1    4.0%      LazyCompile: ~wrapSafe node:internal/modules/cjs/loader:1017:18
+      1  100.0%        LazyCompile: ~Module._compile node:internal/modules/cjs/loader:1057:37
+      1  100.0%          LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1  100.0%            LazyCompile: ~Module.load node:internal/modules/cjs/loader:969:33
+      1    4.0%      LazyCompile: ~toString node:buffer:783:46
+      1  100.0%        LazyCompile: ~readFileSync node:fs:450:22
+      1  100.0%          LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1  100.0%            LazyCompile: ~Module.load node:internal/modules/cjs/loader:969:33
+      1    4.0%      LazyCompile: ~resOnFinish node:_http_server:788:21
+      1  100.0%        Function: ^emit node:events:474:44
+      1  100.0%          LazyCompile: ~onFinish node:_http_outgoing:828:18
+      1  100.0%            LazyCompile: ~callback node:internal/streams/writable:550:44
+      1    4.0%      LazyCompile: ~realpathSync node:fs:2412:22
+      1  100.0%        LazyCompile: ~toRealPath node:internal/modules/cjs/loader:393:20
+      1  100.0%          LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%            LazyCompile: ~resolveMainPath node:internal/modules/run_main:15:25
+      1    4.0%      LazyCompile: ~readableAddChunk node:internal/streams/readable:236:26
+      1  100.0%        Function: ^Readable.push node:internal/streams/readable:227:35
+      1  100.0%          LazyCompile: ~onStreamRead node:internal/stream_base_commons:167:22
+      1    4.0%      LazyCompile: ~parseRowDescriptionMessage /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:180:31
+      1  100.0%        LazyCompile: ~handlePacket /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:93:17
+      1  100.0%          Function: ^parse /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:28:10
+      1  100.0%            LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/index.js:11:23
+      1    4.0%      LazyCompile: ~format node:url:586:39
+      1  100.0%        Function: ^parse node:url:168:37
+      1  100.0%          LazyCompile: ~urlParse node:url:152:18
+      1  100.0%            LazyCompile: ~parse /home/lugio/Scrivania/progetto/backend/node_modules/pg-connection-string/index.js:11:15
+      1    4.0%      LazyCompile: ~concat node:buffer:536:32
+      1  100.0%        LazyCompile: ~postgresMd5PasswordHash /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/utils.js:172:42
+      1  100.0%          LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:243:23
+      1  100.0%            LazyCompile: ~_checkPgPass /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:203:15
+      1    4.0%      LazyCompile: ~arrayClone node:events:883:20
+      1  100.0%        Function: ^emit node:events:474:44
+      1  100.0%          Function: ^_addListener node:events:554:22
+      1  100.0%            LazyCompile: ~prependListener node:events:636:29
+      1    4.0%      LazyCompile: ~Socket._writev node:net:801:36
+      1  100.0%        LazyCompile: ~doWrite node:internal/streams/writable:398:17
+      1  100.0%          LazyCompile: ~clearBuffer node:internal/streams/writable:529:21
+      1  100.0%            Function: ^Writable.uncork node:internal/streams/writable:341:37
+      1    4.0%      LazyCompile: ~ConnectionParameters /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/connection-parameters.js:49:14
+      1  100.0%        LazyCompile: ~Client /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:16:14
+      1  100.0%          LazyCompile: ~newClient /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:212:12
+      1  100.0%            LazyCompile: ~connect /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:166:10
+      1    4.0%      LazyCompile: *resolve node:path:1091:10
+      1  100.0%        LazyCompile: *realpathSync node:fs:2412:22
+      1  100.0%          Function: ^toRealPath node:internal/modules/cjs/loader:393:20
+      1  100.0%            Function: ^tryFile node:internal/modules/cjs/loader:384:17
+      1    4.0%      LazyCompile: *realpathSync node:fs:2412:22
+      1  100.0%        Function: ^toRealPath node:internal/modules/cjs/loader:393:20
+      1  100.0%          Function: ^tryFile node:internal/modules/cjs/loader:384:17
+      1  100.0%            Function: ^tryExtensions node:internal/modules/cjs/loader:400:23
+      1    4.0%      Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/googleapis/build/src/apis/compute/alpha.js:24:11
+      1  100.0%        Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/googleapis/build/src/apis/compute/alpha.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1057:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1    4.0%      Function: ^resolve node:path:1091:10
+      1  100.0%        LazyCompile: ~tryPackage node:internal/modules/cjs/loader:338:20
+      1  100.0%          LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%            LazyCompile: ~Module._resolveFilename node:internal/modules/cjs/loader:848:35
+      1    4.0%      Function: ^emit node:events:474:44
+      1  100.0%        LazyCompile: ~addChunk node:internal/streams/readable:304:18
+      1  100.0%          LazyCompile: ~readableAddChunk node:internal/streams/readable:236:26
+      1  100.0%            LazyCompile: ~Readable.push node:internal/streams/readable:227:35
+      1    4.0%      Function: ^_pulseQueue /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:109:14
+      1  100.0%        Function: ^_release /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:325:11
+      1  100.0%          Function: ^<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:313:12
+      1  100.0%            Function: ^<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:406:34
+      1    4.0%      Function: ^Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%        Function: ^Module._resolveFilename node:internal/modules/cjs/loader:848:35
+      1  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:757:24
+      1  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:997:36
+
+     29    1.3%  fwrite@@GLIBC_2.2.5
+     26   89.7%    /usr/bin/node
+      3   11.5%      LazyCompile: ~realpathSync node:fs:2412:22
+      3  100.0%        LazyCompile: ~toRealPath node:internal/modules/cjs/loader:393:20
+      3  100.0%          LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:494:28
+      3  100.0%            LazyCompile: ~resolveMainPath node:internal/modules/run_main:15:25
+      2    7.7%      LazyCompile: ~prepareMainThreadExecution node:internal/bootstrap/pre_execution:22:36
+      2  100.0%        Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      2    7.7%      LazyCompile: ~_handleReadyForQuery /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:271:23
+      2  100.0%        Function: ^emit node:events:474:44
+      2  100.0%          LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/connection.js:109:19
+      2  100.0%            LazyCompile: ~parse /home/lugio/Scrivania/progetto/backend/node_modules/pg-protocol/dist/parser.js:28:10
+      1    3.8%      LazyCompile: ~toRealPath node:internal/modules/cjs/loader:393:20
+      1  100.0%        LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:494:28
+      1  100.0%          LazyCompile: ~resolveMainPath node:internal/modules/run_main:15:25
+      1  100.0%            LazyCompile: ~executeUserEntryPoint node:internal/modules/run_main:70:31
+      1    3.8%      LazyCompile: ~setupWarningHandler node:internal/bootstrap/pre_execution:134:29
+      1  100.0%        LazyCompile: ~prepareMainThreadExecution node:internal/bootstrap/pre_execution:22:36
+      1  100.0%          Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    3.8%      LazyCompile: ~setupPerfHooks node:internal/bootstrap/pre_execution:220:24
+      1  100.0%        LazyCompile: ~prepareMainThreadExecution node:internal/bootstrap/pre_execution:22:36
+      1  100.0%          Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    3.8%      LazyCompile: ~setTimeout node:timers:140:20
+      1  100.0%        LazyCompile: ~_release /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:325:11
+      1  100.0%          LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:313:12
+      1  100.0%            LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:406:34
+      1    3.8%      LazyCompile: ~init /home/lugio/Scrivania/progetto/backend/node_modules/pg-types/lib/textParsers.js:166:20
+      1  100.0%        Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-types/index.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1057:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1112:37
+      1    3.8%      LazyCompile: ~getCheckedFunction node:os:63:28
+      1  100.0%        Function: ~<anonymous> node:os:1:1
+      1  100.0%          Function: ^compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1  100.0%            LazyCompile: ~compileForPublicLoader node:internal/bootstrap/loaders:246:25
+      1    3.8%      LazyCompile: ~createWritableStdioStream node:internal/bootstrap/switches/is_main_thread:41:35
+      1  100.0%        LazyCompile: ~getStderr node:internal/bootstrap/switches/is_main_thread:137:19
+      1  100.0%          Function: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/debug/src/node.js:1:1
+      1  100.0%            LazyCompile: ~Module._compile node:internal/modules/cjs/loader:1057:37
+      1    3.8%      LazyCompile: ~createHash node:crypto:129:20
+      1  100.0%        LazyCompile: ~md5 /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/utils.js:167:22
+      1  100.0%          LazyCompile: ~postgresMd5PasswordHash /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/utils.js:172:42
+      1  100.0%            LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:243:23
+      1    3.8%      LazyCompile: ~_release /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:325:11
+      1  100.0%        Function: ^<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:313:12
+      1  100.0%          Function: ^<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:406:34
+      1  100.0%            Function: ^handleReadyForQuery /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/query.js:133:22
+      1    3.8%      LazyCompile: ~_attachListeners /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:176:19
+      1  100.0%        LazyCompile: ~_connect /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:88:11
+      1  100.0%          LazyCompile: ~connect /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:159:10
+      1  100.0%            LazyCompile: ~newClient /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:212:12
+      1    3.8%      LazyCompile: ~_acquireClient /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:276:17
+      1  100.0%        LazyCompile: ~<anonymous> /home/lugio/Scrivania/progetto/backend/node_modules/pg-pool/index.js:232:20
+      1  100.0%          LazyCompile: ~_handleReadyForQuery /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/client.js:271:23
+      1  100.0%            Function: ^emit node:events:474:44
+      1    3.8%      LazyCompile: ~ReadableState node:internal/streams/readable:78:23
+      1  100.0%        LazyCompile: ~Readable node:internal/streams/readable:181:18
+      1  100.0%          LazyCompile: ~Duplex node:internal/streams/duplex:52:16
+      1  100.0%            LazyCompile: ~Socket node:net:283:16
+      1    3.8%      LazyCompile: ~Hash node:internal/crypto/hash:58:14
+      1  100.0%        LazyCompile: ~createHash node:crypto:129:20
+      1  100.0%          LazyCompile: ~md5 /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/utils.js:167:22
+      1  100.0%            LazyCompile: ~postgresMd5PasswordHash /home/lugio/Scrivania/progetto/backend/node_modules/pg/lib/utils.js:172:42
+      1    3.8%      LazyCompile: ~Duplex node:internal/streams/duplex:52:16
+      1  100.0%        LazyCompile: ~Socket node:net:283:16
+      1  100.0%          LazyCompile: ~WriteStream node:tty:85:21
+      1  100.0%            LazyCompile: ~createWritableStdioStream node:internal/bootstrap/switches/is_main_thread:41:35
+      1    3.8%      LazyCompile: ~<anonymous> node:path:1082:10
+      1  100.0%        LazyCompile: ~resolve node:path:1091:10
+      1  100.0%          LazyCompile: ~patchProcessObject node:internal/bootstrap/pre_execution:81:28
+      1  100.0%            LazyCompile: ~prepareMainThreadExecution node:internal/bootstrap/pre_execution:22:36
+      1    3.8%      Function: ~<anonymous> node:internal/modules/cjs/helpers:1:1
+      1  100.0%        LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1  100.0%          LazyCompile: ~nativeModuleRequire node:internal/bootstrap/loaders:332:29
+      1  100.0%            Function: ~<anonymous> node:internal/source_map/source_map_cache:1:1
+      1    3.8%      Function: ~<anonymous> node:internal/fs/rimraf:1:1
+      1  100.0%        LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1  100.0%          LazyCompile: ~nativeModuleRequire node:internal/bootstrap/loaders:332:29
+      1  100.0%            Function: ~<anonymous> node:internal/fs/promises:1:1
+      1    3.8%      Function: ~<anonymous> node:internal/fs/promises:1:1
+      1  100.0%        LazyCompile: ~compileForInternalLoader node:internal/bootstrap/loaders:299:27
+      1  100.0%          LazyCompile: ~nativeModuleRequire node:internal/bootstrap/loaders:332:29
+      1  100.0%            Function: ~<anonymous> node:internal/modules/esm/get_source:1:1
+      1    3.8%      /usr/bin/node
+      1  100.0%        LazyCompile: ~isIPv6 node:internal/net:35:16
+      1  100.0%          LazyCompile: ~isIP node:internal/net:39:14
+      1  100.0%            LazyCompile: ~lookup node:dns:97:16
+
