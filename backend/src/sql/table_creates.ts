@@ -87,8 +87,8 @@ const create_types_of_monuments_table =
         period_end DATE DEFAULT NULL
     );`;
 
-const create_monuments_types_table =
-    `CREATE TABLE IF NOT EXISTS Monuments_Types (
+const create_monument_types_table =
+    `CREATE TABLE IF NOT EXISTS Monument_Types (
         fk_monument_id INTEGER REFERENCES Monuments
             ON DELETE CASCADE
             ON UPDATE CASCADE,
@@ -98,16 +98,16 @@ const create_monuments_types_table =
         PRIMARY KEY (fk_monument_id, fk_type_id)
     );`;
 
-const table_creates : Record<string, string> = {
-    "continents": create_continents_table,
-    "countries": create_countries_table,
-    "cities": create_cities_table,
-    "languages": create_languages_table,
-    "users": create_users_table,
-    "monuments": create_monuments_table,
-    "visits": create_visits_table,
-    "types_of_monuments": create_types_of_monuments_table,
-    "monuments_types": create_monuments_types_table
+const table_creates ={
+    continents: create_continents_table,
+    countries: create_countries_table,
+    cities: create_cities_table,
+    languages: create_languages_table,
+    users: create_users_table,
+    monuments: create_monuments_table,
+    visits: create_visits_table,
+    types_of_monuments: create_types_of_monuments_table,
+    monument_types: create_monument_types_table
 }
 
 export { table_creates }

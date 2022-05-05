@@ -7,7 +7,7 @@ const fields_dictionary = {
     users: ["firebase_id", "fk_language_id"],
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
-    type_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
+    types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
     monument_types: ["fk_monument_id", "fk_type_of_monument_id"]
 };
 type accepted_get_types = keyof typeof fields_dictionary;

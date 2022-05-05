@@ -10,7 +10,7 @@ exports.__esModule = true;
 exports.app = void 0;
 require("dotenv/config");
 var express_1 = __importDefault(require("express"));
-var DB_shortcuts_1 = __importDefault(require("./routes/dev_shortcuts/DB_shortcuts")); // Remove this in production code
+// import db_shortcut_router from "./routes/dev_shortcuts/DB_shortcuts"; // Remove this in production code
 var users_1 = __importDefault(require("./routes/users/users"));
 var countries_1 = __importDefault(require("./routes/countries/countries"));
 var continents_1 = __importDefault(require("./routes/continents/continents"));
@@ -25,7 +25,7 @@ app.use(DB_interface_1.validating_db_status);
 // Authenticate user
 app.use(body_parser_1["default"].json());
 app.use(utils_1.authenticate_user);
-app.use("/db_shortcuts", DB_shortcuts_1["default"]); // Remove this in production code
+// app.use("/db_shortcuts", db_shortcut_router); // Remove this in production code
 app.use("/countries", countries_1["default"]);
 app.use("/users", users_1["default"]);
 app.use("/continents", continents_1["default"]);

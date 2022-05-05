@@ -1,29 +1,32 @@
-import {Router, Request, Response} from 'express';
+import { Router, Request, Response } from 'express';
 import { get_language_of_user } from "../../logic/users/utils";
 import { send_json } from "../../utils"
 import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { table_creates } from '../dev_shortcuts/table_creates';
+import { create_table, delete_table, get_schema } from '../../logic/tables/utils';
 
+/******************** CONSTANTS ***********************/
 const cities_router: Router = Router();
+const table_name = "cities";
+const error_codes = {
+    table_not_found: `${table_name}_1_1`,
+    city_not_found: `${table_name}_1_2`,
+    no_compatible_insert_body: `${table_name}_2_1`,
+    no_compatible_update_body: `${table_name}_2_2`,
+    no_country_ids: `${table_name}_2_3`,
+    no_monument_id: `${table_name}_2_4`
+}
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
     return types.get_fields("cities",
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     )[0];
 }
-const error_codes = {
-    no_cities_table: "cities_1_1",
-    city_not_found: "cities_1_2",
-    no_compatible_insert_body: "cities_2_1",
-    no_compatible_update_body: "cities_2_2",
-    no_country_ids: "cities_2_3",
-    no_monument_id: "cities_2_4"
-}
 
+/****************************************** ROUTES **********************************************/
 cities_router.options("/", (req: Request, res: Response) => {
     let method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table", role: "admin" },
+        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the cities"},
         { verb: "get", method: "list_single/:city_id", description: "Gives the fields of a single city" },
         { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
@@ -40,24 +43,19 @@ cities_router.options("/", (req: Request, res: Response) => {
 });
 /************************************** TABLE ***************************************************/
 cities_router.post("/create_table", async (req: Request, res: Response) => {
-    if(res.locals.role !== "admin")
-        send_json(res, "Unauthorized");
-    else {
-        const db_interface = res.locals.DB_INTERFACE as DB_interface;
-        const result = await db_interface.query(table_creates.cities);
-        send_json(res, result, { success: 201 });
-    }
+    send_json(res, 
+        await create_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
+    );
 });
 cities_router.get("/table_schema", async (req: Request, res: Response) => {
-    const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const result = await db_interface.query(`
-        SELECT column_name, data_type, character_maximum_length, is_nullable
-        FROM information_schema.columns
-        WHERE table_name = 'cities'
-    `);
-    result?.result?.[0].rowCount === 0 ? 
-        send_json(res, {error: error_codes.no_cities_table}) :
-        send_json(res, result);
+    send_json(res,
+        await get_schema(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string) || error_codes.table_not_found,
+    );
+});
+cities_router.delete("/delete_table", async (req: Request, res: Response) => {
+    send_json(res,
+        await delete_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
+    );
 });
 /************************************** GET ***************************************************/
 cities_router.get("/list_all", async (req: Request, res: Response) => {
@@ -130,6 +128,7 @@ cities_router.post("/insert", async (req, res) => {
             error: error_codes.no_compatible_insert_body
         });
 });
+/************************************** PUT ***************************************************/
 cities_router.put("/update/:country_id", async (req, res) => {
     const updating_fields = req.body.updating_fields;
     if(res.locals.role !== "admin")

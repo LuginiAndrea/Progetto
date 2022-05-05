@@ -40,19 +40,22 @@ var express_1 = require("express");
 var utils_1 = require("../../logic/users/utils");
 var utils_2 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
-var table_creates_1 = require("../dev_shortcuts/table_creates");
+var utils_3 = require("../../logic/tables/utils");
+/******************** CONSTANTS ***********************/
 var continents_router = (0, express_1.Router)();
+var table_name = "continents";
 var error_codes = {
-    no_continents_table: "continents_1_1",
-    no_country_id: "continents_2_1"
+    table_not_found: "".concat(table_name, "_1_1"),
+    no_country_id: "".concat(table_name, "_1_2")
 };
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("continents", function (x) { return !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
+/****************************************** ROUTES **********************************************/
 continents_router.options("/", function (req, res) {
     var method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table", role: "admin" },
+        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", role: "admin" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the continents" },
         { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single continents" },
@@ -64,37 +67,43 @@ continents_router.options("/", function (req, res) {
 });
 /************************************** TABLE ***************************************************/
 continents_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, "Unauthorized");
-                return [3 /*break*/, 3];
+                _a = utils_2.send_json;
+                _b = [res];
+                return [4 /*yield*/, (0, utils_3.create_table)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
             case 1:
-                db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, db_interface.query(table_creates_1.table_creates.continents)];
-            case 2:
-                result = _a.sent();
-                (0, utils_2.send_json)(res, result, { success: 201 });
-                _a.label = 3;
-            case 3: return [2 /*return*/];
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+continents_router["delete"]("/delete_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_2.send_json;
+                _b = [res];
+                return [4 /*yield*/, (0, utils_3.delete_table)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
         }
     });
 }); });
 continents_router.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, result;
-    var _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, db_interface.query("\n        SELECT column_name, data_type, character_maximum_length, is_nullable\n        FROM information_schema.columns\n        WHERE table_name = 'continents'\n    ")];
+                _a = utils_2.send_json;
+                _b = [res];
+                return [4 /*yield*/, (0, utils_3.get_schema)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
             case 1:
-                result = _b.sent();
-                ((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0 ?
-                    (0, utils_2.send_json)(res, { error: error_codes.no_continents_table }) :
-                    (0, utils_2.send_json)(res, result);
+                _a.apply(void 0, _b.concat([(_c.sent()) || error_codes.table_not_found]));
                 return [2 /*return*/];
         }
     });
@@ -164,7 +173,6 @@ continents_router.get("/continent_of_country", function (req, res) { return __aw
                 return [4 /*yield*/, db_interface.query("\n            SELECT ".concat(fields, " FROM Continents \n            WHERE id = (\n                SELECT fk_continent_id FROM Countries WHERE id = $1\n            )"), [req.query.country_id])];
             case 2:
                 result = _a.sent();
-                console.log(result);
                 (0, utils_2.send_json)(res, result);
                 return [3 /*break*/, 4];
             case 3:

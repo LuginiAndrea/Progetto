@@ -49,23 +49,26 @@ var express_1 = require("express");
 var utils_1 = require("../../utils");
 var DB_interface_1 = require("../../logic/db_interface/DB_interface");
 var utils_2 = require("../../logic/users/utils");
-var table_creates_1 = require("../dev_shortcuts/table_creates");
+var utils_3 = require("../../logic/tables/utils");
+/******************** CONSTANTS ***********************/
 var countries_router = (0, express_1.Router)();
+var table_name = "countries";
+var error_codes = {
+    table_not_found: "".concat(table_name, "_1_1"),
+    country_not_found: "".concat(table_name, "_1_2"),
+    no_compatible_insert_body: "".concat(table_name, "_2_1"),
+    no_compatible_update_body: "".concat(table_name, "_2_2"),
+    no_continent_ids: "".concat(table_name, "_2_3"),
+    no_city_id: "".concat(table_name, "_2_4")
+};
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("countries", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
-var error_codes = {
-    no_countries_table: "countries_1_1",
-    country_not_found: "countries_1_2",
-    no_compatible_insert_body: "countries_2_1",
-    no_compatible_update_body: "countries_2_2",
-    no_continent_ids: "countries_2_3",
-    no_city_id: "countries_2_4"
-};
+/****************************************** ROUTES **********************************************/
 countries_router.options("/", function (req, res) {
     var method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table", role: "admin" },
+        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the countries" },
         { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single country" },
         { verb: "get", method: "list_single_by_iso_code/:country_iso_code", description: "Gives the fields of a single country" },
@@ -81,37 +84,43 @@ countries_router.options("/", function (req, res) {
 });
 /************************************** TABLE ***************************************************/
 countries_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                if (!(res.locals.role !== "admin")) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, "Unauthorized");
-                return [3 /*break*/, 3];
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, (0, utils_3.create_table)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
             case 1:
-                db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, db_interface.query(table_creates_1.table_creates.countries)];
-            case 2:
-                result = _a.sent();
-                (0, utils_1.send_json)(res, result, { success: 201 });
-                _a.label = 3;
-            case 3: return [2 /*return*/];
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+countries_router["delete"]("/delete_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, (0, utils_3.delete_table)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
         }
     });
 }); });
 countries_router.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, result;
-    var _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, db_interface.query("\n        SELECT column_name, data_type, character_maximum_length, is_nullable\n        FROM information_schema.columns\n        WHERE table_name = 'countries'\n    ")];
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, (0, utils_3.get_schema)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
             case 1:
-                result = _b.sent();
-                ((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0 ?
-                    (0, utils_1.send_json)(res, { error: error_codes.no_countries_table }) :
-                    (0, utils_1.send_json)(res, result);
+                _a.apply(void 0, _b.concat([(_c.sent()) || error_codes.table_not_found]));
                 return [2 /*return*/];
         }
     });

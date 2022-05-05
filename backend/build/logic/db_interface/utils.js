@@ -3,7 +3,7 @@ exports.__esModule = true;
 exports.error_codes = exports.validating_db_status = exports.get_db_uri = void 0;
 var app_1 = require("../../app");
 var error_codes = {
-    "no_db_istance": "i_db_1",
+    "no_db_interface": "i_db_1",
     "no_db_connection": "i_db_2"
 };
 exports.error_codes = error_codes;
@@ -18,7 +18,7 @@ exports.get_db_uri = get_db_uri;
 function validating_db_status(req, res, next) {
     if (!app_1.app.locals.DEFAULT_DB_INTERFACE)
         res.status(500).send({
-            error: error_codes.no_db_istance
+            error: error_codes.no_db_interface
         });
     else {
         res.locals.DB_INTERFACE = app_1.app.locals.DEFAULT_DB_INTERFACE;
