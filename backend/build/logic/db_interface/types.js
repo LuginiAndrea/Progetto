@@ -1,12 +1,12 @@
 "use strict";
 exports.__esModule = true;
-exports.is_monument_types_body = exports.is_types_of_monuments_body = exports.is_visits_body = exports.is_monuments_body = exports.is_users_body = exports.is_languages_body = exports.is_cities_body = exports.is_countries_body = exports.extract_values_of_fields = exports.get_fields = void 0;
+exports.body_validators = exports.extract_values_of_fields = exports.get_fields = void 0;
 var fields_dictionary = {
     continents: ["id", "it_name", "en_name"],
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
     cities: ["id", "real_name", "it_name", "en_name", "rating", "fk_country_id"],
     languages: ["id", "name", "abbreviation"],
-    users: ["firebase_id", "fk_language_id"],
+    users: ["id", "fk_language_id"],
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
     types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
@@ -51,7 +51,6 @@ function is_countries_body(obj) {
         obj.iso_alpha_3.length === 3 &&
         typeof obj.fk_continent_id === "number";
 }
-exports.is_countries_body = is_countries_body;
 function is_cities_body(obj) {
     return typeof obj.real_name === "string" &&
         obj.real_name.length <= 50 &&
@@ -60,19 +59,16 @@ function is_cities_body(obj) {
         (!obj.rating || (typeof obj.rating === "number" && obj.rating >= 0 && obj.rating <= 5)) &&
         typeof obj.fk_country_id === "number";
 }
-exports.is_cities_body = is_cities_body;
 function is_languages_body(obj) {
     return typeof obj.name === "string" &&
         obj.name.length <= 50 &&
         typeof obj.abbreviation === "string" &&
         obj.abbreviation.length === 2;
 }
-exports.is_languages_body = is_languages_body;
 function is_users_body(obj) {
-    return typeof obj.firebase_id === "string" &&
+    return typeof obj.id === "string" &&
         typeof obj.fk_language_id === "number";
 }
-exports.is_users_body = is_users_body;
 function is_monuments_body(obj) {
     return typeof obj.real_name === "string" &&
         obj.real_name.length <= 50 &&
@@ -83,7 +79,6 @@ function is_monuments_body(obj) {
         (!obj.en_description || (typeof obj.en_description === "string" && obj.en_description.length <= 50)) &&
         typeof obj.fk_city_id === "number";
 }
-exports.is_monuments_body = is_monuments_body;
 function is_visits_body(obj) {
     return typeof obj.rating === "number" &&
         obj.rating >= 0 && obj.rating <= 5 &&
@@ -92,7 +87,6 @@ function is_visits_body(obj) {
         typeof obj.fk_user_id === "number" &&
         typeof obj.fk_monument_id === "number";
 }
-exports.is_visits_body = is_visits_body;
 function is_types_of_monuments_body(obj) {
     return typeof obj.real_name === "string" &&
         obj.real_name.length <= 50 &&
@@ -103,9 +97,18 @@ function is_types_of_monuments_body(obj) {
         typeof obj.period_start === "string" &&
         typeof obj.period_end === "string";
 }
-exports.is_types_of_monuments_body = is_types_of_monuments_body;
 function is_monument_types_body(obj) {
     return typeof obj.fk_monument_id === "number" &&
         typeof obj.fk_type_of_monument_id === "number";
 }
-exports.is_monument_types_body = is_monument_types_body;
+var body_validators = {
+    countries: is_countries_body,
+    cities: is_cities_body,
+    languages: is_languages_body,
+    users: is_users_body,
+    monuments: is_monuments_body,
+    visits: is_visits_body,
+    types_of_monuments: is_types_of_monuments_body,
+    monument_types: is_monument_types_body
+};
+exports.body_validators = body_validators;

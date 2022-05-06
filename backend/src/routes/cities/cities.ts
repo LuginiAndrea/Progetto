@@ -2,19 +2,11 @@ import { Router, Request, Response } from 'express';
 import { get_language_of_user } from "../../logic/users/utils";
 import { send_json } from "../../utils"
 import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { create_table, delete_table, get_schema } from '../../logic/tables/utils';
+import { table, values, error_codes } from '../../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const cities_router: Router = Router();
 const table_name = "cities";
-const error_codes = {
-    table_not_found: `${table_name}_1_1`,
-    city_not_found: `${table_name}_1_2`,
-    no_compatible_insert_body: `${table_name}_2_1`,
-    no_compatible_update_body: `${table_name}_2_2`,
-    no_country_ids: `${table_name}_2_3`,
-    no_monument_id: `${table_name}_2_4`
-}
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
     return types.get_fields("cities",
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
@@ -44,150 +36,87 @@ cities_router.options("/", (req: Request, res: Response) => {
 /************************************** TABLE ***************************************************/
 cities_router.post("/create_table", async (req: Request, res: Response) => {
     send_json(res, 
-        await create_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
+        await table.create(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
     );
 });
 cities_router.get("/table_schema", async (req: Request, res: Response) => {
     send_json(res,
-        await get_schema(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string) || error_codes.table_not_found,
+        await table.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
     );
 });
 cities_router.delete("/delete_table", async (req: Request, res: Response) => {
     send_json(res,
-        await delete_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
+        await table.schema(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
     );
 });
 /************************************** GET ***************************************************/
 cities_router.get("/list_all", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-    const fields = exclude_fields_by_language(language_of_user);
-    const result = await db_interface.query(`SELECT ${fields} FROM Cities`);
-    send_json(res, result);
+    const language = await get_language_of_user(req, res.locals.uid, db_interface);
+    send_json(res,
+        await values.get.all(table_name, db_interface, `ORDER BY ${language}_name`, {
+            func: exclude_fields_by_language,
+            args: language
+        })
+    );
 });
 
 cities_router.get("/list_single/:city_id", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-    const fields = exclude_fields_by_language(language_of_user);
-    const result = await db_interface.query(`SELECT ${fields} FROM Cities WHERE id = $1`, [req.params.city_id]);
-    send_json(res, result);
+    send_json(res,
+        await values.get.single(table_name, db_interface, req.params.city_id, "", {
+            func: exclude_fields_by_language,
+            args: await get_language_of_user(req, res.locals.uid, db_interface)
+        })
+    );
 });
 
 cities_router.get("/cities_in_countries", async (req: Request, res: Response) => {
-    if(req.query.country_ids) {
+    if(!req.query.country_ids) 
+        send_json(res, error_codes.No_referenced_item(table_name));
+    else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-        const fields = exclude_fields_by_language(language_of_user);
-        const result = await db_interface.query(`SELECT ${fields} FROM cities WHERE fk_country_id = ANY ($1)`, [(req.query.country_ids as string).split(",")]);
-        send_json(res, result);
+        const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        send_json(res,
+            await values.get.generic(table_name, db_interface, 
+            `WHERE fk_country_id = ANY ($1) ORDER BY fk_country_id, ${language}_name`, [(req.query.country_ids as string).split(",")], {
+                func: exclude_fields_by_language,
+                args: language
+            })
+        );
     }
-    else 
-        send_json(res, {
-            error: error_codes.no_country_ids,
-        });
 });
 
 cities_router.get("/city_of_monument", async (req: Request, res: Response) => {
-    if(req.query.monument_id) {
+    if(!req.query.monument_id) 
+        send_json(res, error_codes.No_referenced_item(table_name));
+    else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-        //Filter out the fields that are for different languages
-        const fields = exclude_fields_by_language(language_of_user);
-        const result = await db_interface.query(`
-            SELECT ${fields} FROM Cities WHERE id = (
-                SELECT fk_city_id FROM Monuments WHERE id = $1
-            )`, [req.query.monument_id]);
-        send_json(res, result);
+        send_json(res,
+            await values.get.generic(table_name, db_interface, "WHEERE id = (SELECT fk_city_id FROM monuments WHERE id = $1)", [req.query.monument_id], {
+                func: exclude_fields_by_language,
+                args: await get_language_of_user(req, res.locals.uid, db_interface)
+            })
+        );
     }
-
-    else 
-        send_json(res, {
-            error: error_codes.no_monument_id,
-        });
 });
 /************************************** POST ***************************************************/
 cities_router.post("/insert", async (req, res) => {
-    if(res.locals.role !== "admin")
-        send_json(res, "Unauthorized");
-
-    else if(types.is_cities_body(req.body))  {
-        const db_interface = res.locals.DB_INTERFACE as DB_interface;
-        const [fields, placeholder_sequence] = types.get_fields("countries", Object.keys(req.body), true, true);
-        const data = types.extract_values_of_fields(req.body, fields);
-        const result = await db_interface.query(`
-            INSERT INTO Countries (${fields}) VALUES (${placeholder_sequence})
-            RETURNING id;`, 
-            data
-        ); 
-        send_json(res, result, { success: 201 });
-    }
-
-    else
-        send_json(res, {
-            error: error_codes.no_compatible_insert_body
-        });
+    send_json(res,
+        await values.insert(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body)
+    );
 });
 /************************************** PUT ***************************************************/
-cities_router.put("/update/:country_id", async (req, res) => {
-    const updating_fields = req.body.updating_fields;
-    if(res.locals.role !== "admin")
-        send_json(res, "Unauthorized");
-
-    else if(types.is_cities_body(req.body) && typeof updating_fields === "string") {
-        const db_interface = res.locals.DB_INTERFACE as DB_interface;
-        const [fields, placeholder_sequence] = types.get_fields("countries", updating_fields.split(","), 2);
-        const data = types.extract_values_of_fields(req.body, fields);
-
-        if(fields.length === 0) { //Check if there is at least one field to update
-            send_json(res, {
-                error: error_codes.no_compatible_update_body
-            });
-        }
-        else {
-            const result = fields.length > 1 ? //If there are more than 1 field to update we need to change syntax
-                await db_interface.query(`
-                    UPDATE Countries SET (${fields}) = (${placeholder_sequence})
-                    WHERE id = $1
-                    RETURNING *;`,
-                    [req.params.country_id, ...data]
-                ) :
-                await db_interface.query(`
-                    UPDATE Countries SET ${fields} = $2
-                    WHERE id = $1
-                    RETURNING *;`,
-                    [req.params.country_id, ...data]
-                );
-
-            if(result?.result?.[0].rowCount === 0) // Check if a row was affected
-                send_json(res, error_codes.city_not_found);
-            else
-                send_json(res, result);
-        }
-    }
-    else
-        send_json(res, {
-            error: error_codes.no_compatible_update_body
-        });
+cities_router.put("/update/:city_id", async (req, res) => {
+    send_json(res,
+        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.city_id)
+    );
 });
 /************************************** DELETE ***************************************************/
-cities_router.delete("/delete/:country_id", async (req, res) => {
-    if(res.locals.role !== "admin")
-        send_json(res, {
-            error: "Unauthorized",
-        });
-    else {
-        const db_interface = res.locals.DB_INTERFACE as DB_interface;
-        const result = await db_interface.query(`
-            DELETE FROM Countries WHERE id = $1
-            RETURNING id;`, 
-            [req.params.country_id]
-        );
-        if(result?.result?.[0].rowCount === 0) //Check if a row was affected
-            send_json(res, error_codes.city_not_found);
-        else
-            send_json(res, result);
-    }
+cities_router.delete("/delete/:city_id", async (req, res) => {
+    send_json(res,
+        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.city_id)
+    );
 });
 
 export default cities_router;

@@ -4,7 +4,7 @@ const fields_dictionary = {
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
     cities: ["id", "real_name", "it_name", "en_name", "rating", "fk_country_id"],
     languages: ["id", "name", "abbreviation"],
-    users: ["firebase_id", "fk_language_id"],
+    users: ["id", "fk_language_id"],
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
     types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
@@ -87,11 +87,11 @@ function is_languages_body(obj: any): obj is languages_body {
 }
 // ***************** USERS *****************
 type users_body = {
-    firebase_id: string,
+    id: string,
     fk_language_id: number
 }
 function is_users_body(obj: any): obj is users_body {
-    return typeof obj.firebase_id === "string" &&
+    return typeof obj.id === "string" &&
         typeof obj.fk_language_id === "number";
 }
 // ***************** MONUMENTS *****************
@@ -160,14 +160,18 @@ function is_monument_types_body(obj: any): obj is monument_types_body {
         typeof obj.fk_type_of_monument_id === "number";
 }
 
+const body_validators = {
+    countries: is_countries_body,
+    cities: is_cities_body,
+    languages: is_languages_body,
+    users: is_users_body,
+    monuments: is_monuments_body,
+    visits: is_visits_body,
+    types_of_monuments: is_types_of_monuments_body,
+    monument_types: is_monument_types_body
+};
+
 export { 
     get_fields, extract_values_of_fields,
-    countries_body, is_countries_body, 
-    cities_body, is_cities_body, 
-    languages_body, is_languages_body,
-    users_body, is_users_body,
-    monuments_body, is_monuments_body,
-    visits_body, is_visits_body,
-    types_of_monuments_body, is_types_of_monuments_body,
-    monument_types_body, is_monument_types_body
+    body_validators
 };

@@ -1,26 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { send_json } from '../../utils';
 import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { create_table, delete_table, get_schema } from '../../logic/tables/utils';
-import { get_language_of_user } from 'src/logic/users/utils';
+import { table, values } from '../../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const languages_router = Router();
 const table_name = "languages";
-const error_codes = {
-    table_not_found: `${table_name}_1_1`,
-    country_not_found: `${table_name}_1_2`,
-    no_compatible_insert_body: `${table_name}_2_1`,
-    no_compatible_update_body: `${table_name}_2_2`,
-    no_continent_ids: `${table_name}_2_3`,
-    no_city_id: `${table_name}_2_4`,
-}
-function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_fields("countries",
-        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
-        false
-    )[0];
-}
 
 /****************************************** ROUTES **********************************************/
 languages_router.options("/", (req: Request, res: Response) => {
@@ -45,48 +30,65 @@ languages_router.options("/", (req: Request, res: Response) => {
 /************************************** TABLE ***************************************************/
 languages_router.post("/create_table", async (req: Request, res: Response) => {
     send_json(res, 
-        await create_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
-    );
-});
-languages_router.get("/table_schema", async (req: Request, res: Response) => {
-    send_json(res,
-        await get_schema(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string) || error_codes.table_not_found,
+        await table.create(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string)
     );
 });
 languages_router.delete("/delete_table", async (req: Request, res: Response) => {
     send_json(res,
-        await delete_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
+        await table.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string)
     );
 });
+languages_router.get("/table_schema", async (req: Request, res: Response) => {
+    send_json(res,
+        await table.schema(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string)
+    );
+});
+
 /************************************** GET ***************************************************/
 languages_router.get("/list_all", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const result = await db_interface.query(`SELECT * FROM languages order by language_name`);
-    send_json(res, result);
+    send_json(res, 
+        await values.get.all(table_name, db_interface, "ORDER BY language_name")
+    );
 });
 
 languages_router.get("/list_single/:lang_id", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const result = await db_interface.query(`SELECT * FROM countries WHERE id = $1`, [req.params.lang_id]);
-    send_json(res, result);
+    send_json(res,
+        await values.get.single(table_name, db_interface, req.params.lang_id)
+    );
 });
 
 languages_router.get("/list_single_by_abbreviation/:abbreviation", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const result = await db_interface.query(`SELECT * FROM countries WHERE abbreviation = $1`, [req.params.abbreviation]);
-    send_json(res, result);
+    send_json(res,
+        await values.get.generic(table_name, db_interface, "WHERE abbreviation = $1", [req.params.abbreviation])
+    );
 });
 
 languages_router.get("/language_of_user", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const result = await db_interface.query(
-        `SELECT * FROM Languages
-        WHERE id = (SELECT fk_language_id FROM Users WHERE firebase_id = $1)`, [res.locals.uid]
+    send_json(res,
+        await values.get.generic(table_name, db_interface, "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.uid])
     );
-    send_json(res, result);
 });
 /************************************** POST ***************************************************/
 languages_router.post("/insert", async (req: Request, res: Response) => {
-    if(res.locals.role !== "admin") {
-    const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    if(types.is_languages_body(req.body)) {
+    send_json(res,
+        await values.insert(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body)
+    );
+});
+/************************************** PUT ***************************************************/
+languages_router.put("/update/:lang_id", async (req: Request, res: Response) => {
+    send_json(res,
+        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.lang_id)
+    );
+});
+/************************************** DELETE ***************************************************/
+languages_router.delete("/delete/:lang_id", async (req: Request, res: Response) => {
+    send_json(res,
+        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.lang_id)
+    );
+});
+
+export default languages_router;

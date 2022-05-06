@@ -39,7 +39,7 @@ const create_languages_table =
 
 const create_users_table = // 1 = English
     `CREATE TABLE IF NOT EXISTS Users (
-        firebase_id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY,
         fk_language_id INTEGER DEFAULT 1 REFERENCES Languages
             ON DELETE SET DEFAULT
             ON UPDATE CASCADE

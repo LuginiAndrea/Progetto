@@ -35,38 +35,72 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 exports.__esModule = true;
-exports.delete_table = exports.get_schema = exports.create_table = void 0;
+exports.error_codes_to_status_code = exports.error_codes = exports.values = exports.table = void 0;
 var table_creates_1 = require("../../sql/table_creates");
 var DB_interface_1 = require("../db_interface/DB_interface");
+function gen_error_code(error_code) {
+    return function (table_name) {
+        return "".concat(table_name).concat(error_code);
+    };
+}
+var error_codes = {
+    Unauthorized: gen_error_code("_0_0"),
+    Invalid_body: gen_error_code("_1_0"),
+    No_referenced_item: gen_error_code("_1_1"),
+    No_row_affected: gen_error_code("_2_0"),
+    No_existing_table: gen_error_code("_2_1")
+};
+exports.error_codes = error_codes;
+function error_codes_to_status_code(error_code) {
+    if (error_code.startsWith("i"))
+        return 500;
+    if (error_code.includes("_0_"))
+        return 403;
+    if (error_code.includes("_1_"))
+        return 400;
+    if (error_code.includes("_2_"))
+        return 404;
+    if (error_code === "23505")
+        return 409;
+    return 400;
+}
+exports.error_codes_to_status_code = error_codes_to_status_code;
 function create_table(table_name, db_interface, role) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     if (role !== "admin")
-                        return [2 /*return*/, "Unauthorized"];
+                        return [2 /*return*/, error_codes.Unauthorized(table_name)];
                     return [4 /*yield*/, db_interface.query(table_creates_1.table_creates[table_name])];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
 }
-exports.create_table = create_table;
 function delete_table(table_name, db_interface, role) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     if (role !== "admin")
-                        return [2 /*return*/, "Unauthorized"];
+                        return [2 /*return*/, error_codes.Unauthorized(table_name)];
                     return [4 /*yield*/, db_interface.query("DROP TABLE ".concat(table_name))];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
 }
-exports.delete_table = delete_table;
 function get_schema(table_name, db_interface, role) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
@@ -77,32 +111,142 @@ function get_schema(table_name, db_interface, role) {
                 case 1:
                     result = _b.sent();
                     return [2 /*return*/, ((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0 ?
-                            null :
+                            error_codes.No_existing_table(table_name) :
                             result];
             }
         });
     });
 }
-exports.get_schema = get_schema;
-function insert_into(table_name, db_interface, role, data) {
+function get_all_values(table_name, db_interface, rest_of_query, filter) {
+    if (rest_of_query === void 0) { rest_of_query = ""; }
+    return __awaiter(this, void 0, void 0, function () {
+        var fields;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "*";
+                    return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query))];
+                case 1: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+function get_single_value(table_name, db_interface, id, rest_of_query, filter) {
+    if (rest_of_query === void 0) { rest_of_query = ""; }
+    return __awaiter(this, void 0, void 0, function () {
+        var fields;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "*";
+                    return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " WHERE id = $1 ").concat(rest_of_query), [id])];
+                case 1: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+function get_generic(table_name, db_interface, rest_of_query, args, filter) {
+    if (rest_of_query === void 0) { rest_of_query = ""; }
+    return __awaiter(this, void 0, void 0, function () {
+        var fields;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "*";
+                    return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query), args)];
+                case 1: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+function insert_values(table_name, db_interface, role, data) {
     return __awaiter(this, void 0, void 0, function () {
         var _a, fields, placeholder_sequence, values;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     if (role !== "admin")
-                        return [2 /*return*/, "Unauthorized"];
-                    if (!DB_interface_1.req_types.is_countries_body(data)) return [3 /*break*/, 2];
+                        return [2 /*return*/, error_codes.Unauthorized(table_name)];
+                    if (!DB_interface_1.req_types.body_validators[table_name](data))
+                        return [2 /*return*/, error_codes.Invalid_body(table_name)];
                     _a = DB_interface_1.req_types.get_fields(table_name, Object.keys(data), 2), fields = _a[0], placeholder_sequence = _a[1];
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
-                    return [4 /*yield*/, db_interface.query("\n            INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n            RETURNING id;"), values)];
+                    return [4 /*yield*/, db_interface.query("\n        INSERT INTO Countries (".concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n        RETURNING id;"), values)];
                 case 1: return [2 /*return*/, _b.sent()];
-                case 2: return [2 /*return*/, null];
             }
         });
     });
 }
-var x = [
-    { name: "no_continents_table", category: 1 },
-    { name: "no_countries_table", category: 2 },
-];
+function update_values(table_name, db_interface, role, data, id) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function () {
+        var _b, fields, placeholder_sequence, values, result, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    if (role !== "admin")
+                        return [2 /*return*/, error_codes.Unauthorized(table_name)];
+                    if (!id)
+                        return [2 /*return*/, error_codes.No_referenced_item(table_name)];
+                    if (!DB_interface_1.req_types.body_validators[table_name](data))
+                        error_codes.Invalid_body(table_name);
+                    _b = DB_interface_1.req_types.get_fields(table_name, Object.keys(data), 2, true), fields = _b[0], placeholder_sequence = _b[1];
+                    if (fields.length === 0)
+                        return [2 /*return*/, error_codes.Invalid_body(table_name)];
+                    values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
+                    if (!(fields.length > 1)) return [3 /*break*/, 2];
+                    return [4 /*yield*/, db_interface.query("\n        UPDATE Countries SET (".concat(fields, ") = (").concat(placeholder_sequence, ")\n        WHERE id = $1\n        RETURNING *;"), __spreadArray([id], values, true))];
+                case 1:
+                    _c = _d.sent();
+                    return [3 /*break*/, 4];
+                case 2: return [4 /*yield*/, db_interface.query("\n        UPDATE Countries SET ".concat(fields, " = $2\n        WHERE id = $1\n        RETURNING *;"), __spreadArray([id], values, true))];
+                case 3:
+                    _c = _d.sent();
+                    _d.label = 4;
+                case 4:
+                    result = _c;
+                    return [2 /*return*/, ((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0 ? // Check if a row was affected
+                            error_codes.No_row_affected(table_name) :
+                            result];
+            }
+        });
+    });
+}
+function delete_values(table_name, db_interface, role, id) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function () {
+        var result;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    if (role !== "admin")
+                        return [2 /*return*/, error_codes.Unauthorized(table_name)];
+                    if (!id)
+                        return [2 /*return*/, error_codes.No_referenced_item(table_name)];
+                    return [4 /*yield*/, db_interface.query("\n        DELETE FROM Countries\n        WHERE id = $1\n        RETURNING id;", [id])];
+                case 1:
+                    result = _b.sent();
+                    return [2 /*return*/, ((_a = result === null || result === void 0 ? void 0 : result.result) === null || _a === void 0 ? void 0 : _a[0].rowCount) === 0 ? // Check if a row was affected
+                            error_codes.No_row_affected(table_name) :
+                            result];
+            }
+        });
+    });
+}
+var table = {
+    create: create_table,
+    "delete": delete_table,
+    schema: get_schema
+};
+exports.table = table;
+var values = {
+    insert: insert_values,
+    update: update_values,
+    "delete": delete_values,
+    get: {
+        all: get_all_values,
+        single: get_single_value,
+        generic: get_generic
+    }
+};
+exports.values = values;

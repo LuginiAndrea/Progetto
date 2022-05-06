@@ -44,10 +44,6 @@ var utils_3 = require("../../logic/tables/utils");
 /******************** CONSTANTS ***********************/
 var continents_router = (0, express_1.Router)();
 var table_name = "continents";
-var error_codes = {
-    table_not_found: "".concat(table_name, "_1_1"),
-    no_country_id: "".concat(table_name, "_1_2")
-};
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("continents", function (x) { return !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
@@ -73,7 +69,7 @@ continents_router.post("/create_table", function (req, res) { return __awaiter(v
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, (0, utils_3.create_table)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table.create(table_name, res.locals.DB_INTERFACE, res.locals.role)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -87,7 +83,7 @@ continents_router["delete"]("/delete_table", function (req, res) { return __awai
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, (0, utils_3.delete_table)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -101,9 +97,9 @@ continents_router.get("/table_schema", function (req, res) { return __awaiter(vo
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, (0, utils_3.get_schema)(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE, res.locals.role)];
             case 1:
-                _a.apply(void 0, _b.concat([(_c.sent()) || error_codes.table_not_found]));
+                _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
         }
     });
@@ -124,62 +120,77 @@ continents_router.post("/insert_continents", function (req, res) { return __awai
 }); });
 /************************************** GET ***************************************************/
 continents_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, language_of_user, fields, result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var db_interface, _a, _b, _c, _d, _e;
+    var _f;
+    return __generator(this, function (_g) {
+        switch (_g.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
+                _a = utils_2.send_json;
+                _b = [res];
+                _d = (_c = utils_3.values.get).all;
+                _e = [table_name, db_interface, "ORDER BY id"];
+                _f = {
+                    func: exclude_fields_by_language
+                };
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
-            case 1:
-                language_of_user = _a.sent();
-                fields = exclude_fields_by_language(language_of_user);
-                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Continents ORDER BY ").concat(language_of_user, "_name"))];
+            case 1: return [4 /*yield*/, _d.apply(_c, _e.concat([(_f.args = _g.sent(),
+                        _f)]))];
             case 2:
-                result = _a.sent();
-                (0, utils_2.send_json)(res, result);
+                _a.apply(void 0, _b.concat([_g.sent()]));
                 return [2 /*return*/];
         }
     });
 }); });
 continents_router.get("/list_single/:continent_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, language_of_user, fields, result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var db_interface, _a, _b, _c, _d, _e;
+    var _f;
+    return __generator(this, function (_g) {
+        switch (_g.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
+                _a = utils_2.send_json;
+                _b = [res];
+                _d = (_c = utils_3.values.get).single;
+                _e = [table_name, db_interface, req.params.continent_id, ""];
+                _f = {
+                    func: exclude_fields_by_language
+                };
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
-            case 1:
-                language_of_user = _a.sent();
-                fields = exclude_fields_by_language(language_of_user);
-                return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM Continents WHERE id = $1"), [req.params.continent_id])];
+            case 1: return [4 /*yield*/, _d.apply(_c, _e.concat([(_f.args = _g.sent(),
+                        _f)]))];
             case 2:
-                result = _a.sent();
-                (0, utils_2.send_json)(res, result);
+                _a.apply(void 0, _b.concat([_g.sent()]));
                 return [2 /*return*/];
         }
     });
 }); });
 continents_router.get("/continent_of_country", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, language_of_user, fields, result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var db_interface, _a, _b, _c, _d, _e;
+    var _f;
+    return __generator(this, function (_g) {
+        switch (_g.label) {
             case 0:
-                if (!req.query.country_id) return [3 /*break*/, 3];
-                db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
-            case 1:
-                language_of_user = _a.sent();
-                fields = exclude_fields_by_language(language_of_user);
-                return [4 /*yield*/, db_interface.query("\n            SELECT ".concat(fields, " FROM Continents \n            WHERE id = (\n                SELECT fk_continent_id FROM Countries WHERE id = $1\n            )"), [req.query.country_id])];
-            case 2:
-                result = _a.sent();
-                (0, utils_2.send_json)(res, result);
-                return [3 /*break*/, 4];
-            case 3:
+                if (!!req.query.country_id) return [3 /*break*/, 1];
                 (0, utils_2.send_json)(res, {
-                    error: error_codes.no_country_id
+                    error: utils_3.error_codes.No_referenced_item(table_name)
                 });
-                _a.label = 4;
+                return [3 /*break*/, 4];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                _a = utils_2.send_json;
+                _b = [res];
+                _d = (_c = utils_3.values.get).generic;
+                _e = [table_name, db_interface, "WHERE id = (SELECT fk_continent_id FROM Countries WHERE id = $1)", [req.query.country_id]];
+                _f = {
+                    func: exclude_fields_by_language
+                };
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+            case 2: return [4 /*yield*/, _d.apply(_c, _e.concat([(_f.args = _g.sent(),
+                        _f)]))];
+            case 3:
+                _a.apply(void 0, _b.concat([_g.sent()]));
+                _g.label = 4;
             case 4: return [2 /*return*/];
         }
     });

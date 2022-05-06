@@ -1,14 +1,7 @@
 
-import {Response} from "express";
-import {DB_result, QueryResult} from "./logic/db_interface/DB_interface";
-
-const error_to_statusCode = (error_code: string): number => {
-    if(error_code.startsWith("i")) return 500;
-    if(error_code === "Unauthorized") return 401;
-    if(error_code === "23505") return 409;
-    if(error_code.includes("_1_")) return 404;
-    return 400;
-}
+import { Response } from "express";
+import { DB_result, QueryResult } from "./logic/db_interface/DB_interface";
+import { error_codes_to_status_code } from "./logic/tables/utils";
 
 type func = (arg: Array<QueryResult<any>>) => Object;
 type optional_args = {
@@ -29,7 +22,7 @@ function send_json(res: Response, result: DB_result | string, args?: optional_ar
         res.status(success|| 200).send(processing_func(result.result));
     }
     else {
-        const status = error || error_to_statusCode(result.error as string);
+        const status = error || error_codes_to_status_code(result.error as string);
         res.status(status).send({error: result.error});
     }
 }

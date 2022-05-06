@@ -2,15 +2,11 @@ import {Router, Request, Response} from 'express';
 import { get_language_of_user } from "../../logic/users/utils";
 import { send_json } from '../../utils';
 import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { create_table, get_schema, delete_table } from '../../logic/tables/utils';
+import { table, values, error_codes } from '../../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const continents_router: Router = Router();
 const table_name = "continents";
-const error_codes = {
-    table_not_found:  `${table_name}_1_1`,
-    no_country_id: `${table_name}_1_2`,
-}
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
     return types.get_fields("continents",
         x => !(x.endsWith("_name") && !x.startsWith(language)),
@@ -37,17 +33,17 @@ continents_router.options("/", (req: Request, res: Response) => {
 /************************************** TABLE ***************************************************/
 continents_router.post("/create_table", async (req: Request, res: Response) => {
     send_json(res, 
-        await create_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
+        await table.create(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
     );
 });
 continents_router.delete("/delete_table", async (req: Request, res: Response) => {
     send_json(res,
-        await delete_table(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
+        await table.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
     );
 });
 continents_router.get("/table_schema", async (req: Request, res: Response) => {
     send_json(res,
-        await get_schema(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string) || error_codes.table_not_found,
+        await table.schema(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string),
     );
 });
 continents_router.post("/insert_continents", async (req: Request, res: Response) => {
@@ -68,37 +64,38 @@ continents_router.post("/insert_continents", async (req: Request, res: Response)
 /************************************** GET ***************************************************/
 continents_router.get("/list_all", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-    const fields = exclude_fields_by_language(language_of_user);
-    const result = await db_interface.query(`SELECT ${fields} FROM Continents ORDER BY ${language_of_user}_name`);
-    send_json(res, result);
+    send_json(res,
+        await values.get.all(table_name, db_interface, "ORDER BY id", {
+            func: exclude_fields_by_language,
+            args: await get_language_of_user(req, res.locals.UID, db_interface)
+        })
+    );
 });
 
 continents_router.get("/list_single/:continent_id", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-    const fields = exclude_fields_by_language(language_of_user);
-    const result = await db_interface.query(`SELECT ${fields} FROM Continents WHERE id = $1`, [req.params.continent_id]);
-    send_json(res, result);
+    send_json(res,
+        await values.get.single(table_name, db_interface, req.params.continent_id, "", {
+            func: exclude_fields_by_language,
+            args: await get_language_of_user(req, res.locals.UID, db_interface)
+        })
+    );
 });
 
 continents_router.get("/continent_of_country", async (req: Request, res: Response) => {
-    if(req.query.country_id) {
-        const db_interface = res.locals.DB_INTERFACE as DB_interface;
-        const language_of_user = await get_language_of_user(req, res.locals.UID, db_interface);
-        const fields = exclude_fields_by_language(language_of_user);
-        const result = await db_interface.query(`
-            SELECT ${fields} FROM Continents 
-            WHERE id = (
-                SELECT fk_continent_id FROM Countries WHERE id = $1
-            )`, [req.query.country_id]);
-
-        send_json(res, result);
-    }
-    else
+    if(!req.query.country_id) 
         send_json(res, {
-            error:error_codes.no_country_id
+            error: error_codes.No_referenced_item(table_name)
         });
+    else {
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
+        send_json(res,
+            await values.get.generic(table_name, db_interface, "WHERE id = (SELECT fk_continent_id FROM Countries WHERE id = $1)", [req.query.country_id], {
+                func: exclude_fields_by_language,
+                args: await get_language_of_user(req, res.locals.UID, db_interface)
+            })
+        );
+    }
 });
 
 export default continents_router;

@@ -24,7 +24,7 @@ async function get_language_of_user (req: Request, uid: string, db_instance: DB_
     return "en";
     const result = await db_instance.query(
         `SELECT abbreviation FROM Languages
-        WHERE id = (SELECT fk_language_id FROM Users WHERE firebase_id = $1)`, [uid]
+        WHERE id = (SELECT fk_language_id FROM Users WHERE id = $1)`, [uid]
     );
     return result.result?.[0].rows[0]?.abbreviation || "en"; //return abbreviation or "en"
 }

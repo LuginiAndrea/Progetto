@@ -15,6 +15,7 @@ var users_1 = __importDefault(require("./routes/users/users"));
 var countries_1 = __importDefault(require("./routes/countries/countries"));
 var continents_1 = __importDefault(require("./routes/continents/continents"));
 var cities_1 = __importDefault(require("./routes/cities/cities"));
+var languages_1 = __importDefault(require("./routes/languages/languages"));
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var utils_1 = require("./logic/users/utils");
 var body_parser_1 = __importDefault(require("body-parser"));
@@ -26,6 +27,7 @@ app.use(DB_interface_1.validating_db_status);
 app.use(body_parser_1["default"].json());
 app.use(utils_1.authenticate_user);
 // app.use("/db_shortcuts", db_shortcut_router); // Remove this in production code
+app.use("/languages", languages_1["default"]);
 app.use("/countries", countries_1["default"]);
 app.use("/users", users_1["default"]);
 app.use("/continents", continents_1["default"]);

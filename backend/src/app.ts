@@ -10,7 +10,8 @@ import users_router from "./routes/users/users";
 import countries_router from "./routes/countries/countries";
 import continents_router from "./routes/continents/continents";
 import cities_router from "./routes/cities/cities";
-import { validating_db_status, DB_result, QueryResult } from "./logic/db_interface/DB_interface";
+import languages_router from "./routes/languages/languages";
+import { validating_db_status } from "./logic/db_interface/DB_interface";
 import { authenticate_user } from "./logic/users/utils";
 import bodyParser from "body-parser";
 import { send_json } from "./utils";
@@ -23,7 +24,7 @@ app.use(bodyParser.json());
 app.use(authenticate_user)
 
 // app.use("/db_shortcuts", db_shortcut_router); // Remove this in production code
-
+app.use("/languages", languages_router);
 app.use("/countries", countries_router);
 app.use("/users", users_router);
 app.use("/continents", continents_router);
