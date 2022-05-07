@@ -13,11 +13,15 @@ function exclude_fields_by_language(language: string) { //Exclude the fields in 
         false
     )[0];
 }
+function is_generic_language(language: string) {
+    language === "*" ?
+        return "real"
 
 /****************************************** ROUTES **********************************************/
 cities_router.options("/", (req: Request, res: Response) => {
     let method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the cities"},
         { verb: "get", method: "list_single/:city_id", description: "Gives the fields of a single city" },
@@ -52,9 +56,9 @@ cities_router.delete("/delete_table", async (req: Request, res: Response) => {
 /************************************** GET ***************************************************/
 cities_router.get("/list_all", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    const language = await get_language_of_user(req, res.locals.uid, db_interface);
+    let language = await get_language_of_user(req, res.locals.uid, db_interface);
     send_json(res,
-        await values.get.all(table_name, db_interface, `ORDER BY ${language}_name`, {
+        await values.get.all(table_name, db_interface, `ORDER BY rating, ${language}_name`, {
             func: exclude_fields_by_language,
             args: language
         })
@@ -79,7 +83,7 @@ cities_router.get("/cities_in_countries", async (req: Request, res: Response) =>
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
         send_json(res,
             await values.get.generic(table_name, db_interface, 
-            `WHERE fk_country_id = ANY ($1) ORDER BY fk_country_id, ${language}_name`, [(req.query.country_ids as string).split(",")], {
+            `WHERE fk_country_id = ANY ($1) ORDER BY fk_country_id, rating, ${language}_name`, [(req.query.country_ids as string).split(",")], {
                 func: exclude_fields_by_language,
                 args: language
             })
@@ -93,7 +97,7 @@ cities_router.get("/city_of_monument", async (req: Request, res: Response) => {
     else {
         const db_interface = res.locals.DB_INTERFACE;
         send_json(res,
-            await values.get.generic(table_name, db_interface, "WHEERE id = (SELECT fk_city_id FROM monuments WHERE id = $1)", [req.query.monument_id], {
+            await values.get.generic(table_name, db_interface, "WHERE id = (SELECT fk_city_id FROM monuments WHERE id = $1)", [req.query.monument_id], {
                 func: exclude_fields_by_language,
                 args: await get_language_of_user(req, res.locals.uid, db_interface)
             })

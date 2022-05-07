@@ -19,6 +19,7 @@ function exclude_fields_by_language(language: string) { //Exclude the fields in 
 countries_router.options("/", (req: Request, res: Response) => {
     let method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the countries"},
         { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single country" },
@@ -88,7 +89,7 @@ countries_router.get("/countries_in_continents", async (req: Request, res: Respo
     if(!req.query.continent_ids) 
         send_json(res, error_codes.No_referenced_item(table_name));
     else {
-        const db_interface = res.locals.DB_INTERFACE;
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
         send_json(res, 
             await values.get.generic(table_name, db_interface, 
@@ -104,7 +105,7 @@ countries_router.get("/country_of_city", async (req: Request, res: Response) => 
     if(!req.query.city_id) 
         send_json(res, error_codes.No_referenced_item(table_name));
     else {
-        const db_interface = res.locals.DB_INTERFACE;
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
         send_json(res, 
             await values.get.generic(table_name, db_interface, "WHERE id = (SELECT fk_country_id FROM cities WHERE id = $1)", [req.query.city_id], {
                 func: exclude_fields_by_language,

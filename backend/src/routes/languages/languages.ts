@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { send_json } from '../../utils';
-import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
+import { DB_interface } from '../../logic/db_interface/DB_interface';
 import { table, values } from '../../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
@@ -11,6 +11,7 @@ const table_name = "languages";
 languages_router.options("/", (req: Request, res: Response) => {
     let method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the countries"},
         { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single country" },

@@ -18,6 +18,7 @@ function exclude_fields_by_language(language: string) { //Exclude the fields in 
 continents_router.options("/", (req: Request, res: Response) => {
     let method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", role: "admin" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the continents"},

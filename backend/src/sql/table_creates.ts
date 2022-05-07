@@ -54,6 +54,7 @@ const create_monuments_table =
         coordinates GEOGRAPHY(POINT), 
         it_description TEXT DEFAULT NULL,
         en_description TEXT DEFAULT NULL,
+        rating SMALLINT DEFAULT NULL,
         fk_city_id INTEGER REFERENCES Cities
             ON DELETE CASCADE
             ON UPDATE CASCADE,
