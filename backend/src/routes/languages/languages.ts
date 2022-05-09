@@ -14,7 +14,7 @@ languages_router.options("/", (req: Request, res: Response) => {
         { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the countries"},
-        { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single country" },
+        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single country" },
         { verb: "get", method: "list_single_by_iso_code/:country_iso_code", description: "Gives the fields of a single country" },
         { verb: "get", method: "countries_in_continents", description: "Gives list of all countries in the continents passed with the query string" },
         { verb: "get", method: "country_of_city", description: "Gives the country of a city passed with the query string" },
@@ -53,10 +53,10 @@ languages_router.get("/list_all", async (req: Request, res: Response) => {
     );
 });
 
-languages_router.get("/list_single/:lang_id", async (req: Request, res: Response) => {
+languages_router.get("/list_single/:id", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
     send_json(res,
-        await values.get.single(table_name, db_interface, req.params.lang_id)
+        await values.get.single(table_name, db_interface, req.params.id)
     );
 });
 
@@ -80,15 +80,15 @@ languages_router.post("/insert", async (req: Request, res: Response) => {
     );
 });
 /************************************** PUT ***************************************************/
-languages_router.put("/update/:lang_id", async (req: Request, res: Response) => {
+languages_router.put("/update/:id", async (req: Request, res: Response) => {
     send_json(res,
-        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.lang_id)
+        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.id)
     );
 });
 /************************************** DELETE ***************************************************/
-languages_router.delete("/delete/:lang_id", async (req: Request, res: Response) => {
+languages_router.delete("/delete/:id", async (req: Request, res: Response) => {
     send_json(res,
-        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.lang_id)
+        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.id)
     );
 });
 

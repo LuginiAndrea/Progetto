@@ -24,7 +24,7 @@ users_router.options("/", (req: Request, res: Response) => {
         { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the users"},
-        { verb: "get", method: "list_single/:user_id", description: "Gives the fields of a single user" },
+        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single user" },
         { verb: "get", method: "list_single_by_email/:user_email", description: "Gives the fields of a single user" },
         { verb: "post", method: "insert", description: "Inserts a new user. Parameters passed in the body", role: "admin" },
         { verb: "put", method: "update/:user_id", description: "Updates a user. Parameters passed in the body", role: "admin" },
@@ -54,9 +54,9 @@ users_router.get("/list_all", async (req: Request, res: Response) => {
         await values.get.all(table_name, res.locals.DB_INTERFACE as DB_interface, "ORDER BY id"),
     );
 });
-users_router.get("/list_single/:user_id", async (req: Request, res: Response) => {
+users_router.get("/list_single/:id", async (req: Request, res: Response) => {
     send_json(res,
-        await values.get.single(table_name, res.locals.DB_INTERFACE as DB_interface, req.params.user_id)
+        await values.get.single(table_name, res.locals.DB_INTERFACE as DB_interface, req.params.id)
     )
 });
 
@@ -65,14 +65,14 @@ users_router.post("/insert", async (req: Request, res: Response) => {
         await values.insert(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body),
     );
 });
-users_router.put("/update/:user_id", async (req: Request, res: Response) => {
+users_router.put("/update/:id", async (req: Request, res: Response) => {
     send_json(res,
-        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.user_id),
+        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.id),
     );
 });
-users_router.delete("/delete/:user_id", async (req: Request, res: Response) => {
+users_router.delete("/delete/:id", async (req: Request, res: Response) => {
     send_json(res,
-        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.user_id),
+        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.id),
     );
 });
 

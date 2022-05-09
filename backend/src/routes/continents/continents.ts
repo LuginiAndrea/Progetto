@@ -22,7 +22,7 @@ continents_router.options("/", (req: Request, res: Response) => {
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", role: "admin" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the continents"},
-        { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single continents" },
+        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single continents" },
         { verb: "get", method: "continent_of_country", description: "Gives the continent of a country passed with the query string" },
     ];
     res.status(200).json(
@@ -73,10 +73,10 @@ continents_router.get("/list_all", async (req: Request, res: Response) => {
     );
 });
 
-continents_router.get("/list_single/:continent_id", async (req: Request, res: Response) => {
+continents_router.get("/list_single/:id", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
     send_json(res,
-        await values.get.single(table_name, db_interface, req.params.continent_id, "", {
+        await values.get.single(table_name, db_interface, req.params.id, "", {
             func: exclude_fields_by_language,
             args: await get_language_of_user(req, res.locals.UID, db_interface)
         })

@@ -52,7 +52,7 @@ describe("Continents-routes-testing", () => {
             }
         });
 
-        it("Gets the /list_single/:continent_id endpoint", async () => {
+        it("Gets the /list_single/:id endpoint", async () => {
             const response = await request.get(`${base_url}/list_single/0`);
             expect(response.status).toBe(200);
             const obj = JSON.parse(response.text);
@@ -61,7 +61,7 @@ describe("Continents-routes-testing", () => {
     });
 
     describe("EN language", () => {
-        it("Gets the /list_single/:continent_id endpoint", async () => {
+        it("Gets the /list_single/:id endpoint", async () => {
             const response = await request
                 .get(`${base_url}/list_single/0`)
                 .set("Authorization", "1");

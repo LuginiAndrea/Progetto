@@ -13,10 +13,6 @@ function exclude_fields_by_language(language: string) { //Exclude the fields in 
         false
     )[0];
 }
-function is_generic_language(language: string) {
-    language === "*" ?
-        return "real"
-
 /****************************************** ROUTES **********************************************/
 cities_router.options("/", (req: Request, res: Response) => {
     let method_list = [
@@ -24,7 +20,7 @@ cities_router.options("/", (req: Request, res: Response) => {
         { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the cities"},
-        { verb: "get", method: "list_single/:city_id", description: "Gives the fields of a single city" },
+        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single city" },
         { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
         { verb: "get", method: "city_of_monument", description: "Gives the city of a monument passed with the query string" },
         { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", role: "admin" },
@@ -65,14 +61,32 @@ cities_router.get("/list_all", async (req: Request, res: Response) => {
     );
 });
 
-cities_router.get("/list_single/:city_id", async (req: Request, res: Response) => {
+cities_router.get("/list_single/:id", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
     send_json(res,
-        await values.get.single(table_name, db_interface, req.params.city_id, "", {
+        await values.get.single(table_name, db_interface, req.params.id, "", {
             func: exclude_fields_by_language,
             args: await get_language_of_user(req, res.locals.uid, db_interface)
         })
     );
+});
+
+cities_router.get("/cities_by_rating", async(req: Request, res: Response) => {
+    const db_interface = res.locals.DB_INTERFACE as DB_interface;
+    let language = await get_language_of_user(req, res.locals.uid, db_interface);
+    const rating_operator = req.query.rating_operator as string;
+    const rating = parseInt(req.query.rating as string);
+    if(![">", "<", "=", "!="].includes(rating_operator) && rating > 0 && rating <= 5)
+        send_json(res, error_codes.Invalid_body(table_name));
+    else {
+        send_json(res, await values.get.all(table_name, db_interface, 
+            `WHERE rating ${req.query.rating_operator} ${rating} ORDER BY rating ${req.query.rating_operator} ${req.query.rating as string}`, {
+                    func: exclude_fields_by_language,
+                    args: language
+                }
+            )
+        );
+    }
 });
 
 cities_router.get("/cities_in_countries", async (req: Request, res: Response) => {
@@ -111,15 +125,15 @@ cities_router.post("/insert", async (req, res) => {
     );
 });
 /************************************** PUT ***************************************************/
-cities_router.put("/update/:city_id", async (req, res) => {
+cities_router.put("/update/:id", async (req, res) => {
     send_json(res,
-        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.city_id)
+        await values.update(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.body, req.params.id)
     );
 });
 /************************************** DELETE ***************************************************/
-cities_router.delete("/delete/:city_id", async (req, res) => {
+cities_router.delete("/delete/:id", async (req, res) => {
     send_json(res,
-        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.city_id)
+        await values.delete(table_name, res.locals.DB_INTERFACE as DB_interface, res.locals.role as string, req.params.id)
     );
 });
 
