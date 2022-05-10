@@ -72,15 +72,16 @@ cities_router.get("/list_single/:id", async (req: Request, res: Response) => {
 });
 
 cities_router.get("/cities_by_rating", async(req: Request, res: Response) => {
-    const db_interface = res.locals.DB_INTERFACE as DB_interface;
-    let language = await get_language_of_user(req, res.locals.uid, db_interface);
     const rating_operator = req.query.rating_operator as string;
     const rating = parseInt(req.query.rating as string);
     if(![">", "<", "=", "!="].includes(rating_operator) && rating > 0 && rating <= 5)
         send_json(res, error_codes.Invalid_body(table_name));
     else {
-        send_json(res, await values.get.all(table_name, db_interface, 
-            `WHERE rating ${req.query.rating_operator} ${rating} ORDER BY rating ${req.query.rating_operator} ${req.query.rating as string}`, {
+        const db_interface = res.locals.DB_INTERFACE as DB_interface;
+        let language = await get_language_of_user(req, res.locals.uid, db_interface);
+        send_json(res, 
+            await values.get.all(table_name, db_interface, 
+            `WHERE rating ${req.query.rating_operator} ${rating} ORDER BY rating, fk_country_id, ${language}_name`, {
                     func: exclude_fields_by_language,
                     args: language
                 }
