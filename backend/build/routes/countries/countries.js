@@ -109,7 +109,7 @@ countries_router.get("/table_schema", function (req, res) { return __awaiter(voi
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE)];
+                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_interface)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];

@@ -51,7 +51,7 @@ countries_router.delete("/delete_table", async (req, res) => {
 });
 countries_router.get("/table_schema", async (req, res) => {
     send_json(res,
-        await table.schema(table_name, res.locals.DB_INTERFACE),
+        await table.schema(table_name, res.locals.DB_interface),
     );
 });
 
