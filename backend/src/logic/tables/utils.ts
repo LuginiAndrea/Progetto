@@ -59,15 +59,15 @@ type filter = {
 }
 type id = number | string;
 async function get_all_values(table_name: table_name, db_interface: DB_interface, rest_of_query: string = "", filter?: filter) {
-    const fields = filter?.func(filter?.args) || "*";
+    const fields = filter?.func(filter?.args) || `${table_name}.*`;
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} ${rest_of_query}`);
 }
 async function get_single_value(table_name: table_name, db_interface: DB_interface, id: id, rest_of_query: string = "", filter?: filter) {
-    const fields = filter?.func(filter?.args) || "*";
+    const fields = filter?.func(filter?.args) || `${table_name}.*`;
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} WHERE id = $1 ${rest_of_query}`, [id]);
 }
 async function get_generic(table_name: table_name, db_interface: DB_interface, rest_of_query: string = "", args: any[], filter?: filter) {
-    const fields = filter?.func(filter?.args) || "*";
+    const fields = filter?.func(filter?.args) || `${table_name}.*`;
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} ${rest_of_query}`, args);
 }
 

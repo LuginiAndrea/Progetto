@@ -2,10 +2,10 @@ type filter = ((x: string) => boolean) | string[];
 const fields_dictionary = {
     continents: ["id", "it_name", "en_name"],
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
-    cities: ["id", "real_name", "it_name", "en_name", "rating", "fk_country_id"],
+    cities: ["id", "real_name", "it_name", "en_name", "number_of_votes", "votes_sum", "fk_country_id"],
     languages: ["id", "name", "abbreviation"],
     users: ["id", "fk_language_id"],
-    monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "fk_city_id"],
+    monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "number_of_votes", "votes_sum", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
     types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
     monument_types: ["fk_monument_id", "fk_type_of_monument_id"]
@@ -17,10 +17,9 @@ type accepted_extract_types =
     monument_types_body | types_of_monuments_body;
     
 function set_filter_by(filter_by: filter) {
-    if(Array.isArray(filter_by)) {
-        return (x: string) => filter_by.includes(x);
-    }
-    return filter_by;
+    return Array.isArray(filter_by) ?
+        (x: string) => filter_by.includes(x) :
+        filter_by;
 }
 
 function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: number | boolean = 1): string {
@@ -30,13 +29,13 @@ function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: numbe
     return obj.map(_ => `$${i++}`).join(", ");
 }
 
-function get_fields(type: accepted_get_types, filter_by?: filter, gen_placeholder_seq: number | boolean = 1, no_id = false) : [string[], string] {
-    let fields = fields_dictionary[type];
+function get_fields(table_name: accepted_get_types, filter_by?: filter, gen_placeholder_seq: number | boolean = 1, no_id = false) : [string[], string] {
+    let fields = fields_dictionary[table_name];
     if(filter_by) {
         filter_by = set_filter_by(filter_by);
         fields = fields.filter(x => !(x === "id" && no_id)).filter(filter_by);
     }
-    return [fields, generate_placeholder_sequence(fields, gen_placeholder_seq)];
+    return [fields.map(field => `${table_name}.${field}`), generate_placeholder_sequence(fields, gen_placeholder_seq)];
 }
 const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any => 
     fields.map(field => (body as any)[field]); //Gets the values 
@@ -63,7 +62,8 @@ type cities_body = {
     real_name: string,
     it_name?: string,
     en_name?: string,
-    rating: number, 
+    number_of_votes?: number, 
+    votes_sum?: number,
     fk_country_id: number
 }
 function is_cities_body(obj: any): obj is cities_body {
@@ -71,7 +71,8 @@ function is_cities_body(obj: any): obj is cities_body {
         obj.real_name.length <= 50 &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
-        (!obj.rating || (typeof obj.rating === "number" && obj.rating >= 0 && obj.rating <= 5)) &&
+        (!obj.number_of_votes || (typeof obj.rating === "number" && obj.number_of_votes >= 0)) &&
+        (!obj.votes_sum || (typeof obj.votes_sum === "number" && obj.votes_sum >= 0)) &&
         typeof obj.fk_country_id === "number";
 }
 // ***************** LANGUAGES *****************
@@ -100,6 +101,8 @@ type monuments_body = {
     it_name?: string,
     en_name?: string,
     coordinates: string,
+    number_of_votes?: number,
+    votes_sum?: number,
     it_description?: string,
     en_description?: string,
     fk_city_id: number
@@ -110,8 +113,10 @@ function is_monuments_body(obj: any): obj is monuments_body {
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
         typeof obj.coordinates === "string" &&
-        (!obj.it_description || (typeof obj.it_description === "string" && obj.it_description.length <= 50)) &&
-        (!obj.en_description || (typeof obj.en_description === "string" && obj.en_description.length <= 50)) &&
+        (!obj.it_description || typeof obj.it_description === "string") &&
+        (!obj.en_description || typeof obj.en_description === "string") &&
+        (!obj.number_of_votes || (typeof obj.rating === "number" && obj.number_of_votes >= 0)) &&
+        (!obj.votes_sum || (typeof obj.votes_sum === "number" && obj.votes_sum >= 0)) &&
         typeof obj.fk_city_id === "number";
 }
 // ***************** VISITS *****************

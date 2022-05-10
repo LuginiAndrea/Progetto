@@ -35,14 +35,16 @@ function validate_db_status(req: Request, res: Response, next: NextFunction) {
 
 function validate_rating(req: Request) {
     const operator = req.query.operator as string;
-    const rating = parseInt(req.query.rating as string);
-    return [
-        ["=", "!=", ">", "<", ">=", "<="].includes(operator) && 
-        rating >= 0 &&
-        rating <= 5,
-        operator,
-        rating
-    ];
+    const rating = req.query.rating === "NULL" ?
+        "NULL" :
+        parseInt(req.query.rating as string);
+
+    const valid = (rating === "NULL" && operator === "=") || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
+    return {
+        valid: valid,
+        operator: operator,
+        rating: rating
+    }
 }
 
     

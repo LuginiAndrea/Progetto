@@ -14,10 +14,12 @@ function exclude_fields_by_language(language: string) { //Exclude the fields in 
         false
     )[0];
 }
-
+const join_continents = (rest_of_query = "") => "JOIN continents ON cities.fk_continent_id = continents.id" + rest_of_query;
+const join_continents_filter = (func: (args: any) => string[], language: string) => 
+    (args: any) => func(args).concat([`continents.${language}_name as country_name`]);
 /****************************************** ROUTES **********************************************/
 countries_router.options("/", (req: Request, res: Response) => {
-    let method_list = [
+    const method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
         { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
@@ -25,7 +27,7 @@ countries_router.options("/", (req: Request, res: Response) => {
         { verb: "get", method: "list_single/:id", description: "Gives the fields of a single country" },
         { verb: "get", method: "list_single_by_iso_code/:country_iso_code", description: "Gives the fields of a single country" },
         { verb: "get", method: "countries_in_continents", description: "Gives list of all countries in the continents passed with the query string" },
-        { verb: "get", method: "country_of_city", description: "Gives the country of a city passed with the query string" },
+        { verb: "get", method: "countries_of_cities", description: "Gives the countries of the cities passed with the query string" },
         { verb: "post", method: "insert", description: "Inserts a new country. Parameters passed in the body", role: "admin" },
         { verb: "put", method: "update/:country_id", description: "Updates a country. Parameters passed in the body", role: "admin" },
         { verb: "delete", method: "delete/:country_id", description: "Deletes a country", role: "admin" },
@@ -58,8 +60,8 @@ countries_router.get("/list_all", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
     const language = await get_language_of_user(req, res.locals.UID, db_interface);
     send_json(res,
-        await values.get.all(table_name, db_interface, `ORDER BY ${language}_name`, {
-            func: exclude_fields_by_language,
+        await values.get.all(table_name, db_interface, join_continents(), {
+            func: join_continents_filter(exclude_fields_by_language, language),
             args: language
         })
     );
@@ -67,20 +69,22 @@ countries_router.get("/list_all", async (req: Request, res: Response) => {
 
 countries_router.get("/list_single/:id", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
+    const language = await get_language_of_user(req, res.locals.UID, db_interface);
     send_json(res,
-        await values.get.single(table_name, db_interface, req.params.id, "", {
-            func: exclude_fields_by_language,
-            args: await get_language_of_user(req, res.locals.UID, db_interface)
+        await values.get.single(table_name, db_interface, req.params.id, join_continents(), {
+            func: join_continents_filter(exclude_fields_by_language, language),
+            args: language
         })
     )
 });
 
 countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req: Request, res: Response) => {
     const db_interface = res.locals.DB_INTERFACE as DB_interface;
+    const language = await get_language_of_user(req, res.locals.UID, db_interface);
     send_json(res,
-        await values.get.generic(table_name, db_interface, "WHERE iso_alpha_3 = $1", [req.params.country_iso_code], {
-            func: exclude_fields_by_language,
-            args: await get_language_of_user(req, res.locals.UID, db_interface)
+        await values.get.generic(table_name, db_interface, join_continents(`WHERE iso_alpha_3 = $1`), [req.params.country_iso_code], {
+            func: join_continents_filter(exclude_fields_by_language, language),
+            args: language
         })
     );
 });
@@ -93,23 +97,26 @@ countries_router.get("/countries_in_continents", async (req: Request, res: Respo
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
         send_json(res, 
             await values.get.generic(table_name, db_interface, 
-                `WHERE fk_continent_id = ANY ($1) ORDER BY fk_continent_id, ${language}_name`, [(req.query.continent_ids as string).split(",")], {
-                    func: exclude_fields_by_language,
-                    args: language
+                join_continents(`WHERE fk_continent_id = ANY ($1)`), [(req.query.continent_ids as string).split(",")], {
+                func: join_continents_filter(exclude_fields_by_language, language),
+                args: language
             })
         );
     }
 });
 
-countries_router.get("/country_of_city", async (req: Request, res: Response) => {
-    if(!req.query.city_id) 
+countries_router.get("/countries_of_cities", async (req: Request, res: Response) => {
+    if(!req.query.city_ids) 
         send_json(res, error_codes.No_referenced_item(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE as DB_interface;
+        const language = await get_language_of_user(req, res.locals.UID, db_interface);
         send_json(res, 
-            await values.get.generic(table_name, db_interface, "WHERE id = (SELECT fk_country_id FROM cities WHERE id = $1)", [req.query.city_id], {
-                func: exclude_fields_by_language,
-                args: await get_language_of_user(req, res.locals.UID, db_interface)
+            await values.get.generic(table_name, db_interface, 
+                join_continents(`WHERE id = ANY (SELECT fk_country_id FROM cities WHERE id = ANY ($1))`), 
+                [(req.query.city_ids as string).split(",")], {
+                func: join_continents_filter(exclude_fields_by_language, language),
+                args: language
             })
         );
     }

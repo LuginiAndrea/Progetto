@@ -23,7 +23,8 @@ const create_cities_table =
         real_name VARCHAR(50) NOT NULL,
         it_name VARCHAR(50) DEFAULT NULL,
         en_name VARCHAR(50) DEFAULT NULL,
-        rating SMALLINT DEFAULT NULL, 
+        number_of_votes INT DEFAULT 0, 
+        votes_sum INT DEFAULT 0,
         fk_country_id INTEGER REFERENCES Countries
             ON DELETE CASCADE
             ON UPDATE CASCADE,
@@ -54,7 +55,8 @@ const create_monuments_table =
         coordinates GEOGRAPHY(POINT), 
         it_description TEXT DEFAULT NULL,
         en_description TEXT DEFAULT NULL,
-        rating SMALLINT DEFAULT NULL,
+        number_of_votes INT DEFAULT 0, 
+        votes_sum INT DEFAULT 0,
         fk_city_id INTEGER REFERENCES Cities
             ON DELETE CASCADE
             ON UPDATE CASCADE,

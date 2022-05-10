@@ -16,14 +16,14 @@ function exclude_fields_by_language(language: string) { //Exclude the fields in 
 
 /****************************************** ROUTES **********************************************/
 continents_router.options("/", (req: Request, res: Response) => {
-    let method_list = [
+    const method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
         { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", role: "admin" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the continents"},
         { verb: "get", method: "list_single/:id", description: "Gives the fields of a single continents" },
-        { verb: "get", method: "continent_of_country", description: "Gives the continent of a country passed with the query string" },
+        { verb: "get", method: "continents_of_countries", description: "Gives the continents of the countries passed with the query string" },
     ];
     res.status(200).json(
         res.locals.role === "admin" ?
@@ -83,18 +83,21 @@ continents_router.get("/list_single/:id", async (req: Request, res: Response) =>
     );
 });
 
-continents_router.get("/continent_of_country", async (req: Request, res: Response) => {
-    if(!req.query.country_id) 
+continents_router.get("/continents_of_countries", async (req: Request, res: Response) => {
+    if(!req.query.country_ids) 
         send_json(res, {
             error: error_codes.No_referenced_item(table_name)
         });
     else {
         const db_interface = res.locals.DB_INTERFACE as DB_interface;
         send_json(res,
-            await values.get.generic(table_name, db_interface, "WHERE id = (SELECT fk_continent_id FROM Countries WHERE id = $1)", [req.query.country_id], {
-                func: exclude_fields_by_language,
-                args: await get_language_of_user(req, res.locals.UID, db_interface)
-            })
+            await values.get.generic(table_name, db_interface, 
+                "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id", 
+                [(req.query.country_ids as string).split(",")], {
+                    func: exclude_fields_by_language,
+                    args: await get_language_of_user(req, res.locals.UID, db_interface)
+                }
+            )
         );
     }
 });
