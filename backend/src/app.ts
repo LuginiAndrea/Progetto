@@ -43,7 +43,7 @@ app.get("/reconnect_database", (req, res) => {
         }, true);
         if(app.locals.DEFAULT_DB_INTERFACE.connected())
             res.status(200).send({
-                "Status": "Connected"
+                status: "Connected"
             });
         else 
             res.status(500).send({
@@ -52,7 +52,7 @@ app.get("/reconnect_database", (req, res) => {
     }
     else
         res.status(200).send({
-            "Status": "Already connected"
+            status: "Already connected"
         });    
 });
 
