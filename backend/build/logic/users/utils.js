@@ -45,10 +45,7 @@ function authenticate_user(req, res, next) {
             // also puts in user.role the role of the user
             res.locals.UID = req.headers.authorization || "1234";
             // console.log(res.locals.UID);
-            if (res.locals.UID === "1")
-                res.locals.role = "admin";
-            else
-                res.locals.role = "user";
+            res.locals.is_admin = res.locals.UID === "1";
             // console.log("Authenticated user");
             next();
             return [2 /*return*/];

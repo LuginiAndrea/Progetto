@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { app } from "../../app";
+import { send_json } from "../../utils";
 
 const error_codes = {
     "no_db_interface": "i_db_1",
@@ -20,13 +21,9 @@ function validate_db_status(req: Request, res: Response, next: NextFunction) {
         next();
     }
     if(!app.locals.DEFAULT_DB_INTERFACE)
-        res.status(500).send({
-            error: error_codes.no_db_interface
-        });
+        send_json(res, error_codes.no_db_interface)
     else if (!app.locals.DEFAULT_DB_INTERFACE.connected())
-        res.status(500).send({
-            error: error_codes.no_db_connection
-        });
+        send_json(res, error_codes.no_db_connection)
     else {
         res.locals.DB_INTERFACE = app.locals.DEFAULT_DB_INTERFACE;
         next();
@@ -34,12 +31,12 @@ function validate_db_status(req: Request, res: Response, next: NextFunction) {
 }
 
 function validate_rating(req: Request) {
-    const operator = req.query.operator as string;
+    const operator = (req.query.operator as string).toUpperCase();
     const rating = req.query.rating === "NULL" ?
         "NULL" :
-        parseInt(req.query.rating as string);
+        parseInt(req.query.rating as string)
 
-    const valid = (rating === "NULL" && operator === "=") || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
+    const valid = (rating === "NULL" && ["IS NULL", "IS NOT NULL"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
     return {
         valid: valid,
         operator: operator,

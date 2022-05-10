@@ -47,23 +47,31 @@ var table_name = "cities";
 function exclude_fields_by_language(language) {
     return DB_interface_1.req_types.get_fields("cities", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
+var join_countries = function (rest_of_query) {
+    if (rest_of_query === void 0) { rest_of_query = ""; }
+    return "JOIN countries ON cities.fk_country_id = countries.id" + rest_of_query;
+};
+var join_countries_filter = function (func, language) {
+    return function (args) { return func(args).concat(["countries.".concat(language, "_name as country_name")]); };
+};
 /****************************************** ROUTES **********************************************/
 cities_router.options("/", function (req, res) {
     var method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
-        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
+        { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the cities" },
         { verb: "get", method: "list_single/:id", description: "Gives the fields of a single city" },
         { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
-        { verb: "get", method: "city_of_monument", description: "Gives the city of a monument passed with the query string" },
-        { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", role: "admin" },
-        { verb: "put", method: "update/:country_id", description: "Updates a city. Parameters passed in the body", role: "admin" },
-        { verb: "delete", method: "delete/:country_id", description: "Deletes a city", role: "admin" }
+        { verb: "get", method: "list_by_rating", description: "Gives list of all the cities that meets the passed condition and rating passed with query string" },
+        { verb: "get", method: "cities_of_monuments", description: "Gives the cities of the monuments passed with the query string" },
+        { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", is_admin: true },
+        { verb: "put", method: "update/:country_id", description: "Updates a city. Parameters passed in the body", is_admin: true },
+        { verb: "delete", method: "delete/:country_id", description: "Deletes a city", is_admin: true }
     ];
-    res.status(200).json(res.locals.role === "admin" ?
+    res.status(200).json(res.locals.is_admin ?
         method_list :
-        method_list.filter(function (x) { return x.role !== "admin"; }));
+        method_list.filter(function (x) { return x.is_admin; }));
 });
 /************************************** TABLE ***************************************************/
 cities_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -73,7 +81,7 @@ cities_router.post("/create_table", function (req, res) { return __awaiter(void 
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table.create(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -87,7 +95,7 @@ cities_router.get("/table_schema", function (req, res) { return __awaiter(void 0
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -101,7 +109,7 @@ cities_router["delete"]("/delete_table", function (req, res) { return __awaiter(
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -120,8 +128,8 @@ cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, vo
                 language = _c.sent();
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, "ORDER BY rating, ".concat(language, "_name"), {
-                        func: exclude_fields_by_language,
+                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, join_countries(), {
+                        func: join_countries_filter(exclude_fields_by_language, language),
                         args: language
                     })];
             case 2:
@@ -131,34 +139,32 @@ cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 cities_router.get("/list_single/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, _a, _b, _c, _d, _e;
-    var _f;
-    return __generator(this, function (_g) {
-        switch (_g.label) {
+    var db_interface, language, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.uid, db_interface)];
+            case 1:
+                language = _c.sent();
                 _a = utils_2.send_json;
                 _b = [res];
-                _d = (_c = utils_3.values.get).single;
-                _e = [table_name, db_interface, req.params.id, ""];
-                _f = {
-                    func: exclude_fields_by_language
-                };
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.uid, db_interface)];
-            case 1: return [4 /*yield*/, _d.apply(_c, _e.concat([(_f.args = _g.sent(),
-                        _f)]))];
+                return [4 /*yield*/, utils_3.values.get.single(table_name, db_interface, req.params.id, join_countries(), {
+                        func: join_countries_filter(exclude_fields_by_language, language),
+                        args: language
+                    })];
             case 2:
-                _a.apply(void 0, _b.concat([_g.sent()]));
+                _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
         }
     });
 }); });
-cities_router.get("/cities_by_rating", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, valid, operator, rating, db_interface, language, _b, _c;
+cities_router.get("/list_by_rating", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, valid, operator, rating, db_interface, language_1, _b, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
-                _a = (0, DB_interface_1.validate_rating)(req), valid = _a[0], operator = _a[1], rating = _a[2];
+                _a = (0, DB_interface_1.validate_rating)(req), valid = _a.valid, operator = _a.operator, rating = _a.rating;
                 if (!!valid) return [3 /*break*/, 1];
                 (0, utils_2.send_json)(res, utils_3.error_codes.Invalid_body(table_name));
                 return [3 /*break*/, 4];
@@ -166,12 +172,12 @@ cities_router.get("/cities_by_rating", function (req, res) { return __awaiter(vo
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.uid, db_interface)];
             case 2:
-                language = _d.sent();
+                language_1 = _d.sent();
                 _b = utils_2.send_json;
                 _c = [res];
-                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, "WHERE rating ".concat(operator, " ").concat(rating, " ORDER BY rating, fk_country_id, ").concat(language, "_name"), {
-                        func: exclude_fields_by_language,
-                        args: language
+                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, join_countries("WHERE (votes_sum / NULLIF(number_of_votes, 0)) ".concat(operator, " ").concat(rating)), {
+                        func: join_countries_filter(exclude_fields_by_language, language_1),
+                        args: language_1
                     })];
             case 3:
                 _b.apply(void 0, _c.concat([_d.sent()]));
@@ -181,7 +187,7 @@ cities_router.get("/cities_by_rating", function (req, res) { return __awaiter(vo
     });
 }); });
 cities_router.get("/cities_in_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, language, _a, _b;
+    var db_interface, language_2, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -192,12 +198,12 @@ cities_router.get("/cities_in_countries", function (req, res) { return __awaiter
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
             case 2:
-                language = _c.sent();
+                language_2 = _c.sent();
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.get.generic(table_name, db_interface, "WHERE fk_country_id = ANY ($1) ORDER BY fk_country_id, rating, ".concat(language, "_name"), [req.query.country_ids.split(",")], {
-                        func: exclude_fields_by_language,
-                        args: language
+                return [4 /*yield*/, utils_3.values.get.generic(table_name, db_interface, join_countries("WHERE fk_country_id = ANY ($1)"), [req.query.country_ids.split(",")], {
+                        func: join_countries_filter(exclude_fields_by_language, language_2),
+                        args: language_2
                     })];
             case 3:
                 _a.apply(void 0, _b.concat([_c.sent()]));
@@ -206,30 +212,28 @@ cities_router.get("/cities_in_countries", function (req, res) { return __awaiter
         }
     });
 }); });
-cities_router.get("/city_of_monument", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, _a, _b, _c, _d, _e;
-    var _f;
-    return __generator(this, function (_g) {
-        switch (_g.label) {
+cities_router.get("/cities_of_monuments", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language_3, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                if (!!req.query.monument_id) return [3 /*break*/, 1];
+                if (!!req.query.monument_ids) return [3 /*break*/, 1];
                 (0, utils_2.send_json)(res, utils_3.error_codes.No_referenced_item(table_name));
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+            case 2:
+                language_3 = _c.sent();
                 _a = utils_2.send_json;
                 _b = [res];
-                _d = (_c = utils_3.values.get).generic;
-                _e = [table_name, db_interface, "WHERE id = (SELECT fk_city_id FROM monuments WHERE id = $1)", [req.query.monument_id]];
-                _f = {
-                    func: exclude_fields_by_language
-                };
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.uid, db_interface)];
-            case 2: return [4 /*yield*/, _d.apply(_c, _e.concat([(_f.args = _g.sent(),
-                        _f)]))];
+                return [4 /*yield*/, utils_3.values.get.generic(table_name, db_interface, join_countries("WHERE id = ANY (SELECT fk_city_id FROM monuments WHERE id = ANY($1))"), [req.query.monument_ids.split(",")], {
+                        func: join_countries_filter(exclude_fields_by_language, language_3),
+                        args: language_3
+                    })];
             case 3:
-                _a.apply(void 0, _b.concat([_g.sent()]));
-                _g.label = 4;
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                _c.label = 4;
             case 4: return [2 /*return*/];
         }
     });
@@ -242,7 +246,7 @@ cities_router.post("/insert", function (req, res) { return __awaiter(void 0, voi
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body)];
+                return [4 /*yield*/, utils_3.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -257,7 +261,7 @@ cities_router.put("/update/:id", function (req, res) { return __awaiter(void 0, 
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)];
+                return [4 /*yield*/, utils_3.values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -272,7 +276,7 @@ cities_router["delete"]("/delete/:id", function (req, res) { return __awaiter(vo
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
+                return [4 /*yield*/, utils_3.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];

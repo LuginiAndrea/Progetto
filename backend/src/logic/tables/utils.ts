@@ -32,17 +32,17 @@ function error_codes_to_status_code(error_code: string) {
 
 
 type table_name = keyof typeof table_creates;
-async function create_table(table_name: table_name, db_interface: DB_interface, role: string) {
-    if(role !== "admin")
-        return error_codes.Unauthorized(table_name);
-    return await db_interface.query(table_creates[table_name]);
+async function create_table(table_name: table_name, db_interface: DB_interface, is_admin: boolean) {
+    return is_admin ?
+        await db_interface.query(table_creates[table_name]) :
+        error_codes.Unauthorized(table_name);
 }
-async function delete_table(table_name: table_name, db_interface: DB_interface, role: string) {
-    if(role !== "admin")
-        return error_codes.Unauthorized(table_name);
-    return await db_interface.query(`DROP TABLE ${table_name}`);
+async function delete_table(table_name: table_name, db_interface: DB_interface, is_admin: boolean) {
+    return is_admin ?
+        await db_interface.query(`DROP TABLE ${table_name}`) :
+        error_codes.Unauthorized(table_name);
 }
-async function get_schema(table_name: table_name, db_interface: DB_interface, role: string) {
+async function get_schema(table_name: table_name, db_interface: DB_interface) {
     const result = await db_interface.query(`
         SELECT column_name, data_type, character_maximum_length, is_nullable
         FROM information_schema.columns
@@ -72,8 +72,8 @@ async function get_generic(table_name: table_name, db_interface: DB_interface, r
 }
 
 type valid_body_types = Exclude<table_name, "continents">;
-async function insert_values(table_name: valid_body_types, db_interface: DB_interface, role: string, data: any) {
-    if(role !== "admin")
+async function insert_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any) {
+    if(!is_admin)
         return error_codes.Unauthorized(table_name);
     if(!types.body_validators[table_name](data))  
         return error_codes.Invalid_body(table_name);
@@ -86,8 +86,8 @@ async function insert_values(table_name: valid_body_types, db_interface: DB_inte
         values
     ); 
 }
-async function update_values(table_name: valid_body_types, db_interface: DB_interface, role: string, data: any, id: id) {
-    if(role !== "admin")
+async function update_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any, id: id) {
+    if(!is_admin)
         return error_codes.Unauthorized(table_name);
     if(!id) 
         return error_codes.No_referenced_item(table_name);
@@ -99,24 +99,24 @@ async function update_values(table_name: valid_body_types, db_interface: DB_inte
         return error_codes.Invalid_body(table_name);
     const values = types.extract_values_of_fields(data, fields);
     const result = fields.length > 1 ? //If there are more than 1 field to update we need to change syntax
-    await db_interface.query(`
-        UPDATE Countries SET (${fields}) = (${placeholder_sequence})
-        WHERE id = $1
-        RETURNING *;`,
-        [id, ...values]
-    ) :
-    await db_interface.query(`
-        UPDATE Countries SET ${fields} = $2
-        WHERE id = $1
-        RETURNING *;`,
-        [id, ...values]
-    );
+        await db_interface.query(`
+            UPDATE Countries SET (${fields}) = (${placeholder_sequence})
+            WHERE id = $1
+            RETURNING *;`,
+            [id, ...values]
+        ) :
+        await db_interface.query(`
+            UPDATE Countries SET ${fields} = $2
+            WHERE id = $1
+            RETURNING *;`,
+            [id, ...values]
+        );
     return result?.result?.[0].rowCount === 0 ? // Check if a row was affected
         error_codes.No_row_affected(table_name) :
         result;
 }
-async function delete_values(table_name: valid_body_types, db_interface: DB_interface, role: string, id: id) {
-    if(role !== "admin")
+async function delete_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, id: id) {
+    if(!is_admin)
         return error_codes.Unauthorized(table_name);
     if(!id)
         return error_codes.No_referenced_item(table_name);

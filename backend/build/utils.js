@@ -9,12 +9,12 @@ function send_json(res, result, args) {
             error: result
         };
     if (result.result) {
-        if (processing_func === undefined)
-            processing_func = function (result) { return result[0].rows; };
-        res.status(success || 200).send(processing_func(result.result));
+        res.status(success || 200).send(processing_func ?
+            processing_func(result.result) :
+            result.result.map(function (res) { return res.rows; }));
     }
     else {
-        var status_1 = error || (0, utils_1.error_codes_to_status_code)(result.error);
+        var status_1 = error || (0, utils_1.error_codes_to_status_code)(result.error || "");
         res.status(status_1).send({ error: result.error });
     }
 }

@@ -41,7 +41,7 @@ app.get("/reconnect_database", (req, res) => {
         app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
             connectionString: get_db_uri()
         }, true);
-        if(app.locals.DEFAULT_DB_INTERFACE && app.locals.DEFAULT_DB_INTERFACE.connected())
+        if(app.locals.DEFAULT_DB_INTERFACE.connected())
             res.status(200).send({
                 "Status": "Connected"
             });
@@ -53,14 +53,11 @@ app.get("/reconnect_database", (req, res) => {
     else
         res.status(200).send({
             "Status": "Already connected"
-        });        
+        });    
 });
 
 app.use("*", (req, res) => {
-    send_json(res, {
-            error: "Method not found",
-        }, { error: 404 }
-    )
+    send_json(res, "Method not found", { error: 404 })
 });
 
 export { app };

@@ -25,7 +25,7 @@ function set_filter_by(filter_by: filter) {
 function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: number | boolean = 1): string {
     if(gen_placeholder_seq === false) return "";
     if(gen_placeholder_seq < 1) throw new Error("gen_placeholder_seq must be greater than 1");
-    let i = (typeof gen_placeholder_seq === "number") ? gen_placeholder_seq : 1;
+    let i = typeof gen_placeholder_seq === "number" ? gen_placeholder_seq : 1;
     return obj.map(_ => `$${i++}`).join(", ");
 }
 

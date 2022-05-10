@@ -4,19 +4,18 @@ exports.body_validators = exports.extract_values_of_fields = exports.get_fields 
 var fields_dictionary = {
     continents: ["id", "it_name", "en_name"],
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
-    cities: ["id", "real_name", "it_name", "en_name", "rating", "fk_country_id"],
+    cities: ["id", "real_name", "it_name", "en_name", "number_of_votes", "votes_sum", "fk_country_id"],
     languages: ["id", "name", "abbreviation"],
     users: ["id", "fk_language_id"],
-    monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "fk_city_id"],
+    monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "number_of_votes", "votes_sum", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
     types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
     monument_types: ["fk_monument_id", "fk_type_of_monument_id"]
 };
 function set_filter_by(filter_by) {
-    if (Array.isArray(filter_by)) {
-        return function (x) { return filter_by.includes(x); };
-    }
-    return filter_by;
+    return Array.isArray(filter_by) ?
+        function (x) { return filter_by.includes(x); } :
+        filter_by;
 }
 function generate_placeholder_sequence(obj, gen_placeholder_seq) {
     if (gen_placeholder_seq === void 0) { gen_placeholder_seq = 1; }
@@ -24,18 +23,18 @@ function generate_placeholder_sequence(obj, gen_placeholder_seq) {
         return "";
     if (gen_placeholder_seq < 1)
         throw new Error("gen_placeholder_seq must be greater than 1");
-    var i = (typeof gen_placeholder_seq === "number") ? gen_placeholder_seq : 1;
+    var i = typeof gen_placeholder_seq === "number" ? gen_placeholder_seq : 1;
     return obj.map(function (_) { return "$".concat(i++); }).join(", ");
 }
-function get_fields(type, filter_by, gen_placeholder_seq, no_id) {
+function get_fields(table_name, filter_by, gen_placeholder_seq, no_id) {
     if (gen_placeholder_seq === void 0) { gen_placeholder_seq = 1; }
     if (no_id === void 0) { no_id = false; }
-    var fields = fields_dictionary[type];
+    var fields = fields_dictionary[table_name];
     if (filter_by) {
         filter_by = set_filter_by(filter_by);
         fields = fields.filter(function (x) { return !(x === "id" && no_id); }).filter(filter_by);
     }
-    return [fields, generate_placeholder_sequence(fields, gen_placeholder_seq)];
+    return [fields.map(function (field) { return "".concat(table_name, ".").concat(field); }), generate_placeholder_sequence(fields, gen_placeholder_seq)];
 }
 exports.get_fields = get_fields;
 var extract_values_of_fields = function (body, fields) {
@@ -56,7 +55,8 @@ function is_cities_body(obj) {
         obj.real_name.length <= 50 &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
-        (!obj.rating || (typeof obj.rating === "number" && obj.rating >= 0 && obj.rating <= 5)) &&
+        (!obj.number_of_votes || (typeof obj.rating === "number" && obj.number_of_votes >= 0)) &&
+        (!obj.votes_sum || (typeof obj.votes_sum === "number" && obj.votes_sum >= 0)) &&
         typeof obj.fk_country_id === "number";
 }
 function is_languages_body(obj) {
@@ -75,8 +75,10 @@ function is_monuments_body(obj) {
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
         typeof obj.coordinates === "string" &&
-        (!obj.it_description || (typeof obj.it_description === "string" && obj.it_description.length <= 50)) &&
-        (!obj.en_description || (typeof obj.en_description === "string" && obj.en_description.length <= 50)) &&
+        (!obj.it_description || typeof obj.it_description === "string") &&
+        (!obj.en_description || typeof obj.en_description === "string") &&
+        (!obj.number_of_votes || (typeof obj.rating === "number" && obj.number_of_votes >= 0)) &&
+        (!obj.votes_sum || (typeof obj.votes_sum === "number" && obj.votes_sum >= 0)) &&
         typeof obj.fk_city_id === "number";
 }
 function is_visits_body(obj) {

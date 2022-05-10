@@ -50,17 +50,17 @@ function exclude_fields_by_language(language) {
 /****************************************** ROUTES **********************************************/
 continents_router.options("/", function (req, res) {
     var method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
-        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
+        { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
-        { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", role: "admin" },
+        { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", is_admin: true },
         { verb: "get", method: "list_all", description: "Gives the fields of all the continents" },
         { verb: "get", method: "list_single/:id", description: "Gives the fields of a single continents" },
-        { verb: "get", method: "continent_of_country", description: "Gives the continent of a country passed with the query string" },
+        { verb: "get", method: "continents_of_countries", description: "Gives the continents of the countries passed with the query string" },
     ];
-    res.status(200).json(res.locals.role === "admin" ?
+    res.status(200).json(res.locals.is_admin ?
         method_list :
-        method_list.filter(function (x) { return x.role !== "admin"; }));
+        method_list.filter(function (x) { return x.is_admin; }));
 });
 /************************************** TABLE ***************************************************/
 continents_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -70,7 +70,7 @@ continents_router.post("/create_table", function (req, res) { return __awaiter(v
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table.create(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -84,7 +84,7 @@ continents_router["delete"]("/delete_table", function (req, res) { return __awai
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -98,7 +98,7 @@ continents_router.get("/table_schema", function (req, res) { return __awaiter(vo
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE, res.locals.role)];
+                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -166,13 +166,13 @@ continents_router.get("/list_single/:id", function (req, res) { return __awaiter
         }
     });
 }); });
-continents_router.get("/continent_of_country", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+continents_router.get("/continents_of_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b, _c, _d, _e;
     var _f;
     return __generator(this, function (_g) {
         switch (_g.label) {
             case 0:
-                if (!!req.query.country_id) return [3 /*break*/, 1];
+                if (!!req.query.country_ids) return [3 /*break*/, 1];
                 (0, utils_2.send_json)(res, {
                     error: utils_3.error_codes.No_referenced_item(table_name)
                 });
@@ -182,7 +182,9 @@ continents_router.get("/continent_of_country", function (req, res) { return __aw
                 _a = utils_2.send_json;
                 _b = [res];
                 _d = (_c = utils_3.values.get).generic;
-                _e = [table_name, db_interface, "WHERE id = (SELECT fk_continent_id FROM Countries WHERE id = $1)", [req.query.country_id]];
+                _e = [table_name, db_interface,
+                    "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id",
+                    [req.query.country_ids.split(",")]];
                 _f = {
                     func: exclude_fields_by_language
                 };

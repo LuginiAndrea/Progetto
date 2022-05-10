@@ -13,7 +13,7 @@
 
 // const db_shortcut_router: Router = Router();
 
-// const get_db_uri = (req: Request, res: Response, next: NextFunction) => {
+// const get_db_uri = (req, res, next: NextFunction) => {
 //     res.locals.DB_URI = 
 //         (req.params.db === "prod") ? process.env.PROD_DB_URI : process.env.DEV_DB_URI;
 //     next();
@@ -23,7 +23,7 @@
 // // -------------------- General table stuff --------------------
 
 // // -------------------- GET TABLE SCHEMA --------------------
-// db_shortcut_router.get("/:db/table_schema/:table_name", async (req: Request, res: Response) => {;
+// db_shortcut_router.get("/:db/table_schema/:table_name", async (req, res) => {;
 //     const result = await new DB_interface({
 //         connectionString: res.locals.DB_URI
 //     }).query("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_name = $1;", [req.params.table_name]);
@@ -38,7 +38,7 @@
 //     });
 // });    
 // // -------------------- SELECT * --------------------
-// db_shortcut_router.get("/:db/select_table/:table_name", async (req: Request, res: Response) => {
+// db_shortcut_router.get("/:db/select_table/:table_name", async (req, res) => {
 //     const result = await new DB_interface({
 //         connectionString: res.locals.DB_URI
 //     }).query(`SELECT * FROM ${req.params.table_name}`, []);
@@ -46,7 +46,7 @@
 //     send_json(res, result);
 // });
 // // -------------------- DROP TABLE --------------------
-// db_shortcut_router.get("/:db/drop_table/:table_name", async (req: Request, res: Response) => {
+// db_shortcut_router.get("/:db/drop_table/:table_name", async (req, res) => {
 //     const result = await new DB_interface({
 //         connectionString: res.locals.DB_URI
 //     }).query(`DROP TABLE ${req.params.table_name}`, []);
@@ -54,7 +54,7 @@
 //     send_json(res, result);
 // });
 // // -------------------- CREATE TABLE --------------------
-// db_shortcut_router.get("/:db/create_table/:table_name", async (req: Request, res: Response) => {
+// db_shortcut_router.get("/:db/create_table/:table_name", async (req, res) => {
 //     const table_name: string = req.params.table_name;
 //     const db = new DB_interface({
 //         connectionString: res.locals.DB_URI
@@ -76,7 +76,7 @@
 //     db.close();
 // });
 // // -------------------- CREATE INDEXES --------------------
-// db_shortcut_router.get("/:db/create_indexes/:index_name", async (req: Request, res: Response) => {
+// db_shortcut_router.get("/:db/create_indexes/:index_name", async (req, res) => {
 //     const index_name: string = req.params.index_name;
 //     const db = new DB_interface({
 //         connectionString: res.locals.DB_URI
@@ -98,7 +98,7 @@
 //     db.close();
 // });
 // // -------------------- GET DB SCHEMA --------------------
-// db_shortcut_router.get('/:db/db_schema', async (req: Request, res: Response) => {
+// db_shortcut_router.get('/:db/db_schema', async (req, res) => {
 //     const result = await new DB_interface({
 //         connectionString: res.locals.DB_URI
 //     }).query(`SELECT table_name FROM information_schema.tables 

@@ -75,33 +75,45 @@ function error_codes_to_status_code(error_code) {
     return 400;
 }
 exports.error_codes_to_status_code = error_codes_to_status_code;
-function create_table(table_name, db_interface, role) {
+function create_table(table_name, db_interface, is_admin) {
     return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    if (role !== "admin")
-                        return [2 /*return*/, error_codes.Unauthorized(table_name)];
+                    if (!is_admin) return [3 /*break*/, 2];
                     return [4 /*yield*/, db_interface.query(table_creates_1.table_creates[table_name])];
-                case 1: return [2 /*return*/, _a.sent()];
+                case 1:
+                    _a = _b.sent();
+                    return [3 /*break*/, 3];
+                case 2:
+                    _a = error_codes.Unauthorized(table_name);
+                    _b.label = 3;
+                case 3: return [2 /*return*/, _a];
             }
         });
     });
 }
-function delete_table(table_name, db_interface, role) {
+function delete_table(table_name, db_interface, is_admin) {
     return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    if (role !== "admin")
-                        return [2 /*return*/, error_codes.Unauthorized(table_name)];
+                    if (!is_admin) return [3 /*break*/, 2];
                     return [4 /*yield*/, db_interface.query("DROP TABLE ".concat(table_name))];
-                case 1: return [2 /*return*/, _a.sent()];
+                case 1:
+                    _a = _b.sent();
+                    return [3 /*break*/, 3];
+                case 2:
+                    _a = error_codes.Unauthorized(table_name);
+                    _b.label = 3;
+                case 3: return [2 /*return*/, _a];
             }
         });
     });
 }
-function get_schema(table_name, db_interface, role) {
+function get_schema(table_name, db_interface) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
         var result;
@@ -124,7 +136,7 @@ function get_all_values(table_name, db_interface, rest_of_query, filter) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "*";
+                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "".concat(table_name, ".*");
                     return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query))];
                 case 1: return [2 /*return*/, _a.sent()];
             }
@@ -138,7 +150,7 @@ function get_single_value(table_name, db_interface, id, rest_of_query, filter) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "*";
+                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "".concat(table_name, ".*");
                     return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " WHERE id = $1 ").concat(rest_of_query), [id])];
                 case 1: return [2 /*return*/, _a.sent()];
             }
@@ -152,20 +164,20 @@ function get_generic(table_name, db_interface, rest_of_query, args, filter) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "*";
+                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "".concat(table_name, ".*");
                     return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query), args)];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
 }
-function insert_values(table_name, db_interface, role, data) {
+function insert_values(table_name, db_interface, is_admin, data) {
     return __awaiter(this, void 0, void 0, function () {
         var _a, fields, placeholder_sequence, values;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    if (role !== "admin")
+                    if (!is_admin)
                         return [2 /*return*/, error_codes.Unauthorized(table_name)];
                     if (!DB_interface_1.req_types.body_validators[table_name](data))
                         return [2 /*return*/, error_codes.Invalid_body(table_name)];
@@ -177,14 +189,14 @@ function insert_values(table_name, db_interface, role, data) {
         });
     });
 }
-function update_values(table_name, db_interface, role, data, id) {
+function update_values(table_name, db_interface, is_admin, data, id) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
         var _b, fields, placeholder_sequence, values, result, _c;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    if (role !== "admin")
+                    if (!is_admin)
                         return [2 /*return*/, error_codes.Unauthorized(table_name)];
                     if (!id)
                         return [2 /*return*/, error_codes.No_referenced_item(table_name)];
@@ -195,11 +207,11 @@ function update_values(table_name, db_interface, role, data, id) {
                         return [2 /*return*/, error_codes.Invalid_body(table_name)];
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
                     if (!(fields.length > 1)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, db_interface.query("\n        UPDATE Countries SET (".concat(fields, ") = (").concat(placeholder_sequence, ")\n        WHERE id = $1\n        RETURNING *;"), __spreadArray([id], values, true))];
+                    return [4 /*yield*/, db_interface.query("\n            UPDATE Countries SET (".concat(fields, ") = (").concat(placeholder_sequence, ")\n            WHERE id = $1\n            RETURNING *;"), __spreadArray([id], values, true))];
                 case 1:
                     _c = _d.sent();
                     return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, db_interface.query("\n        UPDATE Countries SET ".concat(fields, " = $2\n        WHERE id = $1\n        RETURNING *;"), __spreadArray([id], values, true))];
+                case 2: return [4 /*yield*/, db_interface.query("\n            UPDATE Countries SET ".concat(fields, " = $2\n            WHERE id = $1\n            RETURNING *;"), __spreadArray([id], values, true))];
                 case 3:
                     _c = _d.sent();
                     _d.label = 4;
@@ -212,14 +224,14 @@ function update_values(table_name, db_interface, role, data, id) {
         });
     });
 }
-function delete_values(table_name, db_interface, role, id) {
+function delete_values(table_name, db_interface, is_admin, id) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
         var result;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    if (role !== "admin")
+                    if (!is_admin)
                         return [2 /*return*/, error_codes.Unauthorized(table_name)];
                     if (!id)
                         return [2 /*return*/, error_codes.No_referenced_item(table_name)];

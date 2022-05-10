@@ -15,14 +15,16 @@ function send_json(res: Response, result: DB_result | string, args?: optional_ar
     if(typeof result === "string")
         result = {
             error: result
-        } as DB_result;
+        };
 
     if (result.result) {
-        if(processing_func === undefined) processing_func = (result) => { return result[0].rows; };
-        res.status(success|| 200).send(processing_func(result.result));
+        res.status(success|| 200).send(processing_func ?
+            processing_func(result.result) : 
+            result.result.map(res => res.rows)
+        );
     }
     else {
-        const status = error || error_codes_to_status_code(result.error as string);
+        const status = error || error_codes_to_status_code(result.error || "");
         res.status(status).send({error: result.error});
     }
 }
