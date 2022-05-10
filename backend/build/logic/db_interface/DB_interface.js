@@ -70,15 +70,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.error_codes = exports.validating_db_status = exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
+exports.validate_rating = exports.error_codes = exports.validate_db_status = exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
 var pg_1 = require("pg");
 var email_1 = require("../email/email");
 var req_types = __importStar(require("./types"));
 exports.req_types = req_types;
 var utils_1 = require("./utils");
 exports.get_db_uri = utils_1.get_db_uri;
-exports.validating_db_status = utils_1.validating_db_status;
+exports.validate_db_status = utils_1.validate_db_status;
 exports.error_codes = utils_1.error_codes;
+exports.validate_rating = utils_1.validate_rating;
 var DB_interface = /** @class */ (function () {
     function DB_interface(credentials, connect) {
         if (connect === void 0) { connect = true; }

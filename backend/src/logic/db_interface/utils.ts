@@ -14,10 +14,18 @@ function get_db_uri() {
         return DB_URI;
 }
 
-function validating_db_status(req: Request, res: Response, next: NextFunction) {
+function validate_db_status(req: Request, res: Response, next: NextFunction) {
+    if(req.originalUrl.endsWith("/reconnect_db")) {
+        res.locals.DB_INTERFACE = app.locals.DEFAULT_DB_INTERFACE;
+        next();
+    }
     if(!app.locals.DEFAULT_DB_INTERFACE)
         res.status(500).send({
             error: error_codes.no_db_interface
+        });
+    else if (!app.locals.DEFAULT_DB_INTERFACE.connected())
+        res.status(500).send({
+            error: error_codes.no_db_connection
         });
     else {
         res.locals.DB_INTERFACE = app.locals.DEFAULT_DB_INTERFACE;
@@ -25,6 +33,18 @@ function validating_db_status(req: Request, res: Response, next: NextFunction) {
     }
 }
 
+function validate_rating(req: Request) {
+    const operator = req.query.operator as string;
+    const rating = parseInt(req.query.rating as string);
+    return [
+        ["=", "!=", ">", "<", ">=", "<="].includes(operator) && 
+        rating >= 0 &&
+        rating <= 5,
+        operator,
+        rating
+    ];
+}
+
     
 
-export { get_db_uri, validating_db_status, error_codes };
+export { get_db_uri, validate_db_status, error_codes, validate_rating };

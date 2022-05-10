@@ -51,9 +51,10 @@ function exclude_fields_by_language(language) {
 countries_router.options("/", function (req, res) {
     var method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the countries" },
-        { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single country" },
+        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single country" },
         { verb: "get", method: "list_single_by_iso_code/:country_iso_code", description: "Gives the fields of a single country" },
         { verb: "get", method: "countries_in_continents", description: "Gives list of all countries in the continents passed with the query string" },
         { verb: "get", method: "country_of_city", description: "Gives the country of a city passed with the query string" },
@@ -130,7 +131,7 @@ countries_router.get("/list_all", function (req, res) { return __awaiter(void 0,
         }
     });
 }); });
-countries_router.get("/list_single/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.get("/list_single/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b, _c, _d, _e;
     var _f;
     return __generator(this, function (_g) {
@@ -140,7 +141,7 @@ countries_router.get("/list_single/:country_id", function (req, res) { return __
                 _a = utils_1.send_json;
                 _b = [res];
                 _d = (_c = utils_3.values.get).single;
-                _e = [table_name, db_interface, req.params.country_id, ""];
+                _e = [table_name, db_interface, req.params.id, ""];
                 _f = {
                     func: exclude_fields_by_language
                 };
@@ -246,14 +247,14 @@ countries_router.post("/insert", function (req, res) { return __awaiter(void 0, 
     });
 }); });
 /************************************** PUT ***************************************************/
-countries_router.put("/update/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.put("/update/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.country_id)];
+                return [4 /*yield*/, utils_3.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -261,14 +262,14 @@ countries_router.put("/update/:country_id", function (req, res) { return __await
     });
 }); });
 /************************************** DELETE ***************************************************/
-countries_router["delete"]("/delete/:country_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.country_id)];
+                return [4 /*yield*/, utils_3.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];

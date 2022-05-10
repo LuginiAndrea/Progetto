@@ -1,7 +1,7 @@
 import { Pool, QueryResult } from "pg";
 import { send_generic_error_email } from "../email/email";
 import * as req_types from "./types";
-import { get_db_uri, validating_db_status, error_codes } from "./utils";
+import { get_db_uri, validate_db_status, error_codes, validate_rating } from "./utils";
 
 
 type DB_config = { //Add fields here if needed
@@ -108,4 +108,4 @@ class DB_interface {
     }
 }
 
-export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validating_db_status, error_codes};
+export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validate_db_status, error_codes, validate_rating };

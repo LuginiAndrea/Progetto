@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { get_language_of_user } from "../../logic/users/utils";
 import { send_json } from "../../utils"
-import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
+import { DB_interface, req_types as types, validate_rating } from '../../logic/db_interface/DB_interface';
 import { table, values, error_codes } from '../../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
@@ -72,16 +72,15 @@ cities_router.get("/list_single/:id", async (req: Request, res: Response) => {
 });
 
 cities_router.get("/cities_by_rating", async(req: Request, res: Response) => {
-    const rating_operator = req.query.rating_operator as string;
-    const rating = parseInt(req.query.rating as string);
-    if(![">", "<", "=", "!="].includes(rating_operator) && rating > 0 && rating <= 5)
+    const [valid, operator, rating] = validate_rating(req);
+    if(!valid) 
         send_json(res, error_codes.Invalid_body(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE as DB_interface;
         let language = await get_language_of_user(req, res.locals.uid, db_interface);
         send_json(res, 
             await values.get.all(table_name, db_interface, 
-            `WHERE rating ${req.query.rating_operator} ${rating} ORDER BY rating, fk_country_id, ${language}_name`, {
+            `WHERE rating ${operator} ${rating} ORDER BY rating, fk_country_id, ${language}_name`, {
                     func: exclude_fields_by_language,
                     args: language
                 }

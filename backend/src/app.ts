@@ -11,14 +11,14 @@ import countries_router from "./routes/countries/countries";
 import continents_router from "./routes/continents/continents";
 import cities_router from "./routes/cities/cities";
 import languages_router from "./routes/languages/languages";
-import { validating_db_status } from "./logic/db_interface/DB_interface";
+import { validate_db_status, DB_interface, get_db_uri } from "./logic/db_interface/DB_interface";
 import { authenticate_user } from "./logic/users/utils";
 import bodyParser from "body-parser";
 import { send_json } from "./utils";
 
 const app = express();
 
-app.use(validating_db_status);
+app.use(validate_db_status);
 // Authenticate user
 app.use(bodyParser.json());
 app.use(authenticate_user)
@@ -33,6 +33,27 @@ app.use("/cities", cities_router);
 
 app.get("/", (req, res) => {
     res.status(200).send({"Status": "Running"});
+});
+
+app.get("/reconnect_database", (req, res) => {
+    const not_valid_connection = !app.locals.DEFAULT_DB_INTERFACE || !app.locals.DEFAULT_DB_INTERFACE.connected();
+    if(not_valid_connection) {
+        app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
+            connectionString: get_db_uri()
+        }, true);
+        if(app.locals.DEFAULT_DB_INTERFACE && app.locals.DEFAULT_DB_INTERFACE.connected())
+            res.status(200).send({
+                "Status": "Connected"
+            });
+        else 
+            res.status(500).send({
+                error: "Not connected"
+            });
+    }
+    else
+        res.status(200).send({
+            "Status": "Already connected"
+        });        
 });
 
 app.use("*", (req, res) => {

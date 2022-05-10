@@ -51,10 +51,11 @@ function exclude_fields_by_language(language) {
 continents_router.options("/", function (req, res) {
     var method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", role: "admin" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the continents" },
-        { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single continents" },
+        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single continents" },
         { verb: "get", method: "continent_of_country", description: "Gives the continent of a country passed with the query string" },
     ];
     res.status(200).json(res.locals.role === "admin" ?
@@ -142,7 +143,7 @@ continents_router.get("/list_all", function (req, res) { return __awaiter(void 0
         }
     });
 }); });
-continents_router.get("/list_single/:continent_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+continents_router.get("/list_single/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b, _c, _d, _e;
     var _f;
     return __generator(this, function (_g) {
@@ -152,7 +153,7 @@ continents_router.get("/list_single/:continent_id", function (req, res) { return
                 _a = utils_2.send_json;
                 _b = [res];
                 _d = (_c = utils_3.values.get).single;
-                _e = [table_name, db_interface, req.params.continent_id, ""];
+                _e = [table_name, db_interface, req.params.id, ""];
                 _f = {
                     func: exclude_fields_by_language
                 };

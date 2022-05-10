@@ -56,18 +56,13 @@ function authenticate_user(req, res, next) {
     });
 }
 exports.authenticate_user = authenticate_user;
-//Implementare lettura dall'header della risposta
-// nel caso sia presente 
 function get_language_of_user(req, uid, db_instance) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function () {
         var result;
         return __generator(this, function (_c) {
             switch (_c.label) {
-                case 0: 
-                // The user uid is in res.locals.UID
-                // Finish to check this
-                return [2 /*return*/, "en"];
+                case 0: return [4 /*yield*/, db_instance.query("SELECT abbreviation FROM Languages\n        WHERE id = (SELECT fk_language_id FROM Users WHERE id = $1)", [uid])];
                 case 1:
                     result = _c.sent();
                     return [2 /*return*/, ((_b = (_a = result.result) === null || _a === void 0 ? void 0 : _a[0].rows[0]) === null || _b === void 0 ? void 0 : _b.abbreviation) || "en"]; //return abbreviation or "en"

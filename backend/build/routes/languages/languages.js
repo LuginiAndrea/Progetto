@@ -46,9 +46,10 @@ var table_name = "languages";
 languages_router.options("/", function (req, res) {
     var method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", role: "admin" },
+        { verb: "delete", method: "delete_table", description: "Deletes the table", role: "admin" },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the countries" },
-        { verb: "get", method: "list_single/:continent_id", description: "Gives the fields of a single country" },
+        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single country" },
         { verb: "get", method: "list_single_by_iso_code/:country_iso_code", description: "Gives the fields of a single country" },
         { verb: "get", method: "countries_in_continents", description: "Gives list of all countries in the continents passed with the query string" },
         { verb: "get", method: "country_of_city", description: "Gives the country of a city passed with the query string" },
@@ -119,7 +120,7 @@ languages_router.get("/list_all", function (req, res) { return __awaiter(void 0,
         }
     });
 }); });
-languages_router.get("/list_single/:lang_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+languages_router.get("/list_single/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -127,7 +128,7 @@ languages_router.get("/list_single/:lang_id", function (req, res) { return __awa
                 db_interface = res.locals.DB_INTERFACE;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.single(table_name, db_interface, req.params.lang_id)];
+                return [4 /*yield*/, utils_2.values.get.single(table_name, db_interface, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -180,14 +181,14 @@ languages_router.post("/insert", function (req, res) { return __awaiter(void 0, 
     });
 }); });
 /************************************** PUT ***************************************************/
-languages_router.put("/update/:lang_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+languages_router.put("/update/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.lang_id)];
+                return [4 /*yield*/, utils_2.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -195,14 +196,14 @@ languages_router.put("/update/:lang_id", function (req, res) { return __awaiter(
     });
 }); });
 /************************************** DELETE ***************************************************/
-languages_router["delete"]("/delete/:lang_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+languages_router["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.lang_id)];
+                return [4 /*yield*/, utils_2.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];

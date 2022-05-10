@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-exports.error_codes = exports.validating_db_status = exports.get_db_uri = void 0;
+exports.validate_rating = exports.error_codes = exports.validate_db_status = exports.get_db_uri = void 0;
 var app_1 = require("../../app");
 var error_codes = {
     "no_db_interface": "i_db_1",
@@ -15,14 +15,34 @@ function get_db_uri() {
         return DB_URI;
 }
 exports.get_db_uri = get_db_uri;
-function validating_db_status(req, res, next) {
+function validate_db_status(req, res, next) {
+    if (req.originalUrl.endsWith("/reconnect_db")) {
+        res.locals.DB_INTERFACE = app_1.app.locals.DEFAULT_DB_INTERFACE;
+        next();
+    }
     if (!app_1.app.locals.DEFAULT_DB_INTERFACE)
         res.status(500).send({
             error: error_codes.no_db_interface
+        });
+    else if (!app_1.app.locals.DEFAULT_DB_INTERFACE.connected())
+        res.status(500).send({
+            error: error_codes.no_db_connection
         });
     else {
         res.locals.DB_INTERFACE = app_1.app.locals.DEFAULT_DB_INTERFACE;
         next();
     }
 }
-exports.validating_db_status = validating_db_status;
+exports.validate_db_status = validate_db_status;
+function validate_rating(req) {
+    var operator = req.query.operator;
+    var rating = parseInt(req.query.rating);
+    return [
+        ["=", "!=", ">", "<", ">=", "<="].includes(operator) &&
+            rating >= 0 &&
+            rating <= 5,
+        operator,
+        rating
+    ];
+}
+exports.validate_rating = validate_rating;
