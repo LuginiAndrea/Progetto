@@ -45,7 +45,7 @@ var utils_3 = require("../../logic/tables/utils");
 var cities_router = (0, express_1.Router)();
 var table_name = "cities";
 function exclude_fields_by_language(language) {
-    return DB_interface_1.req_types.get_fields("cities", function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
+    return DB_interface_1.req_types.get_fields(table_name, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 var join_countries = function (rest_of_query) {
     if (rest_of_query === void 0) { rest_of_query = ""; }
@@ -166,7 +166,7 @@ cities_router.get("/list_by_rating", function (req, res) { return __awaiter(void
             case 0:
                 _a = (0, utils_3.validate_rating)(req), valid = _a.valid, operator = _a.operator, rating = _a.rating;
                 if (!!valid) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, utils_3.error_codes.Invalid_body(table_name));
+                (0, utils_2.send_json)(res, utils_3.error_codes.INVALID_BODY(table_name));
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
@@ -192,7 +192,7 @@ cities_router.get("/cities_in_countries", function (req, res) { return __awaiter
         switch (_c.label) {
             case 0:
                 if (!!req.query.country_ids) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, utils_3.error_codes.No_referenced_item(table_name));
+                (0, utils_2.send_json)(res, utils_3.error_codes.NO_REFERENCED_ITEM(table_name));
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
@@ -218,7 +218,7 @@ cities_router.get("/cities_of_monuments", function (req, res) { return __awaiter
         switch (_c.label) {
             case 0:
                 if (!!req.query.monument_ids) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, utils_3.error_codes.No_referenced_item(table_name));
+                (0, utils_2.send_json)(res, utils_3.error_codes.NO_REFERENCED_ITEM(table_name));
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;

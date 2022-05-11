@@ -112,7 +112,7 @@ var DB_interface = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         if (!!this.pool) return [3 /*break*/, 1];
-                        return [2 /*return*/, utils_1.error_codes.no_db_connection];
+                        return [2 /*return*/, utils_1.error_codes.NO_DB_CONNECTION];
                     case 1:
                         _a.trys.push([1, 3, 4, 5]);
                         return [4 /*yield*/, this.pool.query(query, params)];
@@ -141,7 +141,7 @@ var DB_interface = /** @class */ (function () {
                 switch (_c.label) {
                     case 0:
                         if (!this.pool) { //If the connection is not open return error code
-                            return [2 /*return*/, utils_1.error_codes.no_db_connection];
+                            return [2 /*return*/, utils_1.error_codes.NO_DB_CONNECTION];
                         }
                         _c.label = 1;
                     case 1:

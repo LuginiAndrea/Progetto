@@ -9,11 +9,11 @@ function gen_error_code(error_code: string) {
 }
 
 const error_codes = {
-    Unauthorized: gen_error_code("e_0_Unauthorized"),
-    Invalid_body: gen_error_code("e_1_Invalid Body"),
-    No_referenced_item: gen_error_code("e_1_No Referenced Item"),
-    No_row_affected: gen_error_code("e_2_No Row Affected"),
-    No_existing_table: gen_error_code("e_2_No Existing Table"),
+    UNAUTHORIZED: gen_error_code("e_0_Unauthorized"),
+    INVALID_BODY: gen_error_code("e_1_Invalid Body"),
+    NO_REFERENCED_ITEM: gen_error_code("e_1_No Referenced Item"),
+    NO_ROW_AFFECTED: gen_error_code("e_2_No Row Affected"),
+    NO_EXISTING_TABLE: gen_error_code("e_2_No Existing Table"),
 }
 
 function error_codes_to_status_code(error_code: string[]) {
@@ -31,11 +31,10 @@ function error_codes_to_status_code(error_code: string[]) {
     return 400;
 }
 
-function convert_error_code(error_code: string) {   
-    const [code, tb_name, _] = error_code.split(/_(.*)/s);
-    switch(code) {
-        case "42P01": return error_codes.No_existing_table(tb_name);
-        default: return error_code;
+function convert_error_code(error_code: string, table_name: string) {   
+    switch(error_code) {
+        case "42P01": return error_codes.NO_EXISTING_TABLE(table_name);
+        default: return gen_error_code(error_code)(table_name);
     }
 }
 
@@ -43,18 +42,18 @@ function convert_error_code(error_code: string) {
 type table_name = keyof typeof table_creates;
 async function create_table(table_name: table_name, db_interface: DB_interface, is_admin: boolean) {
     if(!is_admin)
-        return error_codes.Unauthorized(table_name);
+        return error_codes.UNAUTHORIZED(table_name);
     const result = await db_interface.query(table_creates[table_name]);
-    typeof result === "string" ?
-        convert_error_code(result) :
+    return typeof result === "string" ?
+        convert_error_code(result, table_name) :
         result;
 }
 async function delete_table(table_name: table_name, db_interface: DB_interface, is_admin: boolean) {
     if(!is_admin)
-        return error_codes.Unauthorized(table_name);
+        return error_codes.UNAUTHORIZED(table_name);
     const result = await db_interface.query(`DROP TABLE ${table_name}`);
-    typeof result === "string" ?
-        convert_error_code(result) :
+    return typeof result === "string" ?
+        convert_error_code(result, table_name) :
         result;
 }
 async function get_schema(table_name: table_name, db_interface: DB_interface) {
@@ -65,7 +64,7 @@ async function get_schema(table_name: table_name, db_interface: DB_interface) {
     `);
     if(typeof result !== "string")
         return result[0].rowCount === 0 ? // Check if a row was affected
-            error_codes.No_row_affected(table_name) :
+            error_codes.NO_EXISTING_TABLE(table_name) :
             result;
     return result;   
 }
@@ -91,11 +90,11 @@ async function get_generic(table_name: table_name, db_interface: DB_interface, r
 type valid_body_types = Exclude<table_name, "continents">;
 async function insert_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any) {
     if(!is_admin)
-        return error_codes.Unauthorized(table_name);
+        return error_codes.UNAUTHORIZED(table_name);
     if(!types.body_validators[table_name](data))  
-        return error_codes.Invalid_body(table_name);
+        return error_codes.INVALID_BODY(table_name);
 
-    const [fields, placeholder_sequence] = types.get_fields(table_name, Object.keys(data), 2);
+    const [fields, placeholder_sequence] = types.get_fields(table_name, false, Object.keys(data), 1);
     const values = types.extract_values_of_fields(data, fields);
     return await db_interface.query(`
         INSERT INTO ${table_name} (${fields}) VALUES (${placeholder_sequence})
@@ -105,15 +104,18 @@ async function insert_values(table_name: valid_body_types, db_interface: DB_inte
 }
 async function update_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any, id: id) {
     if(!is_admin)
-        return error_codes.Unauthorized(table_name);
+        return error_codes.UNAUTHORIZED(table_name);
+    id = typeof id === "string" ?
+        parseInt(id as string) :
+        id;
     if(!id) 
-        return error_codes.No_referenced_item(table_name);
+        return error_codes.NO_REFERENCED_ITEM(table_name);
     if(!types.body_validators[table_name](data)) 
-        error_codes.Invalid_body(table_name);
+        error_codes.INVALID_BODY(table_name);
 
-    const [fields, placeholder_sequence] = types.get_fields(table_name, Object.keys(data), 2, true);
+    const [fields, placeholder_sequence] = types.get_fields(table_name, false, Object.keys(data), 2, true);
     if(fields.length === 0)
-        return error_codes.Invalid_body(table_name);
+        return error_codes.INVALID_BODY(table_name);
     const values = types.extract_values_of_fields(data, fields);
     const result = fields.length > 1 ? //If there are more than 1 field to update we need to change syntax
         await db_interface.query(`
@@ -130,15 +132,15 @@ async function update_values(table_name: valid_body_types, db_interface: DB_inte
         );
     if(typeof result !== "string")
         return result[0].rowCount === 0 ? // Check if a row was affected
-            error_codes.No_row_affected(table_name) :
+            error_codes.NO_ROW_AFFECTED(table_name) :
             result;
     return result;
 }
 async function delete_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, id: id) {
     if(!is_admin)
-        return error_codes.Unauthorized(table_name);
+        return error_codes.UNAUTHORIZED(table_name);
     if(!id)
-        return error_codes.No_referenced_item(table_name);
+        return error_codes.NO_REFERENCED_ITEM(table_name);
     const result = await db_interface.query(`
         DELETE FROM ${table_name}
         WHERE id = $1
@@ -147,7 +149,7 @@ async function delete_values(table_name: valid_body_types, db_interface: DB_inte
     );
     if(typeof result !== "string")
         return result[0].rowCount === 0 ? // Check if a row was affected
-            error_codes.No_row_affected(table_name) :
+            error_codes.NO_ROW_AFFECTED(table_name) :
             result;
     return result;
 }
@@ -175,7 +177,7 @@ function validate_rating(req: Request) {
     if(!operator || !rating)
         return {valid: false, operator, rating};
 
-    const valid = (rating === "NULL" && ["IS NULL", "IS NOT NULL"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
+    const valid = (rating === "NULL" && ["IS", "IS NOT"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
     return {valid, operator, rating};
 }
 

@@ -41,7 +41,7 @@ class DB_interface {
         
     async query(query: string, params: any[] = [], close_connection = false): Promise<DB_result> { // String return = error code
         if(!this.pool) { //If the connection is not open return error code
-            return error_codes.no_db_connection;
+            return error_codes.NO_DB_CONNECTION;
         }
         else {
             try {
@@ -60,7 +60,7 @@ class DB_interface {
 
     async transiction(queries: string[], params: any[][] = [], close_connection = false): Promise<DB_result> {
         if(!this.pool) { //If the connection is not open return error code
-            return error_codes.no_db_connection;
+            return error_codes.NO_DB_CONNECTION;
         } 
         try {
             let result = [];

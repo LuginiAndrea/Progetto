@@ -26,7 +26,8 @@ function generate_placeholder_sequence(obj, gen_placeholder_seq) {
     var i = typeof gen_placeholder_seq === "number" ? gen_placeholder_seq : 1;
     return obj.map(function (_) { return "$".concat(i++); }).join(", ");
 }
-function get_fields(table_name, filter_by, gen_placeholder_seq, no_id) {
+function get_fields(table_name, use_table_name, filter_by, gen_placeholder_seq, no_id) {
+    if (use_table_name === void 0) { use_table_name = false; }
     if (gen_placeholder_seq === void 0) { gen_placeholder_seq = 1; }
     if (no_id === void 0) { no_id = false; }
     var fields = fields_dictionary[table_name];
@@ -34,7 +35,10 @@ function get_fields(table_name, filter_by, gen_placeholder_seq, no_id) {
         filter_by = set_filter_by(filter_by);
         fields = fields.filter(function (x) { return !(x === "id" && no_id); }).filter(filter_by);
     }
-    return [fields.map(function (field) { return "".concat(table_name, ".").concat(field); }), generate_placeholder_sequence(fields, gen_placeholder_seq)];
+    fields = use_table_name ?
+        fields.map(function (field) { return "".concat(table_name, ".").concat(field); }) :
+        fields;
+    return [fields, generate_placeholder_sequence(fields, gen_placeholder_seq)];
 }
 exports.get_fields = get_fields;
 var extract_values_of_fields = function (body, fields) {

@@ -4,8 +4,8 @@ exports.error_codes = exports.validate_db_status = exports.get_db_uri = void 0;
 var app_1 = require("../../app");
 var utils_1 = require("../../utils");
 var error_codes = {
-    "no_db_interface": "i_No interface",
-    "no_db_connection": "i_Not connected"
+    NO_DB_INTERFACE: "i_No interface",
+    NO_DB_CONNECTION: "i_Not connected"
 };
 exports.error_codes = error_codes;
 function get_db_uri() {
@@ -22,9 +22,9 @@ function validate_db_status(req, res, next) {
         next();
     }
     if (!app_1.app.locals.DEFAULT_DB_INTERFACE)
-        (0, utils_1.send_json)(res, error_codes.no_db_interface);
+        (0, utils_1.send_json)(res, error_codes.NO_DB_INTERFACE);
     else if (!app_1.app.locals.DEFAULT_DB_INTERFACE.connected())
-        (0, utils_1.send_json)(res, error_codes.no_db_connection);
+        (0, utils_1.send_json)(res, error_codes.NO_DB_CONNECTION);
     else {
         res.locals.DB_INTERFACE = app_1.app.locals.DEFAULT_DB_INTERFACE;
         next();

@@ -29,13 +29,16 @@ function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: numbe
     return obj.map(_ => `$${i++}`).join(", ");
 }
 
-function get_fields(table_name: accepted_get_types, filter_by?: filter, gen_placeholder_seq: number | boolean = 1, no_id = false) : [string[], string] {
+function get_fields(table_name: accepted_get_types, use_table_name = false, filter_by?: filter, gen_placeholder_seq: number | boolean = 1, no_id = false) : [string[], string] {
     let fields = fields_dictionary[table_name];
     if(filter_by) {
         filter_by = set_filter_by(filter_by);
         fields = fields.filter(x => !(x === "id" && no_id)).filter(filter_by);
     }
-    return [fields.map(field => `${table_name}.${field}`), generate_placeholder_sequence(fields, gen_placeholder_seq)];
+    fields = use_table_name ?
+        fields.map(field => `${table_name}.${field}`) :
+        fields;
+    return [fields, generate_placeholder_sequence(fields, gen_placeholder_seq)];
 }
 const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any => 
     fields.map(field => (body as any)[field]); //Gets the values 

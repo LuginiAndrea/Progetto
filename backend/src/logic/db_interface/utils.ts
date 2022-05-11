@@ -3,8 +3,8 @@ import { app } from "../../app";
 import { send_json } from "../../utils";
 
 const error_codes = {
-    "no_db_interface": "i_No interface",
-    "no_db_connection": "i_Not connected"
+    NO_DB_INTERFACE: "i_No interface",
+    NO_DB_CONNECTION: "i_Not connected"
 }
 
 function get_db_uri() {
@@ -21,9 +21,9 @@ function validate_db_status(req: Request, res: Response, next: NextFunction) {
         next();
     }
     if(!app.locals.DEFAULT_DB_INTERFACE)
-        send_json(res, error_codes.no_db_interface)
+        send_json(res, error_codes.NO_DB_INTERFACE)
     else if (!app.locals.DEFAULT_DB_INTERFACE.connected())
-        send_json(res, error_codes.no_db_connection)
+        send_json(res, error_codes.NO_DB_CONNECTION)
     else {
         res.locals.DB_INTERFACE = app.locals.DEFAULT_DB_INTERFACE;
         next();

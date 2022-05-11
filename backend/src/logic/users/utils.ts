@@ -24,7 +24,8 @@ async function get_language_of_user (req: Request, uid: string, db_instance: DB_
         `SELECT abbreviation FROM Languages
         WHERE id = (SELECT fk_language_id FROM Users WHERE id = $1)`, [uid]
     );
-    return result.result?.[0].rows[0]?.abbreviation || "en"; //return abbreviation or "en"
+    if(typeof result === "string") throw Error(result);
+    return result[0].rows[0].abbreviation || "en"; //return abbreviation or "en"
 }
 
 export { authenticate_user, get_language_of_user };

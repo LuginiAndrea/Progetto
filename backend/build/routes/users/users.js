@@ -47,7 +47,7 @@ var users_router = (0, express_1.Router)();
 var table_name = "users";
 users_router.use(function (req, res, next) {
     if (!res.locals.is_admin)
-        (0, utils_1.send_json)(res, utils_2.error_codes.Unauthorized(table_name));
+        (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
     else
         next();
 });

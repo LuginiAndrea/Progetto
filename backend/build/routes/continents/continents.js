@@ -45,7 +45,7 @@ var utils_3 = require("../../logic/tables/utils");
 var continents_router = (0, express_1.Router)();
 var table_name = "continents";
 function exclude_fields_by_language(language) {
-    return DB_interface_1.req_types.get_fields("continents", function (x) { return !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
+    return DB_interface_1.req_types.get_fields(table_name, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false)[0];
 }
 /****************************************** ROUTES **********************************************/
 continents_router.options("/", function (req, res) {
@@ -173,9 +173,7 @@ continents_router.get("/continents_of_countries", function (req, res) { return _
         switch (_g.label) {
             case 0:
                 if (!!req.query.country_ids) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, {
-                    error: utils_3.error_codes.No_referenced_item(table_name)
-                });
+                (0, utils_2.send_json)(res, utils_3.error_codes.NO_REFERENCED_ITEM(table_name));
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;

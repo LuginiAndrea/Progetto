@@ -7,9 +7,8 @@ import { table, values, error_codes } from '../../logic/tables/utils';
 /******************** CONSTANTS ***********************/
 const countries_router = Router();
 const table_name = "countries";
-
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_fields(table_name,
+    return types.get_fields(table_name, true,
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     )[0];
@@ -41,17 +40,17 @@ countries_router.options("/", (req, res) => {
 /************************************** TABLE ***************************************************/
 countries_router.post("/create_table", async (req, res) => {
     send_json(res, 
-        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)
     );
 });
 countries_router.delete("/delete_table", async (req, res) => {
     send_json(res,
-        await table.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        await table.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)
     );
 });
 countries_router.get("/table_schema", async (req, res) => {
     send_json(res,
-        await table.schema(table_name, res.locals.DB_interface),
+        await table.schema(table_name, res.locals.DB_interface)
     );
 });
 
@@ -91,7 +90,7 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req, r
 
 countries_router.get("/countries_in_continents", async (req, res) => { 
     if(!req.query.continent_ids) 
-        send_json(res, error_codes.No_referenced_item(table_name));
+        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
@@ -107,7 +106,7 @@ countries_router.get("/countries_in_continents", async (req, res) => {
 
 countries_router.get("/countries_of_cities", async (req, res) => {
     if(!req.query.city_ids) 
-        send_json(res, error_codes.No_referenced_item(table_name));
+        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);

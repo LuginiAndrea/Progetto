@@ -8,8 +8,8 @@ import { table, values, error_codes } from '../../logic/tables/utils';
 const continents_router: Router = Router();
 const table_name = "continents";
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_fields("continents",
-        x => !(x.endsWith("_name") && !x.startsWith(language)),
+    return types.get_fields(table_name, true,
+        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     )[0];
 }
@@ -85,9 +85,7 @@ continents_router.get("/list_single/:id", async (req, res) => {
 
 continents_router.get("/continents_of_countries", async (req, res) => {
     if(!req.query.country_ids) 
-        send_json(res, {
-            error: error_codes.No_referenced_item(table_name)
-        });
+        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         send_json(res,

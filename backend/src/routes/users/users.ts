@@ -13,7 +13,7 @@ const table_name = "users";
 
 users_router.use((req, res, next) => {
     if(!res.locals.is_admin)
-        send_json(res, error_codes.Unauthorized(table_name));
+        send_json(res, error_codes.UNAUTHORIZED(table_name));
     else
         next();
 });

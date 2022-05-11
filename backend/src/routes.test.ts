@@ -1,5 +1,5 @@
 import { app } from "./app";
-import { DB_interface, get_db_uri } from "././logic/db_interface/DB_interface";
+import { DB_interface, get_db_uri, QueryResult } from "././logic/db_interface/DB_interface";
 import supertest from "supertest";
 import { table, values, error_codes } from "./logic/tables/utils";
 
@@ -53,71 +53,53 @@ describe("Top Level routes tests", () => {
             expect(response.status).toBe(500);
             expect(response.body).toEqual({error: "No interface"});
         });
-        describe("Table operations", () => {
+    });
+    describe("Table operations", () => {
+        let db_interface: DB_interface;
+        beforeAll(() => {
+            app.locals.DB_interface?.close();
             app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
                 connectionString: get_db_uri()
             }, true);
-            app.locals.DEFAULT_DB_INTERFACE.query("BEGIN");
-            
-            describe("/Create table", () => {
-                it("No authorization", async () => {
-                    const result = await table.create("continents", app.locals.DEFAULT_DB_INTERFACE, false);
-                    expect(result).toEqual("Not Authorized.continents");
-                });
-                it("Authorization", async () => {
-                    const result = await table.create("continents", app.locals.DEFAULT_DB_INTERFACE, true);
-                    expect(result).toEqual([[]]);
-                });
-                it("Already exists", async () => {
-                    const result = await table.create("continents", app.locals.DEFAULT_DB_INTERFACE, true);
-                    expect(result).toEqual([[]]);
-                });
-            });
-            describe("Delete table", () => {
-                it("No authorization", async () => {
-                    const result = await table.delete("continents", app.locals.DEFAULT_DB_INTERFACE, false);
-                    expect(result).toEqual("Not Authorized.continents");
-                });
-                it("Authorization", async () => {
-                    const result = await table.delete("continents", app.locals.DEFAULT_DB_INTERFACE, true);
-                    expect(result).toEqual([[]]);
-                });
-                it("Does not exist", async () => {
-                    const result = await table.delete("continents", app.locals.DEFAULT_DB_INTERFACE, true);
-                    expect(result).toEqual("No Existing Table.continents");
-                });
-            });
-            describe("Schema")
-            describe("/Insert values", () => {
-                it("No authorization", async () => {
-                    const result = await values.insert("countries", app.locals.DEFAULT_DB_INTERFACE, false, {
-                        continent: "Europe"
-
+        });
+        beforeEach(() => {
+            db_interface = new DB_interface({
+                connectionString: get_db_uri()
+            }, true);
+        });
+        afterAll(() => {
+            app.locals.DB_interface?.close();
+        });
+        afterEach(() => {
+            db_interface.close();
+        });         
+        // describe("Delete values", () => {
+        //     it("No authorization", async () => {
+        //         const result = await values.delete("countries", app.locals.DEFAULT_DB_INTERFACE, false, to_send);
     });
-
-    app.locals.DB_interface?.close();
     
 });
 
-describe("General routes tests", async () => {
-    // SETUP
-    const request = supertest(app);
-    app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
-        connectionString: get_db_uri()
-    }, true);
-    const all_routes = [
-        "continents",
-        "countries",
-        "cities",
-        "languages",
-        "users"
-    ]; //Order is important
-    await app.locals.DB_interface.query("BEGIN");
+// describe("General routes tests", async () => {
+//     // SETUP
+//     const request = supertest(app);
+//     app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
+//         connectionString: get_db_uri()
+//     }, true);
+//     const all_routes = [
+//         "continents",
+//         "countries",
+//         "cities",
+//         "languages",
+//         "users"
+//     ]; //Order is important
+//     await app.locals.DB_interface.query("BEGIN");
     
-    for(const route of all_routes) {
-        describe(`/${route}`, () => {
-            it("Create table", async () => {
-                const response = await request.post(`/${route}`).send({
+//     for(const route of all_routes) {
+//         describe(`/${route}`, () => {
+//             it("Create table", async () => {
+//                 const response = await request.post(`/${route}`).send({});
+//             }
 
 
 

@@ -8,7 +8,7 @@ import { get_language_of_user } from 'src/logic/users/utils';
 const monuments_router = Router();
 const table_name = "monuments";
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_fields("monuments",
+    return types.get_fields(table_name, true,
         x => x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)),
         false
     )[0];
@@ -58,7 +58,7 @@ monuments_router.get("/list_single/:id", async (req, res) => {
 monuments_router.get("/list_by_rating", async (req, res) => {
     const {valid, operator, rating} = validate_rating(req);
     if(!valid)
-        send_json(res, error_codes.Invalid_body(table_name));
+        send_json(res, error_codes.INVALID_BODY(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.uid, db_interface);
@@ -73,7 +73,7 @@ monuments_router.get("/list_by_rating", async (req, res) => {
 
 monuments_router.get("/monuments_in_cities", async (req, res) => {
     if(!req.query.city_ids) 
-        send_json(res, error_codes.No_referenced_item(table_name));
+        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
@@ -89,7 +89,7 @@ monuments_router.get("/monuments_in_cities", async (req, res) => {
 
 monuments_router.get("/monuments_of_visits", async (req, res) => {
     if(!req.query.visit_ids)
-        send_json(res, error_codes.No_referenced_item(table_name));
+        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE
         const language = await get_language_of_user(req, res.locals.UID, db_interface);

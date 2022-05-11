@@ -9,7 +9,7 @@ import { language } from 'googleapis/build/src/apis/language';
 const cities_router: Router = Router();
 const table_name = "cities";
 function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_fields("cities",
+    return types.get_fields(table_name, true,
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     )[0];
@@ -81,7 +81,7 @@ cities_router.get("/list_single/:id", async (req, res) => {
 cities_router.get("/list_by_rating", async(req, res) => {
     const {valid, operator, rating} = validate_rating(req);
     if(!valid) 
-        send_json(res, error_codes.Invalid_body(table_name));
+        send_json(res, error_codes.INVALID_BODY(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.uid, db_interface);
@@ -97,7 +97,7 @@ cities_router.get("/list_by_rating", async(req, res) => {
 
 cities_router.get("/cities_in_countries", async (req, res) => {
     if(!req.query.country_ids) 
-        send_json(res, error_codes.No_referenced_item(table_name));
+        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
@@ -113,7 +113,7 @@ cities_router.get("/cities_in_countries", async (req, res) => {
 
 cities_router.get("/cities_of_monuments", async (req, res) => {
     if(!req.query.monument_ids) 
-        send_json(res, error_codes.No_referenced_item(table_name));
+        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
