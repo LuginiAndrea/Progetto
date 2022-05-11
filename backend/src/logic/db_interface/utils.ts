@@ -3,8 +3,8 @@ import { app } from "../../app";
 import { send_json } from "../../utils";
 
 const error_codes = {
-    "no_db_interface": "i_db_1",
-    "no_db_connection": "i_db_2"
+    "no_db_interface": "i_No interface",
+    "no_db_connection": "i_Not connected"
 }
 
 function get_db_uri() {
@@ -29,21 +29,5 @@ function validate_db_status(req: Request, res: Response, next: NextFunction) {
         next();
     }
 }
-
-function validate_rating(req: Request) {
-    const operator = (req.query.operator as string).toUpperCase();
-    const rating = req.query.rating === "NULL" ?
-        "NULL" :
-        parseInt(req.query.rating as string)
-
-    const valid = (rating === "NULL" && ["IS NULL", "IS NOT NULL"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
-    return {
-        valid: valid,
-        operator: operator,
-        rating: rating
-    }
-}
-
-    
-
-export { get_db_uri, validate_db_status, error_codes, validate_rating };
+   
+export { get_db_uri, validate_db_status, error_codes };

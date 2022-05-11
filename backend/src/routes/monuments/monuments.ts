@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { send_json } from '../../utils';
-import { DB_interface, req_types as types, validate_rating } from '../../logic/db_interface/DB_interface';
-import { table, values, error_codes } from '../../logic/tables/utils';
+import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
+import { table, values, error_codes, validate_rating } from '../../logic/tables/utils';
 import { get_language_of_user } from 'src/logic/users/utils';
 
 /******************** CONSTANTS ***********************/

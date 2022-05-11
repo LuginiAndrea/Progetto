@@ -53,6 +53,8 @@ function authenticate_user(req, res, next) {
     });
 }
 exports.authenticate_user = authenticate_user;
+//Implementare lettura dall'header della risposta
+// nel caso sia presente 
 function get_language_of_user(req, uid, db_instance) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function () {

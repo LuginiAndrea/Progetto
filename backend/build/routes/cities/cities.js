@@ -164,7 +164,7 @@ cities_router.get("/list_by_rating", function (req, res) { return __awaiter(void
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
-                _a = (0, DB_interface_1.validate_rating)(req), valid = _a.valid, operator = _a.operator, rating = _a.rating;
+                _a = (0, utils_3.validate_rating)(req), valid = _a.valid, operator = _a.operator, rating = _a.rating;
                 if (!!valid) return [3 /*break*/, 1];
                 (0, utils_2.send_json)(res, utils_3.error_codes.Invalid_body(table_name));
                 return [3 /*break*/, 4];

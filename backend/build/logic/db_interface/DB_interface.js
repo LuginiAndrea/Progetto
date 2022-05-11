@@ -70,7 +70,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.validate_rating = exports.error_codes = exports.validate_db_status = exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
+exports.error_codes = exports.validate_db_status = exports.get_db_uri = exports.req_types = exports.DB_interface = void 0;
 var pg_1 = require("pg");
 var email_1 = require("../email/email");
 var req_types = __importStar(require("./types"));
@@ -79,7 +79,6 @@ var utils_1 = require("./utils");
 exports.get_db_uri = utils_1.get_db_uri;
 exports.validate_db_status = utils_1.validate_db_status;
 exports.error_codes = utils_1.error_codes;
-exports.validate_rating = utils_1.validate_rating;
 var DB_interface = /** @class */ (function () {
     function DB_interface(credentials, connect) {
         if (connect === void 0) { connect = true; }
@@ -109,28 +108,21 @@ var DB_interface = /** @class */ (function () {
         if (close_connection === void 0) { close_connection = false; }
         return __awaiter(this, void 0, void 0, function () {
             var error_1;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         if (!!this.pool) return [3 /*break*/, 1];
-                        return [2 /*return*/, {
-                                error: utils_1.error_codes.no_db_connection
-                            }];
+                        return [2 /*return*/, utils_1.error_codes.no_db_connection];
                     case 1:
-                        _b.trys.push([1, 3, 4, 5]);
-                        _a = {};
+                        _a.trys.push([1, 3, 4, 5]);
                         return [4 /*yield*/, this.pool.query(query, params)];
-                    case 2: return [2 /*return*/, (_a.result = [_b.sent()],
-                            _a)];
+                    case 2: return [2 /*return*/, [_a.sent()]];
                     case 3:
-                        error_1 = _b.sent();
+                        error_1 = _a.sent();
                         console.log("On query ".concat(query, ":\n ").concat(error_1, ": ").concat(error_1.code));
                         if (error_1.code === "3D000")
                             (0, email_1.send_generic_error_email)("Error in server", error_1 + "Error code 3D000");
-                        return [2 /*return*/, {
-                                error: error_1.code
-                            }];
+                        return [2 /*return*/, error_1.code];
                     case 4:
                         if (close_connection)
                             this.close();
@@ -149,9 +141,7 @@ var DB_interface = /** @class */ (function () {
                 switch (_c.label) {
                     case 0:
                         if (!this.pool) { //If the connection is not open return error code
-                            return [2 /*return*/, {
-                                    error: utils_1.error_codes.no_db_connection
-                                }];
+                            return [2 /*return*/, utils_1.error_codes.no_db_connection];
                         }
                         _c.label = 1;
                     case 1:
@@ -175,9 +165,7 @@ var DB_interface = /** @class */ (function () {
                     case 6: return [4 /*yield*/, this.pool.query('COMMIT')];
                     case 7:
                         _c.sent();
-                        return [2 /*return*/, {
-                                result: result
-                            }];
+                        return [2 /*return*/, result];
                     case 8:
                         error_2 = _c.sent();
                         console.log("On transiction:\n ".concat(error_2, ": ").concat(error_2.code));
@@ -186,9 +174,7 @@ var DB_interface = /** @class */ (function () {
                         _c.sent();
                         if (error_2.code === "3D000")
                             (0, email_1.send_generic_error_email)("Error in server", error_2 + "Error code 3D000");
-                        return [2 /*return*/, {
-                                error: error_2.code
-                            }];
+                        return [2 /*return*/, error_2.code];
                     case 10:
                         if (close_connection)
                             this.close();

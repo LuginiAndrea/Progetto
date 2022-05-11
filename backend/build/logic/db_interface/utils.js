@@ -1,11 +1,11 @@
 "use strict";
 exports.__esModule = true;
-exports.validate_rating = exports.error_codes = exports.validate_db_status = exports.get_db_uri = void 0;
+exports.error_codes = exports.validate_db_status = exports.get_db_uri = void 0;
 var app_1 = require("../../app");
 var utils_1 = require("../../utils");
 var error_codes = {
-    "no_db_interface": "i_db_1",
-    "no_db_connection": "i_db_2"
+    "no_db_interface": "i_No interface",
+    "no_db_connection": "i_Not connected"
 };
 exports.error_codes = error_codes;
 function get_db_uri() {
@@ -31,16 +31,3 @@ function validate_db_status(req, res, next) {
     }
 }
 exports.validate_db_status = validate_db_status;
-function validate_rating(req) {
-    var operator = req.query.operator.toUpperCase();
-    var rating = req.query.rating === "NULL" ?
-        "NULL" :
-        parseInt(req.query.rating);
-    var valid = (rating === "NULL" && ["IS NULL", "IS NOT NULL"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
-    return {
-        valid: valid,
-        operator: operator,
-        rating: rating
-    };
-}
-exports.validate_rating = validate_rating;

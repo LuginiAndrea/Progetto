@@ -33,9 +33,9 @@ app.use("/users", users_1["default"]);
 app.use("/continents", continents_1["default"]);
 app.use("/cities", cities_1["default"]);
 app.get("/", function (req, res) {
-    res.status(200).send({ "Status": "Running" });
+    res.status(200).send({ status: "Running" });
 });
-app.get("/reconnect_database", function (req, res) {
+app.get("/reconnect_db", function (req, res) {
     var not_valid_connection = !app.locals.DEFAULT_DB_INTERFACE || !app.locals.DEFAULT_DB_INTERFACE.connected();
     if (not_valid_connection) {
         app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({

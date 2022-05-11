@@ -1,17 +1,14 @@
 import { Pool, QueryResult } from "pg";
 import { send_generic_error_email } from "../email/email";
 import * as req_types from "./types";
-import { get_db_uri, validate_db_status, error_codes, validate_rating } from "./utils";
+import { get_db_uri, validate_db_status, error_codes } from "./utils";
 
 
 type DB_config = { //Add fields here if needed
     connectionString: string;
 }
 
-type DB_result = {
-    result?: Array<QueryResult<any>> | null;
-    error?: string | null;
-}
+type DB_result = Array<QueryResult<any>> | string;
 
 class DB_interface {
     private readonly credentials: DB_config;
@@ -44,22 +41,16 @@ class DB_interface {
         
     async query(query: string, params: any[] = [], close_connection = false): Promise<DB_result> { // String return = error code
         if(!this.pool) { //If the connection is not open return error code
-            return {
-                error: error_codes.no_db_connection
-            };
+            return error_codes.no_db_connection;
         }
         else {
             try {
-                return {
-                    result: [await this.pool.query(query, params)]
-                };
+                return [await this.pool.query(query, params)];
             } 
             catch (error) {
                 console.log(`On query ${query}:\n ${error}: ${error.code}`);
                 if(error.code === "3D000") send_generic_error_email("Error in server", error + "Error code 3D000");
-                return {
-                    error: error.code
-                };
+                return error.code
             }
             finally {
                 if(close_connection) this.close();
@@ -69,9 +60,7 @@ class DB_interface {
 
     async transiction(queries: string[], params: any[][] = [], close_connection = false): Promise<DB_result> {
         if(!this.pool) { //If the connection is not open return error code
-            return {
-                error: error_codes.no_db_connection
-            };
+            return error_codes.no_db_connection;
         } 
         try {
             let result = [];
@@ -80,17 +69,13 @@ class DB_interface {
                 result.push(await this.pool.query(queries[i], params[i] || [])); 
             }
             await this.pool.query('COMMIT');
-            return {
-                result: result
-            };
+            return result;
         } 
         catch (error) {
             console.log(`On transiction:\n ${error}: ${error.code}`);
             await this.pool.query('ROLLBACK');
                 if(error.code === "3D000") send_generic_error_email("Error in server", error + "Error code 3D000");
-            return {
-                error: error.code
-            };
+            return error.code;
         }
         finally {
             if(close_connection) this.close();
@@ -108,4 +93,4 @@ class DB_interface {
     }
 }
 
-export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validate_db_status, error_codes, validate_rating };
+export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validate_db_status, error_codes };

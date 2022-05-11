@@ -16,7 +16,6 @@ async function authenticate_user (req: Request, res: Response, next: NextFunctio
 //Implementare lettura dall'header della risposta
 // nel caso sia presente 
 
-type func = (language: string) => string;
 async function get_language_of_user (req: Request, uid: string, db_instance: DB_interface) {
     // The user uid is in res.locals.UID
     // Finish to check this

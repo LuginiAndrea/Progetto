@@ -32,10 +32,10 @@ app.use("/cities", cities_router);
 
 
 app.get("/", (req, res) => {
-    res.status(200).send({"Status": "Running"});
+    res.status(200).send({status: "Running"});
 });
 
-app.get("/reconnect_database", (req, res) => {
+app.get("/reconnect_db", (req, res) => {
     const not_valid_connection = !app.locals.DEFAULT_DB_INTERFACE || !app.locals.DEFAULT_DB_INTERFACE.connected();
     if(not_valid_connection) {
         app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
