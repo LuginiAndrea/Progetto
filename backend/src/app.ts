@@ -6,11 +6,11 @@
 import "dotenv/config";
 import express from "express";
 // import db_shortcut_router from "./routes/dev_shortcuts/DB_shortcuts"; // Remove this in production code
-import users_router from "./routes/users/users";
-import countries_router from "./routes/countries/countries";
-import continents_router from "./routes/continents/continents";
-import cities_router from "./routes/cities/cities";
-import languages_router from "./routes/languages/languages";
+import users_router from "./routes/users";
+import countries_router from "./routes/countries";
+import continents_router from "./routes/continents";
+import cities_router from "./routes/cities";
+import languages_router from "./routes/languages";
 import { validate_db_status, DB_interface, get_db_uri } from "./logic/db_interface/DB_interface";
 import { authenticate_user } from "./logic/users/utils";
 import bodyParser from "body-parser";

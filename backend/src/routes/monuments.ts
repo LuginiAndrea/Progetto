@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { send_json } from '../../utils';
-import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { table, values, error_codes, validate_rating } from '../../logic/tables/utils';
+import { send_json } from '../utils';
+import { DB_interface, req_types as types } from '../logic/db_interface/DB_interface';
+import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
 import { get_language_of_user } from 'src/logic/users/utils';
 
 /******************** CONSTANTS ***********************/
@@ -20,7 +20,8 @@ const join_city_filter = (func: (args: any) => string[], language: string) =>
 /***************************************** TABLE *********************************************/
 monuments_router.post("/create_table", async (req, res) => {
     send_json(res,
-        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)
+        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        {success: 201}
     );
 });
 monuments_router.delete("/delete_table", async (req, res) => {
@@ -105,7 +106,8 @@ monuments_router.get("/monuments_of_visits", async (req, res) => {
 /******************************** POST *****************************/
 monuments_router.post("/insert", async (req, res) => {
     send_json(res,
-        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body)
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body),
+        {success: 201}
     );
 });
 /************************************** PUT ***************************************************/

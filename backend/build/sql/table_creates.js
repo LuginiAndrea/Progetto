@@ -11,6 +11,7 @@ var create_monuments_table = "CREATE TABLE IF NOT EXISTS Monuments (\n        id
 var create_visits_table = "CREATE TABLE IF NOT EXISTS Visits ( \n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        rating SMALLINT NOT NULL, \n        private_description TEXT DEFAULT NULL,\n        date_time TIMESTAMP WITH TIME ZONE NOT NULL,\n        fk_user_id INTEGER REFERENCES Users\n            ON DELETE CASCADE\n            ON UPDATE CASCADE,\n        fk_monument_id INTEGER REFERENCES Monuments\n            ON DELETE CASCADE\n            ON UPDATE CASCADE,\n        UNIQUE(date_time, fk_user_id, fk_monument_id)\n    );";
 var create_types_of_monuments_table = "CREATE TABLE IF NOT EXISTS Types_of_Monuments (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        real_name VARCHAR(50) UNIQUE NOT NULL, \n        it_name VARCHAR(50) DEFAULT NULL,\n        en_name VARCHAR(50) DEFAULT NULL,\n        it_description TEXT DEFAULT NULL,\n        en_description TEXT DEFAULT NULL,\n        period_start DATE NOT NULL,\n        period_end DATE DEFAULT NULL\n    );";
 var create_monument_types_table = "CREATE TABLE IF NOT EXISTS Monument_Types (\n        fk_monument_id INTEGER REFERENCES Monuments\n            ON DELETE CASCADE\n            ON UPDATE CASCADE,\n        fk_type_id INTEGER REFERENCES Types_of_Monuments\n            ON DELETE CASCADE\n            ON UPDATE CASCADE,\n        PRIMARY KEY (fk_monument_id, fk_type_id)\n    );";
+var create_test_table = "CREATE TABLE IF NOT EXISTS Test (\n        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n        name VARCHAR(50) NOT NULL,\n        number INT NOT NULL\n    );";
 var table_creates = {
     continents: create_continents_table,
     countries: create_countries_table,
@@ -20,6 +21,7 @@ var table_creates = {
     monuments: create_monuments_table,
     visits: create_visits_table,
     types_of_monuments: create_types_of_monuments_table,
-    monument_types: create_monument_types_table
+    monument_types: create_monument_types_table,
+    test: create_test_table
 };
 exports.table_creates = table_creates;

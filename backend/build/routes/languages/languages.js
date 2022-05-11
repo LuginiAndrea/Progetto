@@ -71,7 +71,7 @@ languages_router.post("/create_table", function (req, res) { return __awaiter(vo
                 _b = [res];
                 return [4 /*yield*/, utils_2.table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
             case 1:
-                _a.apply(void 0, _b.concat([_c.sent()]));
+                _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
                 return [2 /*return*/];
         }
     });
@@ -175,7 +175,7 @@ languages_router.post("/insert", function (req, res) { return __awaiter(void 0, 
                 _b = [res];
                 return [4 /*yield*/, utils_2.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)];
             case 1:
-                _a.apply(void 0, _b.concat([_c.sent()]));
+                _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
                 return [2 /*return*/];
         }
     });

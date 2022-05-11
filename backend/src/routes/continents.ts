@@ -1,8 +1,8 @@
 import {Router, Request, Response} from 'express';
-import { get_language_of_user } from "../../logic/users/utils";
-import { send_json } from '../../utils';
-import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { table, values, error_codes } from '../../logic/tables/utils';
+import { get_language_of_user } from "../logic/users/utils";
+import { send_json } from '../utils';
+import { DB_interface, req_types as types } from '../logic/db_interface/DB_interface';
+import { table, values, error_codes } from '../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const continents_router: Router = Router();
@@ -35,6 +35,7 @@ continents_router.options("/", (req, res) => {
 continents_router.post("/create_table", async (req, res) => {
     send_json(res, 
         await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        {success: 201}
     );
 });
 continents_router.delete("/delete_table", async (req, res) => {

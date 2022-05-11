@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { send_json } from '../../utils';
-import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { get_language_of_user } from '../../logic/users/utils';
-import { table, values, error_codes } from '../../logic/tables/utils';
+import { send_json } from '../utils';
+import { DB_interface, req_types as types } from '../logic/db_interface/DB_interface';
+import { get_language_of_user } from '../logic/users/utils';
+import { table, values, error_codes } from '../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const countries_router = Router();
@@ -40,7 +40,8 @@ countries_router.options("/", (req, res) => {
 /************************************** TABLE ***************************************************/
 countries_router.post("/create_table", async (req, res) => {
     send_json(res, 
-        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)
+        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        {success: 201}
     );
 });
 countries_router.delete("/delete_table", async (req, res) => {
@@ -124,7 +125,8 @@ countries_router.get("/countries_of_cities", async (req, res) => {
 /************************************** POST ***************************************************/
 countries_router.post("/insert", async (req, res) => {
     send_json(res,
-        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
+        {success: 201}
     );
 });
 /************************************** PUT ***************************************************/

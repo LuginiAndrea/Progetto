@@ -1,7 +1,7 @@
 import {Router, Request, Response, NextFunction} from 'express';
-import { send_json } from '../../utils';
-import { DB_interface } from '../../logic/db_interface/DB_interface';
-import { table, values, error_codes } from "../../logic/tables/utils";
+import { send_json } from '../utils';
+import { DB_interface } from '../logic/db_interface/DB_interface';
+import { table, values, error_codes } from "../logic/tables/utils";
 
 /*TODO: Implement use of firebase API such as:
     - retrieve data in selects
@@ -36,16 +36,17 @@ users_router.options("/", (req, res) => {
 users_router.post("/create_table", async (req, res) => {
     send_json(res,
         await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        {success: 201}
     );
 });
 users_router.delete("/delete_table", async (req, res) => {
     send_json(res,
-        await table.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        await table.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)
     );
 });
 users_router.get("/table_schema", async (req, res) => {
     send_json(res,
-        await table.schema(table_name, res.locals.DB_INTERFACE),
+        await table.schema(table_name, res.locals.DB_INTERFACE)
     );
 });
 
@@ -63,16 +64,17 @@ users_router.get("/list_single/:id", async (req, res) => {
 users_router.post("/insert", async (req, res) => {
     send_json(res,
         await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
+        {success: 201}
     );
 });
 users_router.put("/update/:id", async (req, res) => {
     send_json(res,
-        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id),
+        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)
     );
 });
 users_router.delete("/delete/:id", async (req, res) => {
     send_json(res,
-        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id),
+        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)
     );
 });
 

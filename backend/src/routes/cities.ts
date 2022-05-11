@@ -1,23 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { get_language_of_user } from "../../logic/users/utils";
-import { send_json } from "../../utils"
-import { DB_interface, req_types as types } from '../../logic/db_interface/DB_interface';
-import { table, values, error_codes, validate_rating} from '../../logic/tables/utils';
-import { language } from 'googleapis/build/src/apis/language';
+import { get_language_of_user } from "../logic/users/utils";
+import { send_json } from "../utils"
+import { req_types as types } from "../logic/db_interface/DB_interface";
+import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const cities_router: Router = Router();
 const table_name = "cities";
-function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_fields(table_name, true,
-        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
-        false
-    )[0];
-}
-const join_countries = (rest_of_query = "") => "JOIN countries ON cities.fk_country_id = countries.id" + rest_of_query;
-const join_countries_filter = (func: (args: any) => string[], language: string) => 
-    (args: any) => func(args).concat([`countries.${language}_name as country_name`]);
-
 /****************************************** ROUTES **********************************************/
 cities_router.options("/", (req, res) => {
     const method_list = [
@@ -43,16 +32,17 @@ cities_router.options("/", (req, res) => {
 cities_router.post("/create_table", async (req, res) => {
     send_json(res, 
         await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        { success: 201 }
     );
 });
 cities_router.get("/table_schema", async (req, res) => {
     send_json(res,
-        await table.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        await table.schema(table_name, res.locals.DB_INTERFACE),
     );
 });
 cities_router.delete("/delete_table", async (req, res) => {
     send_json(res,
-        await table.schema(table_name, res.locals.DB_INTERFACE),
+        await table.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
     );
 });
 /************************************** GET ***************************************************/
@@ -130,7 +120,8 @@ cities_router.get("/cities_of_monuments", async (req, res) => {
 /************************************** POST ***************************************************/
 cities_router.post("/insert", async (req, res) => {
     send_json(res,
-        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
+        {success: 201}
     );
 });
 /************************************** PUT ***************************************************/

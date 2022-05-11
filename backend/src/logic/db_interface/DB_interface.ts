@@ -93,4 +93,4 @@ class DB_interface {
     }
 }
 
-export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validate_db_status, error_codes };
+export { DB_interface, req_types, get_db_uri, DB_result, QueryResult, validate_db_status, error_codes};

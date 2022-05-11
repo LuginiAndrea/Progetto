@@ -1,3 +1,5 @@
+import {req_types as types} from "./DB_interface";
+
 type filter = ((x: string) => boolean) | string[];
 const fields_dictionary = {
     continents: ["id", "it_name", "en_name"],
@@ -7,14 +9,15 @@ const fields_dictionary = {
     users: ["id", "fk_language_id"],
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "number_of_votes", "votes_sum", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
-    types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
-    monument_types: ["fk_monument_id", "fk_type_of_monument_id"]
+    types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description"],
+    monument_types: ["fk_monument_id", "fk_type_of_monument_id"],
+    test: ["id", "name", "number"]
 };
 type accepted_get_types = keyof typeof fields_dictionary;
 type accepted_extract_types = 
     countries_body | cities_body | languages_body |
     users_body | monuments_body | visits_body | 
-    monument_types_body | types_of_monuments_body;
+    monument_types_body | types_of_monuments_body | test_body;
     
 function set_filter_by(filter_by: filter) {
     return Array.isArray(filter_by) ?
@@ -141,12 +144,10 @@ function is_visits_body(obj: any): obj is visits_body {
 // ***************** TYPES OF MONUMENTS *****************
 type types_of_monuments_body = {
     real_name: string,
-    it_name: string,
-    en_name: string,
-    it_description: string,
+    it_name?: string,
+    en_name?: string,
+    it_description?: string,
     en_description: string,
-    period_start: string,
-    period_end: string
 }
 function is_types_of_monuments_body(obj: any): obj is types_of_monuments_body {
     return typeof obj.real_name === "string" &&
@@ -167,6 +168,16 @@ function is_monument_types_body(obj: any): obj is monument_types_body {
     return typeof obj.fk_monument_id === "number" &&
         typeof obj.fk_type_of_monument_id === "number";
 }
+// ***************** TEST TYPES *****************
+type test_body = {
+    id: number,
+    name: string,
+    number: number,
+}
+function is_test(obj: any): obj is test_body {
+    return typeof obj.name === "string" && obj.name.length <= 50 &&
+        typeof obj.number === "number";
+}
 
 const body_validators = {
     countries: is_countries_body,
@@ -176,10 +187,34 @@ const body_validators = {
     monuments: is_monuments_body,
     visits: is_visits_body,
     types_of_monuments: is_types_of_monuments_body,
-    monument_types: is_monument_types_body
+    monument_types: is_monument_types_body, 
+    test: is_test
+};
+
+const exclude_fields_by_language = {
+    continents: (language: string) => get_fields("continents", true, 
+        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
+        false
+    ),
+    countries: (language: string) => get_fields("countries", true,
+        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
+        false
+    ),
+    cities: (language: string) => get_fields("cities", true,
+        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
+        false
+    ),
+    monuments: (language: string) => get_fields("monuments", true,
+        x => x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)),
+        false
+    ),
+    types_of_monuments: (language: string) => get_fields("types_of_monuments", true,
+        x => x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)),
+        false
+    )
 };
 
 export { 
     get_fields, extract_values_of_fields,
-    body_validators
+    body_validators, exclude_fields_by_language
 };

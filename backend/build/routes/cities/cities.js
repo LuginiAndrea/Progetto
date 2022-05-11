@@ -83,7 +83,7 @@ cities_router.post("/create_table", function (req, res) { return __awaiter(void 
                 _b = [res];
                 return [4 /*yield*/, utils_3.table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
             case 1:
-                _a.apply(void 0, _b.concat([_c.sent()]));
+                _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
                 return [2 /*return*/];
         }
     });
@@ -95,7 +95,7 @@ cities_router.get("/table_schema", function (req, res) { return __awaiter(void 0
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
+                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -109,7 +109,7 @@ cities_router["delete"]("/delete_table", function (req, res) { return __awaiter(
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.table.schema(table_name, res.locals.DB_INTERFACE)];
+                return [4 /*yield*/, utils_3.table["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -248,7 +248,7 @@ cities_router.post("/insert", function (req, res) { return __awaiter(void 0, voi
                 _b = [res];
                 return [4 /*yield*/, utils_3.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)];
             case 1:
-                _a.apply(void 0, _b.concat([_c.sent()]));
+                _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
                 return [2 /*return*/];
         }
     });

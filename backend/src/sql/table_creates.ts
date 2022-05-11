@@ -85,9 +85,7 @@ const create_types_of_monuments_table =
         it_name VARCHAR(50) DEFAULT NULL,
         en_name VARCHAR(50) DEFAULT NULL,
         it_description TEXT DEFAULT NULL,
-        en_description TEXT DEFAULT NULL,
-        period_start DATE NOT NULL,
-        period_end DATE DEFAULT NULL
+        en_description TEXT DEFAULT NULL
     );`;
 
 const create_monument_types_table =
@@ -101,6 +99,14 @@ const create_monument_types_table =
         PRIMARY KEY (fk_monument_id, fk_type_id)
     );`;
 
+const create_test_table =
+    `CREATE TABLE IF NOT EXISTS Test (
+        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+        name VARCHAR(50) NOT NULL,
+        number INT NOT NULL
+    );`;
+
+
 const table_creates ={
     continents: create_continents_table,
     countries: create_countries_table,
@@ -110,7 +116,8 @@ const table_creates ={
     monuments: create_monuments_table,
     visits: create_visits_table,
     types_of_monuments: create_types_of_monuments_table,
-    monument_types: create_monument_types_table
+    monument_types: create_monument_types_table,
+    test: create_test_table
 }
 
 export { table_creates }

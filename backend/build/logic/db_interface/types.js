@@ -10,7 +10,8 @@ var fields_dictionary = {
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "number_of_votes", "votes_sum", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
     types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
-    monument_types: ["fk_monument_id", "fk_type_of_monument_id"]
+    monument_types: ["fk_monument_id", "fk_type_of_monument_id"],
+    test: ["id", "name", "number"]
 };
 function set_filter_by(filter_by) {
     return Array.isArray(filter_by) ?
@@ -107,6 +108,10 @@ function is_monument_types_body(obj) {
     return typeof obj.fk_monument_id === "number" &&
         typeof obj.fk_type_of_monument_id === "number";
 }
+function is_test(obj) {
+    return typeof obj.name === "string" && obj.name.length <= 50 &&
+        typeof obj.number === "number";
+}
 var body_validators = {
     countries: is_countries_body,
     cities: is_cities_body,
@@ -115,6 +120,7 @@ var body_validators = {
     monuments: is_monuments_body,
     visits: is_visits_body,
     types_of_monuments: is_types_of_monuments_body,
-    monument_types: is_monument_types_body
+    monument_types: is_monument_types_body,
+    test: is_test
 };
 exports.body_validators = body_validators;

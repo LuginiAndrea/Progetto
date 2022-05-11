@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { send_json } from '../../utils';
-import { DB_interface } from '../../logic/db_interface/DB_interface';
-import { table, values } from '../../logic/tables/utils';
+import { send_json } from '../utils';
+import { DB_interface } from '../logic/db_interface/DB_interface';
+import { table, values } from "../logic/tables/utils";
 
 /******************** CONSTANTS ***********************/
 const languages_router = Router();
@@ -31,7 +31,8 @@ languages_router.options("/", (req, res) => {
 /************************************** TABLE ***************************************************/
 languages_router.post("/create_table", async (req, res) => {
     send_json(res, 
-        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin)
+        await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
+        {success: 201}
     );
 });
 languages_router.delete("/delete_table", async (req, res) => {
@@ -76,7 +77,8 @@ languages_router.get("/language_of_user", async (req, res) => {
 /************************************** POST ***************************************************/
 languages_router.post("/insert", async (req, res) => {
     send_json(res,
-        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
+        {success: 201}
     );
 });
 /************************************** PUT ***************************************************/
