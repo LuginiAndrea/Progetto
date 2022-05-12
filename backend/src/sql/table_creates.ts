@@ -90,13 +90,14 @@ const create_types_of_monuments_table =
 
 const create_monument_types_table =
     `CREATE TABLE IF NOT EXISTS Monument_Types (
+        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
         fk_monument_id INTEGER REFERENCES Monuments
             ON DELETE CASCADE
             ON UPDATE CASCADE,
         fk_type_id INTEGER REFERENCES Types_of_Monuments
             ON DELETE CASCADE
             ON UPDATE CASCADE,
-        PRIMARY KEY (fk_monument_id, fk_type_id)
+        UNIQUE (fk_monument_id, fk_type_id)
     );`;
 
 const create_test_table =

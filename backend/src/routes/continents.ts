@@ -83,8 +83,9 @@ continents_router.get("/list_by_id", async (req, res) => {
 });
 
 continents_router.get("/continents_of_countries", async (req, res) => {
-    if(!req.query.country_ids) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         send_json(res,
@@ -92,7 +93,7 @@ continents_router.get("/continents_of_countries", async (req, res) => {
                     await get_language_of_user(req, res.locals.UID, db_interface),
                 ).fields, 
                 "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id", 
-                [(req.query.country_ids as string).split(",")] 
+                [ids]
             )
         );
     }

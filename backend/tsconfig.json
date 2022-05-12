@@ -19,5 +19,6 @@
     "useUnknownInCatchVariables": false
   },
   "compileOnSave": true,
-  "include": ["."]
+  "include": ["."],
+  "exclude": ["*.test.*"]
 }

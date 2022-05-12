@@ -88,23 +88,24 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req, r
 });
 
 countries_router.get("/countries_in_continents", async (req, res) => { 
-    if(!req.query.continent_ids) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res, 
-            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_continent_id = ANY ($1)`, 
-                [(req.query.continent_ids as string).split(",")]
+            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_continent_id = ANY ($1)`, [ids]
             )
         );
     }
 });
 
 countries_router.get("/countries_of_cities", async (req, res) => {
-    if(!req.query.city_ids) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
@@ -112,7 +113,7 @@ countries_router.get("/countries_of_cities", async (req, res) => {
         send_json(res, 
             await values.get.generic(table_name, db_interface, fields, 
                     `${join_fields_query} WHERE id = ANY (SELECT fk_country_id FROM cities WHERE id = ANY ($1))`, 
-                    [(req.query.city_ids as string).split(",")]
+                    [ids]
             )
         );
     }

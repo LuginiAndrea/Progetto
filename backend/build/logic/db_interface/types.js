@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-exports.body_validators = exports.extract_values_of_fields = exports.get_fields = void 0;
+exports.exclude_fields_by_language = exports.body_validators = exports.extract_values_of_fields = exports.get_fields = void 0;
 var fields_dictionary = {
     continents: ["id", "it_name", "en_name"],
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
@@ -9,8 +9,8 @@ var fields_dictionary = {
     users: ["id", "fk_language_id"],
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "number_of_votes", "votes_sum", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
-    types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description", "period_start", "period_end"],
-    monument_types: ["fk_monument_id", "fk_type_of_monument_id"],
+    types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description"],
+    monument_types: ["fk_monument_id", "fk_type_id"],
     test: ["id", "name", "number"]
 };
 function set_filter_by(filter_by) {
@@ -39,7 +39,10 @@ function get_fields(table_name, use_table_name, filter_by, gen_placeholder_seq, 
     fields = use_table_name ?
         fields.map(function (field) { return "".concat(table_name, ".").concat(field); }) :
         fields;
-    return [fields, generate_placeholder_sequence(fields, gen_placeholder_seq)];
+    return {
+        fields: fields,
+        placeholder_seq: generate_placeholder_sequence(fields, gen_placeholder_seq)
+    };
 }
 exports.get_fields = get_fields;
 var extract_values_of_fields = function (body, fields) {
@@ -71,7 +74,7 @@ function is_languages_body(obj) {
         obj.abbreviation.length === 2;
 }
 function is_users_body(obj) {
-    return typeof obj.id === "string" &&
+    return typeof obj.id === "number" &&
         typeof obj.fk_language_id === "number";
 }
 function is_monuments_body(obj) {
@@ -99,14 +102,12 @@ function is_types_of_monuments_body(obj) {
         obj.real_name.length <= 50 &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
-        (!obj.it_description || (typeof obj.it_description === "string" && obj.it_description.length <= 50)) &&
-        (!obj.en_description || (typeof obj.en_description === "string" && obj.en_description.length <= 50)) &&
-        typeof obj.period_start === "string" &&
-        typeof obj.period_end === "string";
+        (!obj.it_description || typeof obj.it_description === "string") &&
+        (!obj.en_description || typeof obj.en_description === "string");
 }
 function is_monument_types_body(obj) {
     return typeof obj.fk_monument_id === "number" &&
-        typeof obj.fk_type_of_monument_id === "number";
+        typeof obj.fk_type_id === "number";
 }
 function is_test(obj) {
     return typeof obj.name === "string" && obj.name.length <= 50 &&
@@ -124,3 +125,11 @@ var body_validators = {
     test: is_test
 };
 exports.body_validators = body_validators;
+var exclude_fields_by_language = {
+    continents: function (language) { return get_fields("continents", true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false); },
+    countries: function (language) { return get_fields("countries", true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false); },
+    cities: function (language) { return get_fields("cities", true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false); },
+    monuments: function (language) { return get_fields("monuments", true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false); },
+    types_of_monuments: function (language) { return get_fields("types_of_monuments", true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false); }
+};
+exports.exclude_fields_by_language = exclude_fields_by_language;

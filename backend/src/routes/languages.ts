@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { send_json } from '../utils';
-import { DB_interface } from '../logic/db_interface/DB_interface';
-import { table, values } from "../logic/tables/utils";
+import { table, values, error_codes } from "../logic/tables/utils";
 
 /******************** CONSTANTS ***********************/
 const languages_router = Router();
@@ -50,28 +49,33 @@ languages_router.get("/table_schema", async (req, res) => {
 languages_router.get("/list_all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res, 
-        await values.get.all(table_name, db_interface, "ORDER BY language_name")
+        await values.get.all(table_name, db_interface, "*", "ORDER BY language_name")
     );
 });
 
-languages_router.get("/list_single/:id", async (req, res) => {
-    const db_interface = res.locals.DB_INTERFACE;
-    send_json(res,
-        await values.get.by_id(table_name, db_interface, req.params.id)
-    );
+languages_router.get("/list_by_id", async (req, res) => {
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
+    else {
+        const db_interface = res.locals.DB_INTERFACE;
+        send_json(res,
+            await values.get.by_id(table_name, db_interface, ids)
+        );
+    }
 });
 
 languages_router.get("/list_single_by_abbreviation/:abbreviation", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
-        await values.get.generic(table_name, db_interface, "WHERE abbreviation = $1", [req.params.abbreviation])
+        await values.get.generic(table_name, db_interface, "*", "WHERE abbreviation = $1", [req.params.abbreviation])
     );
 });
 
-languages_router.get("/language_of_user", async (req, res) => {
+languages_router.get("/language_of_users", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
-        await values.get.generic(table_name, db_interface, "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.uid])
+        await values.get.generic(table_name, db_interface, "*", "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.uid])
     );
 });
 /************************************** POST ***************************************************/

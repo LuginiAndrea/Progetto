@@ -10,7 +10,7 @@ const fields_dictionary = {
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "number_of_votes", "votes_sum", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
     types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description"],
-    monument_types: ["fk_monument_id", "fk_type_of_monument_id"],
+    monument_types: ["fk_monument_id", "fk_type_id"],
     test: ["id", "name", "number"]
 };
 type accepted_get_types = keyof typeof fields_dictionary;
@@ -97,11 +97,11 @@ function is_languages_body(obj: any): obj is languages_body {
 }
 // ***************** USERS *****************
 type users_body = {
-    id: string,
+    id: number,
     fk_language_id: number
 }
 function is_users_body(obj: any): obj is users_body {
-    return typeof obj.id === "string" &&
+    return typeof obj.id === "number" &&
         typeof obj.fk_language_id === "number";
 }
 // ***************** MONUMENTS *****************
@@ -150,26 +150,24 @@ type types_of_monuments_body = {
     it_name?: string,
     en_name?: string,
     it_description?: string,
-    en_description: string,
+    en_description?: string,
 }
 function is_types_of_monuments_body(obj: any): obj is types_of_monuments_body {
     return typeof obj.real_name === "string" &&
         obj.real_name.length <= 50 &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
-        (!obj.it_description || (typeof obj.it_description === "string" && obj.it_description.length <= 50)) &&
-        (!obj.en_description || (typeof obj.en_description === "string" && obj.en_description.length <= 50)) &&
-        typeof obj.period_start === "string" &&
-        typeof obj.period_end === "string";
+        (!obj.it_description || typeof obj.it_description === "string") &&
+        (!obj.en_description || typeof obj.en_description === "string");
 }
 // ***************** MONUMENT TYPES *****************
 type monument_types_body = {
     fk_monument_id: number,
-    fk_type_of_monument_id: number
+    fk_type_id: number
 }
 function is_monument_types_body(obj: any): obj is monument_types_body {
     return typeof obj.fk_monument_id === "number" &&
-        typeof obj.fk_type_of_monument_id === "number";
+        typeof obj.fk_type_id === "number";
 }
 // ***************** TEST TYPES *****************
 type test_body = {

@@ -153,48 +153,58 @@ describe("Top Level routes tests", function () {
             });
         }); });
     });
+    afterAll(function () {
+        var _a;
+        (_a = app_1.app.locals.DEFAULT_DB_INTERFACE) === null || _a === void 0 ? void 0 : _a.close();
+    });
 });
 describe("Benchmarks tests", function () {
     // SETUP
     var request = (0, supertest_1["default"])(app_1.app);
-    app_1.app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
-        connectionString: (0, DB_interface_1.get_db_uri)()
-    }, true);
     beforeAll(function () { return __awaiter(void 0, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, utils_1.table.create("continents", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+        var db_interface, res;
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    db_interface = new DB_interface_1.DB_interface({
+                        connectionString: (0, DB_interface_1.get_db_uri)()
+                    }, true);
+                    app_1.app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
+                        connectionString: (0, DB_interface_1.get_db_uri)()
+                    }, true);
+                    return [4 /*yield*/, utils_1.table.create("continents", db_interface, true)];
                 case 1:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("countries", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("countries", db_interface, true)];
                 case 2:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("cities", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("cities", db_interface, true)];
                 case 3:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("monuments", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("monuments", db_interface, true)];
                 case 4:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("languages", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("languages", db_interface, true)];
                 case 5:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("users", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("users", db_interface, true)];
                 case 6:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("visits", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("visits", db_interface, true)];
                 case 7:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("monument_types", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("types_of_monuments", db_interface, true)];
                 case 8:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.table.create("types_of_monuments", app_1.app.locals.DEFAULT_DB_INTERFACE, true)];
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table.create("monument_types", db_interface, true)];
                 case 9:
-                    _a.sent();
+                    _b.sent();
                     return [4 /*yield*/, request.post("/continents/insert_continents").set("Authorization", "1")];
                 case 10:
-                    _a.sent();
+                    res = _b.sent();
                     // Country
-                    return [4 /*yield*/, utils_1.values.insert("countries", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    return [4 /*yield*/, utils_1.values.insert("countries", db_interface, true, {
                             real_name: "Italia",
                             it_name: "Italia",
                             en_name: "Italy",
@@ -203,8 +213,8 @@ describe("Benchmarks tests", function () {
                         })];
                 case 11:
                     // Country
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("countries", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("countries", db_interface, true, {
                             real_name: "Polska",
                             it_name: "Polonia",
                             en_name: "Poland",
@@ -212,8 +222,8 @@ describe("Benchmarks tests", function () {
                             fk_continent_id: 0
                         })];
                 case 12:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("countries", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("countries", db_interface, true, {
                             real_name: "United States of America",
                             it_name: "Stati Uniti d'America",
                             en_name: "United States of America",
@@ -221,9 +231,9 @@ describe("Benchmarks tests", function () {
                             fk_continent_id: 2
                         })];
                 case 13:
-                    _a.sent();
+                    _b.sent();
                     // City
-                    return [4 /*yield*/, utils_1.values.insert("cities", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "Roma",
                             it_name: "Roma",
                             en_name: "Rome",
@@ -231,33 +241,33 @@ describe("Benchmarks tests", function () {
                         })];
                 case 14:
                     // City
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("cities", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "Milano",
                             it_name: "Milano",
                             en_name: "Milan",
                             fk_country_id: 1
                         })];
                 case 15:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("cities", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "Kraków",
                             it_name: "Cracovia",
                             en_name: "Krakow",
                             fk_country_id: 2
                         })];
                 case 16:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("cities", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "New York",
                             it_name: "New York",
                             en_name: "New York",
                             fk_country_id: 3
                         })];
                 case 17:
-                    _a.sent();
+                    _b.sent();
                     // Monument
-                    return [4 /*yield*/, utils_1.values.insert("monuments", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Colosseo",
                             it_name: "Colosseo",
                             en_name: "Colosseum",
@@ -268,8 +278,8 @@ describe("Benchmarks tests", function () {
                         })];
                 case 18:
                     // Monument
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("monuments", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Piazza di Spagna",
                             it_name: "Piazza di Spagna",
                             en_name: "Piazza di Spagna",
@@ -279,8 +289,8 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 1
                         })];
                 case 19:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("monuments", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Duomo",
                             it_name: "Duomo",
                             en_name: "Duomo",
@@ -290,8 +300,8 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 2
                         })];
                 case 20:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("monuments", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Monumento Polacco",
                             it_name: "Monumento Polacco",
                             en_name: "Polish monument",
@@ -301,8 +311,8 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 3
                         })];
                 case 21:
-                    _a.sent();
-                    return [4 /*yield*/, utils_1.values.insert("monuments", app_1.app.locals.DEFAULT_DB_INTERFACE, true, {
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Monumento USA",
                             it_name: "Monumento USA",
                             en_name: "American monument",
@@ -312,20 +322,139 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 4
                         })];
                 case 22:
-                    _a.sent();
-                    it("Monuments by city", function () { return __awaiter(void 0, void 0, void 0, function () {
-                        var response;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, request.get("/")];
-                                case 1:
-                                    response = _a.sent();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); });
+                    _b.sent();
+                    // Language
+                    return [4 /*yield*/, utils_1.values.insert("languages", db_interface, true, {
+                            name: "English",
+                            abbreviation: "EN"
+                        })];
+                case 23:
+                    // Language
+                    _b.sent();
+                    // User
+                    return [4 /*yield*/, utils_1.values.insert("users", db_interface, true, {
+                            id: 2,
+                            fk_language_id: 1
+                        })];
+                case 24:
+                    // User
+                    _b.sent();
+                    // Visit
+                    return [4 /*yield*/, utils_1.values.insert("visits", db_interface, true, {
+                            rating: 3,
+                            private_description: "Visita molto bella",
+                            date_time: "2020-01-01",
+                            fk_user_id: 2,
+                            fk_monument_id: 1
+                        })];
+                case 25:
+                    // Visit
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("visits", db_interface, true, {
+                            rating: 4,
+                            private_description: "Visita molto bella",
+                            date_time: "2021-01-01",
+                            fk_user_id: 2,
+                            fk_monument_id: 2
+                        })];
+                case 26:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("visits", db_interface, true, {
+                            rating: 5,
+                            private_description: "Visita molto bella",
+                            date_time: "2022-01-01",
+                            fk_user_id: 2,
+                            fk_monument_id: 3
+                        })];
+                case 27:
+                    _b.sent();
+                    // types_of_monuments
+                    return [4 /*yield*/, utils_1.values.insert("types_of_monuments", db_interface, true, {
+                            real_name: "Museo",
+                            it_name: "Museo",
+                            en_name: "Museum",
+                            it_description: "Museo di storia",
+                            en_description: "History museum"
+                        })];
+                case 28:
+                    // types_of_monuments
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("types_of_monuments", db_interface, true, {
+                            real_name: "Palace",
+                            it_name: "Palazzo",
+                            en_name: "Palace",
+                            it_description: "Palazzo di storia",
+                            en_description: "History palace"
+                        })];
+                case 29:
+                    _b.sent();
+                    // monuments_types
+                    return [4 /*yield*/, utils_1.values.insert("monument_types", db_interface, true, {
+                            fk_type_id: 1,
+                            fk_monument_id: 1
+                        })];
+                case 30:
+                    // monuments_types
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("monument_types", db_interface, true, {
+                            fk_type_id: 2,
+                            fk_monument_id: 1
+                        })];
+                case 31:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.values.insert("monument_types", db_interface, true, {
+                            fk_type_id: 1,
+                            fk_monument_id: 2
+                        })];
+                case 32:
+                    _b.sent();
+                    db_interface.close();
+                    (_a = app_1.app.locals.DEFAULT_DB_INTERFACE) === null || _a === void 0 ? void 0 : _a.close();
                     return [2 /*return*/];
             }
         });
     }); });
+    afterAll(function () { return __awaiter(void 0, void 0, void 0, function () {
+        var db_interface;
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    db_interface = new DB_interface_1.DB_interface({
+                        connectionString: (0, DB_interface_1.get_db_uri)()
+                    }, true);
+                    return [4 /*yield*/, utils_1.table["delete"]("monument_types", db_interface, true)];
+                case 1:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("types_of_monuments", db_interface, true)];
+                case 2:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("visits", db_interface, true)];
+                case 3:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("monuments", db_interface, true)];
+                case 4:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("cities", db_interface, true)];
+                case 5:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("users", db_interface, true)];
+                case 6:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("languages", db_interface, true)];
+                case 7:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("countries", db_interface, true)];
+                case 8:
+                    _b.sent();
+                    return [4 /*yield*/, utils_1.table["delete"]("continents", db_interface, true)];
+                case 9:
+                    _b.sent();
+                    db_interface.close();
+                    (_a = app_1.app.locals.DEFAULT_DB_INTERFACE) === null || _a === void 0 ? void 0 : _a.close();
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it("", function () { return expect(1).toBe(1); });
 });

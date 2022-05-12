@@ -11,11 +11,11 @@ exports.app = void 0;
 require("dotenv/config");
 var express_1 = __importDefault(require("express"));
 // import db_shortcut_router from "./routes/dev_shortcuts/DB_shortcuts"; // Remove this in production code
-var users_1 = __importDefault(require("./routes/users/users"));
-var countries_1 = __importDefault(require("./routes/countries/countries"));
-var continents_1 = __importDefault(require("./routes/continents/continents"));
-var cities_1 = __importDefault(require("./routes/cities/cities"));
-var languages_1 = __importDefault(require("./routes/languages/languages"));
+var users_1 = __importDefault(require("./routes/users"));
+var countries_1 = __importDefault(require("./routes/countries"));
+var continents_1 = __importDefault(require("./routes/continents"));
+var cities_1 = __importDefault(require("./routes/cities"));
+var languages_1 = __importDefault(require("./routes/languages"));
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var utils_1 = require("./logic/users/utils");
 var body_parser_1 = __importDefault(require("body-parser"));

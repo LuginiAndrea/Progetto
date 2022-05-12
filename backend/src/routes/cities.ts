@@ -100,31 +100,31 @@ cities_router.get("/list_by_rating", async(req, res) => {
 });
 
 cities_router.get("/cities_in_countries", async (req, res) => {
-    if(!req.query.country_ids) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
         const fields = get_fields(req, language).filter(x => x !== "fk_country_id");
         send_json(res,
-            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_country_id = ANY($1)`,
-                (req.query.country_ids as string).split(",")
-            )
+            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_country_id = ANY($1)`, [ids])
         );
     }
 });
 
 cities_router.get("/cities_of_monuments", async (req, res) => {
-    if(!req.query.monument_ids) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM(table_name));
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res,
             await values.get.generic(table_name, db_interface, fields, 
-                `${join_fields_query} WHERE id = ANY (SELECT fk_city_id FROM monuments WHERE id = ANY($1))`,
-                [(req.query.monument_ids as string).split(",")]
+                `${join_fields_query} WHERE id = ANY (SELECT fk_city_id FROM monuments WHERE id = ANY($1))`, 
+                [ids]
             )
         );
     }

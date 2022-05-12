@@ -53,43 +53,49 @@ describe("Top Level routes tests", () => {
             expect(response.body).toEqual({error: "No interface"});
         });
     });
+    afterAll(() => {
+        app.locals.DEFAULT_DB_INTERFACE?.close();
+    });
 });
 
 describe("Benchmarks tests", () => {
     // SETUP
     const request = supertest(app);
-    app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
-        connectionString: get_db_uri()
-    }, true);
 
     beforeAll(async () => {
-        await table.create("continents", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("countries", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("cities", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("monuments", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("languages", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("users", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("visits", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("monument_types", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.create("types_of_monuments", app.locals.DEFAULT_DB_INTERFACE, true);
+        const db_interface = new DB_interface({
+            connectionString: get_db_uri()
+        }, true);
+        app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
+            connectionString: get_db_uri()
+        }, true);
+        await table.create("continents", db_interface, true);
+        await table.create("countries", db_interface, true);
+        await table.create("cities", db_interface, true);
+        await table.create("monuments", db_interface, true);
+        await table.create("languages", db_interface, true);
+        await table.create("users", db_interface, true);
+        await table.create("visits", db_interface, true);
+        await table.create("types_of_monuments", db_interface, true);
+        await table.create("monument_types", db_interface, true);
 
-        await request.post("/continents/insert_continents").set("Authorization", "1");
+        const res = await request.post("/continents/insert_continents").set("Authorization", "1");
         // Country
-        await values.insert("countries", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("countries", db_interface, true, {
             real_name: "Italia",
             it_name: "Italia",
             en_name: "Italy",
             iso_alpha_3: "ITA",
             fk_continent_id: 0
         });
-        await values.insert("countries", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("countries", db_interface, true, {
             real_name: "Polska",
             it_name: "Polonia",
             en_name: "Poland",
             iso_alpha_3: "POL",
             fk_continent_id: 0
         });
-        await values.insert("countries", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("countries", db_interface, true, {
             real_name: "United States of America",
             it_name: "Stati Uniti d'America",
             en_name: "United States of America",
@@ -97,32 +103,32 @@ describe("Benchmarks tests", () => {
             fk_continent_id: 2
         });
         // City
-        await values.insert("cities", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("cities", db_interface, true, {
             real_name: "Roma",
             it_name: "Roma",
             en_name: "Rome",
             fk_country_id: 1
         });
-        await values.insert("cities", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("cities", db_interface, true, {
             real_name: "Milano",
             it_name: "Milano",
             en_name: "Milan",
             fk_country_id: 1
         });
-        await values.insert("cities", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("cities", db_interface, true, {
             real_name: "Kraków",
             it_name: "Cracovia",
             en_name: "Krakow",
             fk_country_id: 2
         });
-        await values.insert("cities", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("cities", db_interface, true, {
             real_name: "New York",
             it_name: "New York",
             en_name: "New York",
             fk_country_id: 3
         });
         // Monument
-        await values.insert("monuments", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("monuments", db_interface, true, {
             real_name: "Colosseo",
             it_name: "Colosseo",
             en_name: "Colosseum",
@@ -131,7 +137,7 @@ describe("Benchmarks tests", () => {
             en_description: "The most beautiful monument in the world",
             fk_city_id: 1,
         });
-        await values.insert("monuments", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("monuments", db_interface, true, {
             real_name: "Piazza di Spagna",
             it_name: "Piazza di Spagna",
             en_name: "Piazza di Spagna",
@@ -140,7 +146,7 @@ describe("Benchmarks tests", () => {
             en_description: "The second most beautiful monument in the world",
             fk_city_id: 1,
         });
-        await values.insert("monuments", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("monuments", db_interface, true, {
             real_name: "Duomo",
             it_name: "Duomo",
             en_name: "Duomo",
@@ -149,7 +155,7 @@ describe("Benchmarks tests", () => {
             en_description: "The third most beautiful monument in the world",
             fk_city_id: 2,
         });
-        await values.insert("monuments", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("monuments", db_interface, true, {
             real_name: "Monumento Polacco",
             it_name: "Monumento Polacco",
             en_name: "Polish monument",
@@ -158,7 +164,7 @@ describe("Benchmarks tests", () => {
             en_description: "The fourth most beautiful monument in the world",
             fk_city_id: 3,
         });
-        await values.insert("monuments", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("monuments", db_interface, true, {
             real_name: "Monumento USA",
             it_name: "Monumento USA",
             en_name: "American monument",
@@ -168,31 +174,31 @@ describe("Benchmarks tests", () => {
             fk_city_id: 4,
         });
         // Language
-        await values.insert("languages", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("languages", db_interface, true, {
             name: "English",
             abbreviation: "EN"
         });
         // User
-        await values.insert("users", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("users", db_interface, true, {
             id: 2,
             fk_language_id: 1
         });
         // Visit
-        await values.insert("visits", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("visits", db_interface, true, {
             rating: 3,
             private_description: "Visita molto bella",
             date_time: "2020-01-01",
             fk_user_id: 2,
             fk_monument_id: 1
         });
-        await values.insert("visits", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("visits", db_interface, true, {
             rating: 4,
             private_description: "Visita molto bella",
             date_time: "2021-01-01",
             fk_user_id: 2,
             fk_monument_id: 2
         });
-        await values.insert("visits", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("visits", db_interface, true, {
             rating: 5,
             private_description: "Visita molto bella",
             date_time: "2022-01-01",
@@ -200,14 +206,14 @@ describe("Benchmarks tests", () => {
             fk_monument_id: 3
         });
         // types_of_monuments
-        await values.insert("types_of_monuments", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("types_of_monuments", db_interface, true, {
             real_name: "Museo",
             it_name: "Museo",
             en_name: "Museum",
             it_description: "Museo di storia",
             en_description: "History museum"
         });
-        await values.insert("types_of_monuments", app.locals.DEFAULT_DB_INTERFACE, true, {
+        await values.insert("types_of_monuments", db_interface, true, {
             real_name: "Palace",
             it_name: "Palazzo",
             en_name: "Palace",
@@ -215,29 +221,36 @@ describe("Benchmarks tests", () => {
             en_description: "History palace"
         });
         // monuments_types
-        await values.insert("monument_types", app.locals.DEFAULT_DB_INTERFACE, true, {
-            fk_type_of_monument_id: 1,
+        await values.insert("monument_types", db_interface, true, {
+            fk_type_id: 1,
             fk_monument_id: 1
         });
-        await values.insert("monument_types", app.locals.DEFAULT_DB_INTERFACE, true, {
-            fk_type_of_monument_id: 2,
+        await values.insert("monument_types", db_interface, true, {
+            fk_type_id: 2,
             fk_monument_id: 1
         });
-        await values.insert("monument_types", app.locals.DEFAULT_DB_INTERFACE, true, {
-            fk_type_of_monument_id: 1,
+        await values.insert("monument_types", db_interface, true, {
+            fk_type_id: 1,
             fk_monument_id: 2
         });
+        db_interface.close();
+        app.locals.DEFAULT_DB_INTERFACE?.close();
     });
     afterAll(async () => {
-        await table.delete("monument_types", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("types_of_monuments", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("visits", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("monuments", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("cities", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("users", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("languages", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("countries", app.locals.DEFAULT_DB_INTERFACE, true);
-        await table.delete("continents", app.locals.DEFAULT_DB_INTERFACE, true);
-        app.locals.DEFAULT_DB_INTERFACE.close();
+        const db_interface = new DB_interface({
+            connectionString: get_db_uri()
+        }, true);
+        await table.delete("monument_types", db_interface, true);
+        await table.delete("types_of_monuments", db_interface, true);
+        await table.delete("visits", db_interface, true);
+        await table.delete("monuments", db_interface, true);
+        await table.delete("cities", db_interface, true);
+        await table.delete("users", db_interface, true);
+        await table.delete("languages", db_interface, true);
+        await table.delete("countries", db_interface, true);
+        await table.delete("continents", db_interface, true);
+        db_interface.close();
+        app.locals.DEFAULT_DB_INTERFACE?.close();
     }); 
+    it("", () => expect(1).toBe(1));
 });

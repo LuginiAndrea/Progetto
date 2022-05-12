@@ -1,6 +1,5 @@
-import {Router, Request, Response, NextFunction} from 'express';
+import {Router} from 'express';
 import { send_json } from '../utils';
-import { DB_interface } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes } from "../logic/tables/utils";
 
 /*TODO: Implement use of firebase API such as:
@@ -52,13 +51,17 @@ users_router.get("/table_schema", async (req, res) => {
 
 users_router.get("/list_all", async (req, res) => {
     send_json(res,
-        await values.get.all(table_name, res.locals.DB_INTERFACE, "ORDER BY id"),
+        await values.get.all(table_name, res.locals.DB_INTERFACE, "*", "ORDER BY id"),
     );
 });
-users_router.get("/list_single/:id", async (req, res) => {
-    send_json(res,
-        await values.get.by_id(table_name, res.locals.DB_INTERFACE, req.params.id)
-    )
+users_router.get("/list_by_id", async (req, res) => {
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
+    else 
+        send_json(res,
+            await values.get.by_id(table_name, res.locals.DB_INTERFACE, ids)
+        );
 });
 
 users_router.post("/insert", async (req, res) => {

@@ -135,43 +135,38 @@ function get_schema(table_name, db_interface) {
         });
     });
 }
-function get_all_values(table_name, db_interface, rest_of_query, filter) {
+function get_all(table_name, db_interface, fields, rest_of_query) {
+    if (fields === void 0) { fields = "*"; }
     if (rest_of_query === void 0) { rest_of_query = ""; }
     return __awaiter(this, void 0, void 0, function () {
-        var fields;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "".concat(table_name, ".*");
-                    return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query))];
+                case 0: return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query))];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
 }
-function get_single_value(table_name, db_interface, id, rest_of_query, filter) {
+function get_by_id(table_name, db_interface, id, fields, rest_of_query) {
+    if (fields === void 0) { fields = "*"; }
     if (rest_of_query === void 0) { rest_of_query = ""; }
     return __awaiter(this, void 0, void 0, function () {
-        var fields;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "".concat(table_name, ".*");
-                    return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " WHERE id = $1 ").concat(rest_of_query), [id])];
+                case 0: return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " WHERE id = ANY($1) ").concat(rest_of_query), [id])];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
 }
-function get_generic(table_name, db_interface, rest_of_query, args, filter) {
+function get_generic(table_name, db_interface, fields, rest_of_query, args) {
+    if (fields === void 0) { fields = "*"; }
     if (rest_of_query === void 0) { rest_of_query = ""; }
+    if (args === void 0) { args = []; }
     return __awaiter(this, void 0, void 0, function () {
-        var fields;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    fields = (filter === null || filter === void 0 ? void 0 : filter.func(filter === null || filter === void 0 ? void 0 : filter.args)) || "".concat(table_name, ".*");
-                    return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query), args)];
+                case 0: return [4 /*yield*/, db_interface.query("SELECT ".concat(fields, " FROM ").concat(table_name, " ").concat(rest_of_query), args)];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
@@ -179,7 +174,7 @@ function get_generic(table_name, db_interface, rest_of_query, args, filter) {
 }
 function insert_values(table_name, db_interface, is_admin, data) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, fields, placeholder_sequence, values;
+        var _a, fields, placeholder_seq, values;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -187,9 +182,9 @@ function insert_values(table_name, db_interface, is_admin, data) {
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
                     if (!DB_interface_1.req_types.body_validators[table_name](data))
                         return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
-                    _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 1), fields = _a[0], placeholder_sequence = _a[1];
+                    _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 1), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
-                    return [4 /*yield*/, db_interface.query("\n        INSERT INTO ".concat(table_name, " (").concat(fields, ") VALUES (").concat(placeholder_sequence, ")\n        RETURNING id;"), values)];
+                    return [4 /*yield*/, db_interface.query("\n        INSERT INTO ".concat(table_name, " (").concat(fields, ") VALUES (").concat(placeholder_seq, ")\n        RETURNING id;"), values)];
                 case 1: return [2 /*return*/, _b.sent()];
             }
         });
@@ -197,7 +192,7 @@ function insert_values(table_name, db_interface, is_admin, data) {
 }
 function update_values(table_name, db_interface, is_admin, data, id) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, fields, placeholder_sequence, values, result, _b;
+        var _a, fields, placeholder_seq, values, result, _b;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
@@ -210,12 +205,12 @@ function update_values(table_name, db_interface, is_admin, data, id) {
                         return [2 /*return*/, error_codes.NO_REFERENCED_ITEM(table_name)];
                     if (!DB_interface_1.req_types.body_validators[table_name](data))
                         error_codes.INVALID_BODY(table_name);
-                    _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 2, true), fields = _a[0], placeholder_sequence = _a[1];
+                    _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 2, true), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
                     if (fields.length === 0)
                         return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
                     if (!(fields.length > 1)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, db_interface.query("\n            UPDATE ".concat(table_name, " SET (").concat(fields, ") = (").concat(placeholder_sequence, ")\n            WHERE id = $1\n            RETURNING *;"), __spreadArray([id], values, true))];
+                    return [4 /*yield*/, db_interface.query("\n            UPDATE ".concat(table_name, " SET (").concat(fields, ") = (").concat(placeholder_seq, ")\n            WHERE id = $1\n            RETURNING *;"), __spreadArray([id], values, true))];
                 case 1:
                     _b = _c.sent();
                     return [3 /*break*/, 4];
@@ -267,8 +262,8 @@ var values = {
     update: update_values,
     "delete": delete_values,
     get: {
-        all: get_all_values,
-        single: get_single_value,
+        all: get_all,
+        by_id: get_by_id,
         generic: get_generic
     }
 };
