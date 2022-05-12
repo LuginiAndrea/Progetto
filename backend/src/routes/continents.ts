@@ -1,19 +1,12 @@
 import {Router, Request, Response} from 'express';
 import { get_language_of_user } from "../logic/users/utils";
 import { send_json } from '../utils';
-import { DB_interface, req_types as types } from '../logic/db_interface/DB_interface';
+import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes } from '../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const continents_router: Router = Router();
 const table_name = "continents";
-function exclude_fields_by_language(language: string) { //Exclude the fields in a different language
-    return types.get_fields(table_name, true,
-        x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
-        false
-    )[0];
-}
-
 /****************************************** ROUTES **********************************************/
 continents_router.options("/", (req, res) => {
     const method_list = [
@@ -67,21 +60,26 @@ continents_router.post("/insert_continents", async (req, res) => {
 continents_router.get("/list_all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
-        await values.get.all(table_name, db_interface, "ORDER BY id", {
-            func: exclude_fields_by_language,
-            args: await get_language_of_user(req, res.locals.UID, db_interface)
-        })
+        await values.get.all(table_name, db_interface, types.exclude_fields_by_language[table_name](
+                await get_language_of_user(req, res.locals.UID, db_interface),
+            ).fields, "ORDER BY id"
+        )
     );
 });
 
-continents_router.get("/list_single/:id", async (req, res) => {
-    const db_interface = res.locals.DB_INTERFACE;
-    send_json(res,
-        await values.get.single(table_name, db_interface, req.params.id, "", {
-            func: exclude_fields_by_language,
-            args: await get_language_of_user(req, res.locals.UID, db_interface)
-        })
-    );
+continents_router.get("/list_by_id", async (req, res) => {
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
+    else {
+        const db_interface = res.locals.DB_INTERFACE;
+        send_json(res,
+            await values.get.by_id(table_name, db_interface, ids, types.exclude_fields_by_language[table_name](
+                    await get_language_of_user(req, res.locals.UID, db_interface),
+                ).fields, "ORDER BY id"
+            ),
+        );
+    }
 });
 
 continents_router.get("/continents_of_countries", async (req, res) => {
@@ -90,12 +88,11 @@ continents_router.get("/continents_of_countries", async (req, res) => {
     else {
         const db_interface = res.locals.DB_INTERFACE;
         send_json(res,
-            await values.get.generic(table_name, db_interface, 
+            await values.get.generic(table_name, db_interface, types.exclude_fields_by_language[table_name](
+                    await get_language_of_user(req, res.locals.UID, db_interface),
+                ).fields, 
                 "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id", 
-                [(req.query.country_ids as string).split(",")], {
-                    func: exclude_fields_by_language,
-                    args: await get_language_of_user(req, res.locals.UID, db_interface)
-                }
+                [(req.query.country_ids as string).split(",")] 
             )
         );
     }

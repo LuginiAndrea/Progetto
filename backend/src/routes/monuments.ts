@@ -50,7 +50,7 @@ monuments_router.get("/list_single/:id", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(req, res.locals.uid, db_interface);
     send_json(res, 
-        await values.get.single(table_name, db_interface, req.params.id, join_city(), {
+        await values.get.by_id(table_name, db_interface, req.params.id, join_city(), {
             func: join_city_filter(exclude_fields_by_language, language),
             args: language
         })

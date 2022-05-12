@@ -7,6 +7,21 @@ import { table, values, error_codes, validate_rating } from '../logic/tables/uti
 /******************** CONSTANTS ***********************/
 const cities_router: Router = Router();
 const table_name = "cities";
+function get_fields(req : Request, language: string) {
+    return types.exclude_fields_by_language[table_name](language).fields.concat(
+        req.query.join === "1" ?
+            [
+                ...types.exclude_fields_by_language.continents(language).fields.filter(x => x !== "id"),
+                ...types.exclude_fields_by_language.countries(language).fields.filter(x => x !== "id"),
+            ] :
+            []
+    );
+}
+const join_fields_query = `
+    JOIN Countries ON Countries.id = Cities.fk_country_id
+    JOIN Continents ON Continents.id = Countries.fk_continent_id
+`;
+
 /****************************************** ROUTES **********************************************/
 cities_router.options("/", (req, res) => {
     const method_list = [
@@ -14,7 +29,7 @@ cities_router.options("/", (req, res) => {
         { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the cities"},
-        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single city" },
+        { verb: "get", method: "list_by_id", description: "Gives the fields of the specified cities" },
         { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
         { verb: "get", method: "list_by_rating", description: "Gives list of all the cities that meets the passed condition and rating passed with query string"},
         { verb: "get", method: "cities_of_monuments", description: "Gives the cities of the monuments passed with the query string" },
@@ -49,24 +64,26 @@ cities_router.delete("/delete_table", async (req, res) => {
 cities_router.get("/list_all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(req, res.locals.uid, db_interface);
+    const fields = get_fields(req, language);
     send_json(res,
-        await values.get.all(table_name, db_interface, join_countries(), {
-            func: join_countries_filter(exclude_fields_by_language, language),
-            args: language
-        })
+        await values.get.all(table_name, db_interface, fields, join_fields_query)
     );
 });
 
-cities_router.get("/list_single/:id", async (req, res) => {
-    const db_interface = res.locals.DB_INTERFACE;
-    const language = await get_language_of_user(req, res.locals.uid, db_interface);
-    send_json(res,
-        await values.get.single(table_name, db_interface, req.params.id, join_countries(), {
-            func: join_countries_filter(exclude_fields_by_language, language),
-            args: language
-        })
-    );
+cities_router.get("/list_by_id", async (req, res) => {
+    const ids = (req.query.ids as string).split(",") || [];
+    if(ids.length === 0) 
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
+    else {
+        const db_interface = res.locals.DB_INTERFACE;
+        const language = await get_language_of_user(req, res.locals.uid, db_interface);
+        const fields = get_fields(req, language);
+        send_json(res,
+            await values.get.by_id(table_name, db_interface, ids, fields, join_fields_query) 
+        );
+    }
 });
+
 
 cities_router.get("/list_by_rating", async(req, res) => {
     const {valid, operator, rating} = validate_rating(req);
@@ -75,12 +92,9 @@ cities_router.get("/list_by_rating", async(req, res) => {
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.uid, db_interface);
+        const fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
         send_json(res, 
-            await values.get.all(table_name, db_interface, 
-                join_countries(`WHERE (votes_sum / NULLIF(number_of_votes, 0)) ${operator} ${rating}`), {
-                func: join_countries_filter(exclude_fields_by_language, language),
-                args: language
-            })
+            await values.get.all(table_name, db_interface, fields, `${join_fields_query} WHERE rating ${operator} ${rating}`)
         );
     }
 });
@@ -91,12 +105,11 @@ cities_router.get("/cities_in_countries", async (req, res) => {
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        const fields = get_fields(req, language).filter(x => x !== "fk_country_id");
         send_json(res,
-            await values.get.generic(table_name, db_interface, 
-                join_countries(`WHERE fk_country_id = ANY ($1)`), [(req.query.country_ids as string).split(",")], {
-                func: join_countries_filter(exclude_fields_by_language, language),
-                args: language
-            })
+            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_country_id = ANY($1)`,
+                (req.query.country_ids as string).split(",")
+            )
         );
     }
 });
@@ -107,13 +120,12 @@ cities_router.get("/cities_of_monuments", async (req, res) => {
     else {
         const db_interface = res.locals.DB_INTERFACE;
         const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        const fields = get_fields(req, language);
         send_json(res,
-            await values.get.generic(table_name, db_interface, 
-                join_countries(`WHERE id = ANY (SELECT fk_city_id FROM monuments WHERE id = ANY($1))`),
-                [(req.query.monument_ids as string).split(",")], {
-                func: join_countries_filter(exclude_fields_by_language, language),
-                args: language
-            })
+            await values.get.generic(table_name, db_interface, fields, 
+                `${join_fields_query} WHERE id = ANY (SELECT fk_city_id FROM monuments WHERE id = ANY($1))`,
+                [(req.query.monument_ids as string).split(",")]
+            )
         );
     }
 });

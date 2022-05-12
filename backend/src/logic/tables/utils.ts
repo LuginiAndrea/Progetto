@@ -70,12 +70,11 @@ async function get_schema(table_name: table_name, db_interface: DB_interface) {
 }
 
 
-type id = number | string;
-async function get_all_values(table_name: table_name, db_interface: DB_interface, fields: string[] | "*" = "*", rest_of_query: string = "") {
+async function get_all(table_name: table_name, db_interface: DB_interface, fields: string[] | "*" = "*", rest_of_query: string = "") {
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} ${rest_of_query}`);
 }
-async function get_single_value(table_name: table_name, db_interface: DB_interface, id: id, fields: string[] | "*" = "*", rest_of_query: string = "") {
-    return await db_interface.query(`SELECT ${fields} FROM ${table_name} WHERE id = $1 ${rest_of_query}`, [id]);
+async function get_by_id(table_name: table_name, db_interface: DB_interface, id: number | string | number[] | string[], fields: string[] | "*" = "*", rest_of_query: string = "") {
+    return await db_interface.query(`SELECT ${fields} FROM ${table_name} WHERE id = ANY($1) ${rest_of_query}`, [id]);
 }
 async function get_generic(table_name: table_name, db_interface: DB_interface, fields: string[] | "*" = "*", rest_of_query: string = "", args: any[] = []) {
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} ${rest_of_query}`, args);
@@ -88,15 +87,15 @@ async function insert_values(table_name: valid_body_types, db_interface: DB_inte
     if(!types.body_validators[table_name](data))  
         return error_codes.INVALID_BODY(table_name);
 
-    const [fields, placeholder_sequence] = types.get_fields(table_name, false, Object.keys(data), 1);
+    const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 1);
     const values = types.extract_values_of_fields(data, fields);
     return await db_interface.query(`
-        INSERT INTO ${table_name} (${fields}) VALUES (${placeholder_sequence})
+        INSERT INTO ${table_name} (${fields}) VALUES (${placeholder_seq})
         RETURNING id;`, 
         values
     ); 
 }
-async function update_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any, id: id) {
+async function update_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any, id: number | string) {
     if(!is_admin)
         return error_codes.UNAUTHORIZED(table_name);
     id = typeof id === "string" ?
@@ -107,13 +106,13 @@ async function update_values(table_name: valid_body_types, db_interface: DB_inte
     if(!types.body_validators[table_name](data)) 
         error_codes.INVALID_BODY(table_name);
 
-    const [fields, placeholder_sequence] = types.get_fields(table_name, false, Object.keys(data), 2, true);
+    const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 2, true);
     if(fields.length === 0)
         return error_codes.INVALID_BODY(table_name);
     const values = types.extract_values_of_fields(data, fields);
     const result = fields.length > 1 ? //If there are more than 1 field to update we need to change syntax
         await db_interface.query(`
-            UPDATE ${table_name} SET (${fields}) = (${placeholder_sequence})
+            UPDATE ${table_name} SET (${fields}) = (${placeholder_seq})
             WHERE id = $1
             RETURNING *;`,
             [id, ...values]
@@ -130,7 +129,7 @@ async function update_values(table_name: valid_body_types, db_interface: DB_inte
             result;
     return result;
 }
-async function delete_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, id: id) {
+async function delete_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, id: number | string) {
     if(!is_admin)
         return error_codes.UNAUTHORIZED(table_name);
     if(!id)
@@ -158,8 +157,8 @@ const values = {
     update: update_values,
     delete: delete_values,
     get: {
-        all: get_all_values,
-        single: get_single_value,
+        all: get_all,
+        by_id: get_by_id,
         generic: get_generic,
     }
 };

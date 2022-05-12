@@ -57,7 +57,7 @@ users_router.get("/list_all", async (req, res) => {
 });
 users_router.get("/list_single/:id", async (req, res) => {
     send_json(res,
-        await values.get.single(table_name, res.locals.DB_INTERFACE, req.params.id)
+        await values.get.by_id(table_name, res.locals.DB_INTERFACE, req.params.id)
     )
 });
 

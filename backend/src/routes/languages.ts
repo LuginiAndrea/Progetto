@@ -57,7 +57,7 @@ languages_router.get("/list_all", async (req, res) => {
 languages_router.get("/list_single/:id", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
-        await values.get.single(table_name, db_interface, req.params.id)
+        await values.get.by_id(table_name, db_interface, req.params.id)
     );
 });
 
