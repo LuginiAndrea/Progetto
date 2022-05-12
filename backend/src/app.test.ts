@@ -234,7 +234,6 @@ describe("Benchmarks tests", () => {
             fk_monument_id: 2
         });
         db_interface.close();
-        app.locals.DEFAULT_DB_INTERFACE?.close();
     });
     afterAll(async () => {
         const db_interface = new DB_interface({
@@ -252,5 +251,13 @@ describe("Benchmarks tests", () => {
         db_interface.close();
         app.locals.DEFAULT_DB_INTERFACE?.close();
     }); 
-    it("", () => expect(1).toBe(1));
+    describe("Continents", () => {
+        const route = "/continents";
+        it("should return all continents", async () => {
+            const res = await request.get(route + "/list_all");
+        });
+        it("should return all countries", async () => {
+            const res = await request.get("/countries" + "/list_all");
+        });
+    });
 });

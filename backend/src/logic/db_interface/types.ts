@@ -1,7 +1,6 @@
 import {req_types as types} from "./DB_interface";
 
-type filter = ((x: string) => boolean) | string[];
-const fields_dictionary = {
+const fields_dictionary = { //List of all the tables with all the fields in them
     continents: ["id", "it_name", "en_name"],
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
     cities: ["id", "real_name", "it_name", "en_name", "number_of_votes", "votes_sum", "fk_country_id"],
@@ -19,20 +18,19 @@ type accepted_extract_types =
     users_body | monuments_body | visits_body | 
     monument_types_body | types_of_monuments_body | test_body;
     
-function set_filter_by(filter_by: filter) {
-    return Array.isArray(filter_by) ?
-        (x: string) => filter_by.includes(x) :
-        filter_by;
+type filter = ((x: string) => boolean) | string[];
+function set_filter_by(filter_by: filter) { //If filter_by is an array
+    return Array.isArray(filter_by) ?   //convert it into a function that checks 
+        (x: string) => filter_by.includes(x) : //wheter an element is present in
+        filter_by;                              //the array
 }
-
-function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: number | boolean = 1): string {
-    if(gen_placeholder_seq === false) return "";
+// Generate the placeholder sequence for the database ($1, $2, $3, ...)
+function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: number = 1): string {
     if(gen_placeholder_seq < 1) throw new Error("gen_placeholder_seq must be greater than 1");
-    let i = typeof gen_placeholder_seq === "number" ? gen_placeholder_seq : 1;
-    return obj.map(_ => `$${i++}`).join(", ");
+    return obj.map(_ => `$${gen_placeholder_seq++}`).join(", ");
 }
 
-function get_fields(table_name: accepted_get_types, use_table_name = false, filter_by?: filter, gen_placeholder_seq: number | boolean = 1, no_id = false) {
+function get_fields(table_name: accepted_get_types, use_table_name = false, filter_by?: filter, gen_placeholder_seq: number | false = 1, no_id = false) {
     let fields = fields_dictionary[table_name];
     if(filter_by) {
         filter_by = set_filter_by(filter_by);
@@ -43,7 +41,7 @@ function get_fields(table_name: accepted_get_types, use_table_name = false, filt
         fields;
     return {
         fields: fields, 
-        placeholder_seq: generate_placeholder_sequence(fields, gen_placeholder_seq)
+        placeholder_seq: gen_placeholder_seq === false ? "" : generate_placeholder_sequence(fields, gen_placeholder_seq)
     };
 }
 const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any => 

@@ -8,23 +8,24 @@ type DB_config = { //Add fields here if needed
     connectionString: string;
 }
 
+// String as a return means error
 type DB_result = Array<QueryResult<any>> | string;
 
 class DB_interface {
-    private readonly credentials: DB_config;
+    private readonly config: DB_config;
     private pool : Pool | null = null;
 
-    constructor(credentials: DB_config, connect = true) {
-        this.credentials = credentials;
+    constructor(config: DB_config, connect = true) {
+        this.config = config;
         if(connect) 
             this.connect();
     }
 
-    connect(): boolean {
+    connect() {
         if(this.connected()) return true; //if it is already connected do nothing
         try {
             this.pool = new Pool({
-                ...this.credentials,
+                ...this.config,
                 ssl: {
                     rejectUnauthorized: false
                 }
@@ -35,11 +36,11 @@ class DB_interface {
             throw error;
         }
         finally {
-            return this.connected();
+            return this.connected(); // Return status of the connection
         }
     }
         
-    async query(query: string, params: any[] = [], close_connection = false): Promise<DB_result> { // String return = error code
+    async query(query: string, params: any[] = [], close_connection = false): Promise<DB_result> { 
         if(!this.pool) { //If the connection is not open return error code
             return error_codes.NO_DB_CONNECTION;
         }
@@ -48,7 +49,7 @@ class DB_interface {
                 return [await this.pool.query(query, params)];
             } 
             catch (error) {
-                console.log(`On query ${query}:\n ${error}: ${error.code}`);
+                console.log(`On query ${query}:\n ${error}: ${error.code}`); // Disable in production
                 if(error.code === "3D000") send_generic_error_email("Error in server", error + "Error code 3D000");
                 return error.code
             }
@@ -72,7 +73,7 @@ class DB_interface {
             return result;
         } 
         catch (error) {
-            console.log(`On transiction:\n ${error}: ${error.code}`);
+            console.log(`On transiction:\n ${error}: ${error.code}`); // Disable in production
             await this.pool.query('ROLLBACK');
                 if(error.code === "3D000") send_generic_error_email("Error in server", error + "Error code 3D000");
             return error.code;
