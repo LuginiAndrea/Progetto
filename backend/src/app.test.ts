@@ -1,62 +1,63 @@
 import { app } from "./app";
 import { DB_interface, get_db_uri } from "./logic/db_interface/DB_interface";
 import supertest from "supertest";
+jest.setTimeout(30000);
 import { table, values } from "./logic/tables/utils";
-describe("Top Level routes tests", () => {
-    // SETUP
-    const request = supertest(app);
-    app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
-        connectionString: get_db_uri()
-    }, true);
+// describe("Top Level routes tests", () => {
+//     // SETUP
+//     const request = supertest(app);
+//     app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
+//         connectionString: get_db_uri()
+//     }, true);
 
-    //Tests
-    it("/", async() => {
-        const response = await request.get("/");
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({status: "Running"});
-    });
-    it("/not_real_endpoint", async() => {
-        const response = await request.get("/not_real_endpoint");
-        expect(response.status).toBe(404);
-        expect(response.body).toEqual({error: "Method not found"});
-    });
-    describe("/reconnect_db", () => {
-        it("Reconnect with open connection", async () => {
-            const response = await request.get("/reconnect_db");
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual({status: "Already connected"});
-        });
-        it("Reconnect with closed connection", async () => {
-            app.locals.DEFAULT_DB_INTERFACE.close();
-            const response = await request.get("/reconnect_db");
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual({status: "Connected"});
-        });
-        it("Reconnect with never opened connection", async () => {
-            app.locals.DEFAULT_DB_INTERFACE = null;
-            const response = await request.get("/reconnect_db");
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual({status: "Connected"});
-        });
-    });
-    describe("Test first-level middleware", () => {
-        it("No database connection", async () => {
-            app.locals.DEFAULT_DB_INTERFACE.close();
-            const response = await request.get("/");
-            expect(response.status).toBe(500);
-            expect(response.body).toEqual({error: "Not connected"});
-        });
-        it("No database interface", async () => {
-            app.locals.DEFAULT_DB_INTERFACE = null;
-            const response = await request.get("/");
-            expect(response.status).toBe(500);
-            expect(response.body).toEqual({error: "No interface"});
-        });
-    });
-    afterAll(() => {
-        app.locals.DEFAULT_DB_INTERFACE?.close();
-    });
-});
+//     //Tests
+//     it("/", async() => {
+//         const response = await request.get("/");
+//         expect(response.status).toBe(200);
+//         expect(response.body).toEqual({status: "Running"});
+//     });
+//     it("/not_real_endpoint", async() => {
+//         const response = await request.get("/not_real_endpoint");
+//         expect(response.status).toBe(404);
+//         expect(response.body).toEqual({error: "Method not found"});
+//     });
+//     describe("/reconnect_db", () => {
+//         it("Reconnect with open connection", async () => {
+//             const response = await request.get("/reconnect_db");
+//             expect(response.status).toBe(200);
+//             expect(response.body).toEqual({status: "Already connected"});
+//         });
+//         it("Reconnect with closed connection", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE.close();
+//             const response = await request.get("/reconnect_db");
+//             expect(response.status).toBe(200);
+//             expect(response.body).toEqual({status: "Connected"});
+//         });
+//         it("Reconnect with never opened connection", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE = null;
+//             const response = await request.get("/reconnect_db");
+//             expect(response.status).toBe(200);
+//             expect(response.body).toEqual({status: "Connected"});
+//         });
+//     });
+//     describe("Test first-level middleware", () => {
+//         it("No database connection", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE.close();
+//             const response = await request.get("/");
+//             expect(response.status).toBe(500);
+//             expect(response.body).toEqual({error: "Not connected"});
+//         });
+//         it("No database interface", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE = null;
+//             const response = await request.get("/");
+//             expect(response.status).toBe(500);
+//             expect(response.body).toEqual({error: "No interface"});
+//         });
+//     });
+//     afterAll(() => {
+//         app.locals.DEFAULT_DB_INTERFACE?.close();
+//     });
+// });
 
 describe("Benchmarks tests", () => {
     // SETUP
@@ -252,12 +253,24 @@ describe("Benchmarks tests", () => {
         app.locals.DEFAULT_DB_INTERFACE?.close();
     }); 
     describe("Continents", () => {
-        const route = "/continents";
-        it("should return all continents", async () => {
-            const res = await request.get(route + "/list_all");
-        });
+        // const route = "/continents";
+        // it("should return all continents", async () => {
+        //     const res = await request.get(route + "/list_all");
+        // });
         it("should return all countries", async () => {
-            const res = await request.get("/countries" + "/list_all");
+            const res = await request.get("/countries" + "/list_all?join=1");
         });
+        it("markers", async () => {
+            const res = await request.get("/monuments/markers");
+            console.log(res.body);
+        });
+        // it("should return all cities", async () => {
+        //     const db_interface = new DB_interface({
+        //         connectionString: get_db_uri()
+        //     }, true);
+        //     const x = await db_interface.query("SELECT countries.en_name, countries.id, continents.id, continents.en_name FROM countries JOIN continents ON countries.fk_continent_id = continents.id", [], true);
+        //     if(typeof x !== "string")
+        //         console.log(x[0].rows);
+        // });
     });
 });

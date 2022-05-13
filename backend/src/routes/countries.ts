@@ -10,7 +10,7 @@ const table_name = "countries";
 function get_fields(req : Request, language: string) {
     return types.exclude_fields_by_language[table_name](language).fields.concat(
         req.query.join === "1" ?
-            types.exclude_fields_by_language.cities(language).fields.filter(x => x !== "id") :
+            types.exclude_fields_by_language.continents(language, "continents").fields.filter(x => !x.includes(".id")):
             []
     );
 }

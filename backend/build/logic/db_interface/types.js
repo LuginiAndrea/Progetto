@@ -14,20 +14,19 @@ var fields_dictionary = {
     test: ["id", "name", "number"]
 };
 function set_filter_by(filter_by) {
-    return Array.isArray(filter_by) ?
-        function (x) { return filter_by.includes(x); } :
-        filter_by;
+    return Array.isArray(filter_by) ? //convert it into a function that checks 
+        function (x) { return filter_by.includes(x); } : //wheter an element is present in
+        filter_by; //the array
 }
+// Generate the placeholder sequence for the database ($1, $2, $3, ...)
 function generate_placeholder_sequence(obj, gen_placeholder_seq) {
     if (gen_placeholder_seq === void 0) { gen_placeholder_seq = 1; }
-    if (gen_placeholder_seq === false)
-        return "";
     if (gen_placeholder_seq < 1)
         throw new Error("gen_placeholder_seq must be greater than 1");
-    var i = typeof gen_placeholder_seq === "number" ? gen_placeholder_seq : 1;
-    return obj.map(function (_) { return "$".concat(i++); }).join(", ");
+    return obj.map(function (_) { return "$".concat(gen_placeholder_seq++); }).join(", ");
 }
-function get_fields(table_name, use_table_name, filter_by, gen_placeholder_seq, no_id) {
+function get_fields(table_name, alias, use_table_name, filter_by, gen_placeholder_seq, no_id) {
+    if (alias === void 0) { alias = ""; }
     if (use_table_name === void 0) { use_table_name = false; }
     if (gen_placeholder_seq === void 0) { gen_placeholder_seq = 1; }
     if (no_id === void 0) { no_id = false; }
@@ -37,11 +36,12 @@ function get_fields(table_name, use_table_name, filter_by, gen_placeholder_seq, 
         fields = fields.filter(function (x) { return !(x === "id" && no_id); }).filter(filter_by);
     }
     fields = use_table_name ?
-        fields.map(function (field) { return "".concat(table_name, ".").concat(field); }) :
+        fields.map(function (field) { return "".concat(table_name, ".").concat(field, " ").concat(alias ?
+            "AS ".concat(alias, "_").concat(field) : "", "\n        "); }) :
         fields;
     return {
         fields: fields,
-        placeholder_seq: generate_placeholder_sequence(fields, gen_placeholder_seq)
+        placeholder_seq: gen_placeholder_seq === false ? "" : generate_placeholder_sequence(fields, gen_placeholder_seq)
     };
 }
 exports.get_fields = get_fields;
@@ -126,10 +126,25 @@ var body_validators = {
 };
 exports.body_validators = body_validators;
 var exclude_fields_by_language = {
-    continents: function (language) { return get_fields("continents", true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false); },
-    countries: function (language) { return get_fields("countries", true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false); },
-    cities: function (language) { return get_fields("cities", true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false); },
-    monuments: function (language) { return get_fields("monuments", true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false); },
-    types_of_monuments: function (language) { return get_fields("types_of_monuments", true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false); }
+    continents: function (language, prefix) {
+        if (prefix === void 0) { prefix = ""; }
+        return get_fields("continents", prefix, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
+    },
+    countries: function (language, prefix) {
+        if (prefix === void 0) { prefix = ""; }
+        return get_fields("countries", prefix, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
+    },
+    cities: function (language, prefix) {
+        if (prefix === void 0) { prefix = ""; }
+        return get_fields("cities", prefix, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
+    },
+    monuments: function (language, prefix) {
+        if (prefix === void 0) { prefix = ""; }
+        return get_fields("monuments", prefix, true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false);
+    },
+    types_of_monuments: function (language, prefix) {
+        if (prefix === void 0) { prefix = ""; }
+        return get_fields("types_of_monuments", prefix, true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false);
+    }
 };
 exports.exclude_fields_by_language = exclude_fields_by_language;

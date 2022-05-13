@@ -11,8 +11,8 @@ function get_fields(req : Request, language: string) {
     return types.exclude_fields_by_language[table_name](language).fields.concat(
         req.query.join === "1" ?
             [
-                ...types.exclude_fields_by_language.continents(language).fields.filter(x => x !== "id"),
-                ...types.exclude_fields_by_language.countries(language).fields.filter(x => x !== "id"),
+                ...types.exclude_fields_by_language.continents(language, "continents").fields.filter(x => x !== "id"),
+                ...types.exclude_fields_by_language.countries(language, "countries").fields.filter(x => x !== "id")
             ] :
             []
     );

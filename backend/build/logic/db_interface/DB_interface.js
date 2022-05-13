@@ -80,10 +80,10 @@ exports.get_db_uri = utils_1.get_db_uri;
 exports.validate_db_status = utils_1.validate_db_status;
 exports.error_codes = utils_1.error_codes;
 var DB_interface = /** @class */ (function () {
-    function DB_interface(credentials, connect) {
+    function DB_interface(config, connect) {
         if (connect === void 0) { connect = true; }
         this.pool = null;
-        this.credentials = credentials;
+        this.config = config;
         if (connect)
             this.connect();
     }
@@ -91,7 +91,7 @@ var DB_interface = /** @class */ (function () {
         if (this.connected())
             return true; //if it is already connected do nothing
         try {
-            this.pool = new pg_1.Pool(__assign(__assign({}, this.credentials), { ssl: {
+            this.pool = new pg_1.Pool(__assign(__assign({}, this.config), { ssl: {
                     rejectUnauthorized: false
                 } })); //Connects to the DB
         }
@@ -100,7 +100,7 @@ var DB_interface = /** @class */ (function () {
             throw error;
         }
         finally {
-            return this.connected();
+            return this.connected(); // Return status of the connection
         }
     };
     DB_interface.prototype.query = function (query, params, close_connection) {
@@ -119,7 +119,7 @@ var DB_interface = /** @class */ (function () {
                     case 2: return [2 /*return*/, [_a.sent()]];
                     case 3:
                         error_1 = _a.sent();
-                        console.log("On query ".concat(query, ":\n ").concat(error_1, ": ").concat(error_1.code));
+                        console.log("On query ".concat(query, ":\n ").concat(error_1, ": ").concat(error_1.code)); // Disable in production
                         if (error_1.code === "3D000")
                             (0, email_1.send_generic_error_email)("Error in server", error_1 + "Error code 3D000");
                         return [2 /*return*/, error_1.code];
@@ -168,7 +168,7 @@ var DB_interface = /** @class */ (function () {
                         return [2 /*return*/, result];
                     case 8:
                         error_2 = _c.sent();
-                        console.log("On transiction:\n ".concat(error_2, ": ").concat(error_2.code));
+                        console.log("On transiction:\n ".concat(error_2, ": ").concat(error_2.code)); // Disable in production
                         return [4 /*yield*/, this.pool.query('ROLLBACK')];
                     case 9:
                         _c.sent();

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { send_json } from '../utils';
 import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
-import { get_language_of_user } from 'src/logic/users/utils';
+import { get_language_of_user } from '../logic/users/utils';
 
 /******************** CONSTANTS ***********************/
 const monuments_router = Router();
@@ -11,9 +11,9 @@ function get_fields(req: Request, language: string) {
     return types.exclude_fields_by_language[table_name](language).fields.concat(
         req.query.join === "1" ?
             [
-                ...types.exclude_fields_by_language.cities(language).fields.filter(x => x !== "id"),
-                ...types.exclude_fields_by_language.countries(language).fields.filter(x => x !== "id"),
-                ...types.exclude_fields_by_language.continents(language).fields.filter(x => x !== "id"),
+                ...types.exclude_fields_by_language.cities(language, "cities").fields.filter(x => x !== "id"),
+                ...types.exclude_fields_by_language.countries(language, "countries").fields.filter(x => x !== "id"),
+                ...types.exclude_fields_by_language.continents(language, "language").fields.filter(x => x !== "id"),
             ] :
             []
     );
@@ -50,6 +50,14 @@ monuments_router.get("/list_all", async (req, res) => {
     const fields = get_fields(req, language);
     send_json(res,
         await values.get.all(table_name, db_interface, fields, join_fields_query)
+    );
+});
+monuments_router.get("/markers", async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(req, res.locals.uid, db_interface);
+    const fields = ["real_name", `${language}_name`, "ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"];
+    send_json(res,
+        await values.get.all(table_name, db_interface, fields)
     );
 });
 monuments_router.get("/list_by_id", async (req, res) => {
@@ -127,3 +135,5 @@ monuments_router.delete("/delete/:id", async (req, res) => {
         await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)
     );
 });
+
+export default monuments_router;

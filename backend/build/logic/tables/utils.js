@@ -182,7 +182,7 @@ function insert_values(table_name, db_interface, is_admin, data) {
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
                     if (!DB_interface_1.req_types.body_validators[table_name](data))
                         return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
-                    _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 1), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
+                    _a = DB_interface_1.req_types.get_fields(table_name, "", false, Object.keys(data), 1), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
                     return [4 /*yield*/, db_interface.query("\n        INSERT INTO ".concat(table_name, " (").concat(fields, ") VALUES (").concat(placeholder_seq, ")\n        RETURNING id;"), values)];
                 case 1: return [2 /*return*/, _b.sent()];
@@ -205,7 +205,7 @@ function update_values(table_name, db_interface, is_admin, data, id) {
                         return [2 /*return*/, error_codes.NO_REFERENCED_ITEM(table_name)];
                     if (!DB_interface_1.req_types.body_validators[table_name](data))
                         error_codes.INVALID_BODY(table_name);
-                    _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 2, true), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
+                    _a = DB_interface_1.req_types.get_fields(table_name, "", false, Object.keys(data), 2, true), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
                     if (fields.length === 0)
                         return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);

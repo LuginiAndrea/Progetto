@@ -54,7 +54,7 @@ var utils_3 = require("../logic/tables/utils");
 var cities_router = (0, express_1.Router)();
 var table_name = "cities";
 function get_fields(req, language) {
-    return DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields.concat(req.query.join === "1" ? __spreadArray(__spreadArray([], DB_interface_1.req_types.exclude_fields_by_language.continents(language).fields.filter(function (x) { return x !== "id"; }), true), DB_interface_1.req_types.exclude_fields_by_language.countries(language).fields.filter(function (x) { return x !== "id"; }), true) :
+    return DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields.concat(req.query.join === "1" ? __spreadArray(__spreadArray([], DB_interface_1.req_types.exclude_fields_by_language.continents(language, "continents").fields.filter(function (x) { return x !== "id"; }), true), DB_interface_1.req_types.exclude_fields_by_language.countries(language, "countries").fields.filter(function (x) { return x !== "id"; }), true) :
         []);
 }
 var join_fields_query = "\n    JOIN Countries ON Countries.id = Cities.fk_country_id\n    JOIN Continents ON Continents.id = Countries.fk_continent_id\n";
