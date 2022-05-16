@@ -57,7 +57,7 @@ countries_router.get("/table_schema", async (req, res) => {
 /************************************** GET ***************************************************/
 countries_router.get("/list_all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
-    const language = await get_language_of_user(req, res.locals.UID, db_interface);
+    const language = await get_language_of_user( res.locals.UID, db_interface);
     const fields = get_fields(req, language);
     send_json(res,
         await values.get.all(table_name, db_interface, fields, join_fields_query)
@@ -70,7 +70,7 @@ countries_router.get("/list_by_id", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        const language = await get_language_of_user( res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res,
             await values.get.by_id(table_name, db_interface, ids, fields, join_fields_query)
@@ -80,7 +80,7 @@ countries_router.get("/list_by_id", async (req, res) => {
 
 countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
-    const language = await get_language_of_user(req, res.locals.UID, db_interface);
+    const language = await get_language_of_user( res.locals.UID, db_interface);
     const fields = get_fields(req, language);
     send_json(res,
         await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE iso_alpha_3 = $1`, [req.params.country_iso_code])
@@ -93,7 +93,7 @@ countries_router.get("/countries_in_continents", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        const language = await get_language_of_user( res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res, 
             await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_continent_id = ANY ($1)`, [ids]
@@ -108,7 +108,7 @@ countries_router.get("/countries_of_cities", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        const language = await get_language_of_user( res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res, 
             await values.get.generic(table_name, db_interface, fields, 

@@ -108,7 +108,7 @@ monuments_router.get("/list_all", function (req, res) { return __awaiter(void 0,
         switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_3.get_language_of_user)(req, res.locals.uid, db_interface)];
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -127,7 +127,7 @@ monuments_router.get("/markers", function (req, res) { return __awaiter(void 0, 
         switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_3.get_language_of_user)(req, res.locals.uid, db_interface)];
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
                 fields = ["real_name", "".concat(language, "_name"), "ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"];
@@ -150,7 +150,7 @@ monuments_router.get("/list_by_id", function (req, res) { return __awaiter(void 
                     (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
                 else { }
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_3.get_language_of_user)(req, res.locals.uid, db_interface)];
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -174,7 +174,7 @@ monuments_router.get("/list_by_rating", function (req, res) { return __awaiter(v
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_3.get_language_of_user)(req, res.locals.uid, db_interface)];
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _d.sent();
                 fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
@@ -199,7 +199,7 @@ monuments_router.get("/monuments_in_cities", function (req, res) { return __awai
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_3.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -224,7 +224,7 @@ monuments_router.get("/monuments_of_visits", function (req, res) { return __awai
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_3.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language);

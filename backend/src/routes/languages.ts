@@ -75,7 +75,7 @@ languages_router.get("/list_single_by_abbreviation/:abbreviation", async (req, r
 languages_router.get("/language_of_users", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
-        await values.get.generic(table_name, db_interface, "*", "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.uid])
+        await values.get.generic(table_name, db_interface, "*", "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.UID])
     );
 });
 /************************************** POST ***************************************************/

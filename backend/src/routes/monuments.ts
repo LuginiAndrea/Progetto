@@ -46,7 +46,7 @@ monuments_router.get("/table_schema", async (req, res) => {
 /***************************************** GET *********************************************/
 monuments_router.get("/list_all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
-    const language = await get_language_of_user(req, res.locals.uid, db_interface);
+    const language = await get_language_of_user( res.locals.UID, db_interface);
     const fields = get_fields(req, language);
     send_json(res,
         await values.get.all(table_name, db_interface, fields, join_fields_query)
@@ -54,7 +54,7 @@ monuments_router.get("/list_all", async (req, res) => {
 });
 monuments_router.get("/markers", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
-    const language = await get_language_of_user(req, res.locals.uid, db_interface);
+    const language = await get_language_of_user( res.locals.UID, db_interface);
     const fields = ["real_name", `${language}_name`, "ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"];
     send_json(res,
         await values.get.all(table_name, db_interface, fields)
@@ -66,7 +66,7 @@ monuments_router.get("/list_by_id", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {}
     const db_interface = res.locals.DB_INTERFACE;
-    const language = await get_language_of_user(req, res.locals.uid, db_interface);
+    const language = await get_language_of_user( res.locals.UID, db_interface);
     const fields = get_fields(req, language);
     send_json(res, 
         await values.get.by_id(table_name, db_interface, ids, fields, join_fields_query)
@@ -78,7 +78,7 @@ monuments_router.get("/list_by_rating", async (req, res) => {
         send_json(res, error_codes.INVALID_BODY(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(req, res.locals.uid, db_interface);
+        const language = await get_language_of_user( res.locals.UID, db_interface);
         const fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
         send_json(res, 
             await values.get.all(table_name, db_interface, fields, `${join_fields_query} WHERE rating ${operator} ${rating}`)
@@ -92,7 +92,7 @@ monuments_router.get("/monuments_in_cities", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        const language = await get_language_of_user( res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res,
             await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_city_id = ANY ($1)`, [ids])
@@ -106,7 +106,7 @@ monuments_router.get("/monuments_of_visits", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE
-        const language = await get_language_of_user(req, res.locals.UID, db_interface);
+        const language = await get_language_of_user( res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res,
             await values.get.generic(table_name, db_interface, fields, 

@@ -17,6 +17,8 @@ var continents_1 = __importDefault(require("./routes/continents"));
 var cities_1 = __importDefault(require("./routes/cities"));
 var languages_1 = __importDefault(require("./routes/languages"));
 var monuments_1 = __importDefault(require("./routes/monuments"));
+var monument_types_1 = __importDefault(require("./routes/monument_types"));
+var visits_1 = __importDefault(require("./routes/visits"));
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var utils_1 = require("./logic/users/utils");
 var body_parser_1 = __importDefault(require("body-parser"));
@@ -34,6 +36,8 @@ app.use("/users", users_1["default"]);
 app.use("/continents", continents_1["default"]);
 app.use("/cities", cities_1["default"]);
 app.use("/monuments", monuments_1["default"]);
+app.use("/monument_types", monument_types_1["default"]);
+app.use("/visits", visits_1["default"]);
 app.get("/", function (req, res) {
     res.status(200).send({ status: "Running" });
 });

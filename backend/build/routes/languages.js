@@ -164,7 +164,7 @@ languages_router.get("/language_of_users", function (req, res) { return __awaite
                 db_interface = res.locals.DB_INTERFACE;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.uid])];
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.UID])];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];

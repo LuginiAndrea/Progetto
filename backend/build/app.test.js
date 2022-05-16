@@ -429,5 +429,29 @@ describe("Benchmarks tests", function () {
                 }
             });
         }); });
+        it("vists", function () { return __awaiter(void 0, void 0, void 0, function () {
+            var res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get("/visits/visits_of_user").set("Authorization", "2")];
+                    case 1:
+                        res = _a.sent();
+                        console.log(res.body);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it("visits all", function () { return __awaiter(void 0, void 0, void 0, function () {
+            var res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get("/visits/list_all").set("Authorization", "1")];
+                    case 1:
+                        res = _a.sent();
+                        console.log(res.body);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
     });
 });

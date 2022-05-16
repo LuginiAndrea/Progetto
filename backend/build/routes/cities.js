@@ -127,7 +127,7 @@ cities_router.get("/list_all", function (req, res) { return __awaiter(void 0, vo
         switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.uid, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -151,7 +151,7 @@ cities_router.get("/list_by_id", function (req, res) { return __awaiter(void 0, 
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.uid, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -176,7 +176,7 @@ cities_router.get("/list_by_rating", function (req, res) { return __awaiter(void
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.uid, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _d.sent();
                 fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
@@ -201,7 +201,7 @@ cities_router.get("/cities_in_countries", function (req, res) { return __awaiter
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language).filter(function (x) { return x !== "fk_country_id"; });
@@ -226,7 +226,7 @@ cities_router.get("/cities_of_monuments", function (req, res) { return __awaiter
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language);

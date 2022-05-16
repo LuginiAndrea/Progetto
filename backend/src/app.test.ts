@@ -263,5 +263,13 @@ describe("Benchmarks tests", () => {
         it("markers", async () => {
             const res = await request.get("/monuments/markers");
         });
+        it("vists", async () => {
+            const res = await request.get("/visits/visits_of_user").set("Authorization", "2");
+            console.log(res.body);
+        });
+        it("visits all", async () => {
+            const res = await request.get("/visits/list_all").set("Authorization", "1");
+            console.log(res.body);
+        });
     });
 });

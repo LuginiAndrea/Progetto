@@ -128,7 +128,7 @@ continents_router.get("/list_all", function (req, res) { return __awaiter(void 0
                 _d = (_c = utils_3.values.get).all;
                 _e = [table_name, db_interface];
                 _g = (_f = DB_interface_1.req_types.exclude_fields_by_language)[table_name];
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 1: return [4 /*yield*/, _d.apply(_c, _e.concat([_g.apply(_f, [_h.sent()]).fields, "ORDER BY id"]))];
             case 2:
                 _a.apply(void 0, _b.concat([_h.sent()]));
@@ -152,7 +152,7 @@ continents_router.get("/list_by_id", function (req, res) { return __awaiter(void
                 _d = (_c = utils_3.values.get).by_id;
                 _e = [table_name, db_interface, ids];
                 _g = (_f = DB_interface_1.req_types.exclude_fields_by_language)[table_name];
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 2: return [4 /*yield*/, _d.apply(_c, _e.concat([_g.apply(_f, [_h.sent()]).fields, "ORDER BY id"]))];
             case 3:
                 _a.apply(void 0, _b.concat([_h.sent()]));
@@ -177,7 +177,7 @@ continents_router.get("/continents_of_countries", function (req, res) { return _
                 _d = (_c = utils_3.values.get).generic;
                 _e = [table_name, db_interface];
                 _g = (_f = DB_interface_1.req_types.exclude_fields_by_language)[table_name];
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 2: return [4 /*yield*/, _d.apply(_c, _e.concat([_g.apply(_f, [_h.sent()]).fields,
                     "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id",
                     [ids]]))];

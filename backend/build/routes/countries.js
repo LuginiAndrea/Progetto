@@ -119,7 +119,7 @@ countries_router.get("/list_all", function (req, res) { return __awaiter(void 0,
         switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -143,7 +143,7 @@ countries_router.get("/list_by_id", function (req, res) { return __awaiter(void 
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -163,7 +163,7 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", function (req
         switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -187,7 +187,7 @@ countries_router.get("/countries_in_continents", function (req, res) { return __
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language);
@@ -212,7 +212,7 @@ countries_router.get("/countries_of_cities", function (req, res) { return __awai
                 return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_2.get_language_of_user)(req, res.locals.UID, db_interface)];
+                return [4 /*yield*/, (0, utils_2.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
                 language = _c.sent();
                 fields = get_fields(req, language);
