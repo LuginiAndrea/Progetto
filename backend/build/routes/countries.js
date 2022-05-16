@@ -46,7 +46,7 @@ var countries_router = (0, express_1.Router)();
 var table_name = "countries";
 function get_fields(req, language) {
     return DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields.concat(req.query.join === "1" ?
-        DB_interface_1.req_types.exclude_fields_by_language.continents(language, "continents").fields.filter(function (x) { return !x.includes(".id"); }) :
+        DB_interface_1.req_types.exclude_fields_by_language.continents(language).fields.filter(function (x) { return !x.includes(".id"); }) :
         []);
 }
 var join_fields_query = "JOIN continents ON continents.id = countries.fk_continent_id";

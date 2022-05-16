@@ -69,6 +69,7 @@ async function get_schema(table_name: table_name, db_interface: DB_interface) {
     return result;   
 }
 
+
 async function get_all(table_name: table_name, db_interface: DB_interface, fields: string[] | "*" = "*", rest_of_query: string = "") {
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} ${rest_of_query}`);
 }
@@ -86,7 +87,7 @@ async function insert_values(table_name: valid_body_types, db_interface: DB_inte
     if(!types.body_validators[table_name](data))  
         return error_codes.INVALID_BODY(table_name);
 
-    const {fields, placeholder_seq} = types.get_fields(table_name, "", false, Object.keys(data), 1);
+    const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 1);
     const values = types.extract_values_of_fields(data, fields);
     return await db_interface.query(`
         INSERT INTO ${table_name} (${fields}) VALUES (${placeholder_seq})
@@ -105,7 +106,7 @@ async function update_values(table_name: valid_body_types, db_interface: DB_inte
     if(!types.body_validators[table_name](data)) 
         error_codes.INVALID_BODY(table_name);
 
-    const {fields, placeholder_seq} = types.get_fields(table_name, "", false, Object.keys(data), 2, true);
+    const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 2, true);
     if(fields.length === 0)
         return error_codes.INVALID_BODY(table_name);
     const values = types.extract_values_of_fields(data, fields);

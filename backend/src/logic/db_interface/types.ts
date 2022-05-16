@@ -30,16 +30,14 @@ function generate_placeholder_sequence(obj: string[], gen_placeholder_seq: numbe
     return obj.map(_ => `$${gen_placeholder_seq++}`).join(", ");
 }
 
-function get_fields(table_name: accepted_get_types, alias : string = "", use_table_name = false, filter_by?: filter, gen_placeholder_seq: number | false = 1, no_id = false) {
+function get_fields(table_name: accepted_get_types, alias : string | false = table_name, filter_by?: filter, gen_placeholder_seq: number | false = 1, no_id = false) {
     let fields = fields_dictionary[table_name];
     if(filter_by) {
         filter_by = set_filter_by(filter_by);
         fields = fields.filter(x => !(x === "id" && no_id)).filter(filter_by);
     }
-    fields = use_table_name ?
-        fields.map(field => `${table_name}.${field} ${alias ? 
-            `AS ${alias}_${field}` : ""}
-        `) :
+    fields = alias ?
+        fields.map(field => `${table_name}.${field} ${`AS ${alias}_${field}`}`) :
         fields;
     return {
         fields: fields, 
@@ -193,23 +191,23 @@ const body_validators = {
 };
 
 const exclude_fields_by_language = {
-    continents: (language: string, prefix = "") => get_fields("continents", prefix, true, 
+    continents: (language: string, prefix = "continents") => get_fields("continents", prefix, 
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     ),
-    countries: (language: string, prefix = "") => get_fields("countries", prefix, true,
+    countries: (language: string, prefix = "countries") => get_fields("countries", prefix,
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     ),
-    cities: (language: string, prefix = "") => get_fields("cities", prefix, true,
+    cities: (language: string, prefix = "cities") => get_fields("cities", prefix,
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false
     ),
-    monuments: (language: string, prefix = "") => get_fields("monuments", prefix, true,
+    monuments: (language: string, prefix = "monuments") => get_fields("monuments", prefix,
         x => x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)),
         false
     ),
-    types_of_monuments: (language: string, prefix = "") => get_fields("types_of_monuments", prefix, true,
+    types_of_monuments: (language: string, prefix = "types_of_monuments") => get_fields("types_of_monuments", prefix,
         x => x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)),
         false
     )

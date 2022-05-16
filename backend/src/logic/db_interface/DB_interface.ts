@@ -13,7 +13,7 @@ type DB_result = Array<QueryResult<any>> | string;
 
 class DB_interface {
     private readonly config: DB_config;
-    private pool : Pool | null = null;
+    public pool : Pool | null = null;
 
     constructor(config: DB_config, connect = true) {
         this.config = config;

@@ -42,130 +42,69 @@ exports.__esModule = true;
 var app_1 = require("./app");
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var supertest_1 = __importDefault(require("supertest"));
+jest.setTimeout(30000);
 var utils_1 = require("./logic/tables/utils");
-describe("Top Level routes tests", function () {
-    // SETUP
-    var request = (0, supertest_1["default"])(app_1.app);
-    app_1.app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
-        connectionString: (0, DB_interface_1.get_db_uri)()
-    }, true);
-    //Tests
-    it("/", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, request.get("/")];
-                case 1:
-                    response = _a.sent();
-                    expect(response.status).toBe(200);
-                    expect(response.body).toEqual({ status: "Running" });
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    it("/not_real_endpoint", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, request.get("/not_real_endpoint")];
-                case 1:
-                    response = _a.sent();
-                    expect(response.status).toBe(404);
-                    expect(response.body).toEqual({ error: "Method not found" });
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    describe("/reconnect_db", function () {
-        it("Reconnect with open connection", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var response;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("/reconnect_db")];
-                    case 1:
-                        response = _a.sent();
-                        expect(response.status).toBe(200);
-                        expect(response.body).toEqual({ status: "Already connected" });
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("Reconnect with closed connection", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var response;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        app_1.app.locals.DEFAULT_DB_INTERFACE.close();
-                        return [4 /*yield*/, request.get("/reconnect_db")];
-                    case 1:
-                        response = _a.sent();
-                        expect(response.status).toBe(200);
-                        expect(response.body).toEqual({ status: "Connected" });
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("Reconnect with never opened connection", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var response;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        app_1.app.locals.DEFAULT_DB_INTERFACE = null;
-                        return [4 /*yield*/, request.get("/reconnect_db")];
-                    case 1:
-                        response = _a.sent();
-                        expect(response.status).toBe(200);
-                        expect(response.body).toEqual({ status: "Connected" });
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-    });
-    describe("Test first-level middleware", function () {
-        it("No database connection", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var response;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        app_1.app.locals.DEFAULT_DB_INTERFACE.close();
-                        return [4 /*yield*/, request.get("/")];
-                    case 1:
-                        response = _a.sent();
-                        expect(response.status).toBe(500);
-                        expect(response.body).toEqual({ error: "Not connected" });
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("No database interface", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var response;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        app_1.app.locals.DEFAULT_DB_INTERFACE = null;
-                        return [4 /*yield*/, request.get("/")];
-                    case 1:
-                        response = _a.sent();
-                        expect(response.status).toBe(500);
-                        expect(response.body).toEqual({ error: "No interface" });
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-    });
-    afterAll(function () {
-        var _a;
-        (_a = app_1.app.locals.DEFAULT_DB_INTERFACE) === null || _a === void 0 ? void 0 : _a.close();
-    });
-});
+// describe("Top Level routes tests", () => {
+//     // SETUP
+//     const request = supertest(app);
+//     app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
+//         connectionString: get_db_uri()
+//     }, true);
+//     //Tests
+//     it("/", async() => {
+//         const response = await request.get("/");
+//         expect(response.status).toBe(200);
+//         expect(response.body).toEqual({status: "Running"});
+//     });
+//     it("/not_real_endpoint", async() => {
+//         const response = await request.get("/not_real_endpoint");
+//         expect(response.status).toBe(404);
+//         expect(response.body).toEqual({error: "Method not found"});
+//     });
+//     describe("/reconnect_db", () => {
+//         it("Reconnect with open connection", async () => {
+//             const response = await request.get("/reconnect_db");
+//             expect(response.status).toBe(200);
+//             expect(response.body).toEqual({status: "Already connected"});
+//         });
+//         it("Reconnect with closed connection", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE.close();
+//             const response = await request.get("/reconnect_db");
+//             expect(response.status).toBe(200);
+//             expect(response.body).toEqual({status: "Connected"});
+//         });
+//         it("Reconnect with never opened connection", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE = null;
+//             const response = await request.get("/reconnect_db");
+//             expect(response.status).toBe(200);
+//             expect(response.body).toEqual({status: "Connected"});
+//         });
+//     });
+//     describe("Test first-level middleware", () => {
+//         it("No database connection", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE.close();
+//             const response = await request.get("/");
+//             expect(response.status).toBe(500);
+//             expect(response.body).toEqual({error: "Not connected"});
+//         });
+//         it("No database interface", async () => {
+//             app.locals.DEFAULT_DB_INTERFACE = null;
+//             const response = await request.get("/");
+//             expect(response.status).toBe(500);
+//             expect(response.body).toEqual({error: "No interface"});
+//         });
+//     });
+//     afterAll(() => {
+//         app.locals.DEFAULT_DB_INTERFACE?.close();
+//     });
+// });
 describe("Benchmarks tests", function () {
     // SETUP
     var request = (0, supertest_1["default"])(app_1.app);
     beforeAll(function () { return __awaiter(void 0, void 0, void 0, function () {
         var db_interface, res;
-        var _a;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     db_interface = new DB_interface_1.DB_interface({
                         connectionString: (0, DB_interface_1.get_db_uri)()
@@ -175,34 +114,34 @@ describe("Benchmarks tests", function () {
                     }, true);
                     return [4 /*yield*/, utils_1.table.create("continents", db_interface, true)];
                 case 1:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("countries", db_interface, true)];
                 case 2:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("cities", db_interface, true)];
                 case 3:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("monuments", db_interface, true)];
                 case 4:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("languages", db_interface, true)];
                 case 5:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("users", db_interface, true)];
                 case 6:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("visits", db_interface, true)];
                 case 7:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("types_of_monuments", db_interface, true)];
                 case 8:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.table.create("monument_types", db_interface, true)];
                 case 9:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, request.post("/continents/insert_continents").set("Authorization", "1")];
                 case 10:
-                    res = _b.sent();
+                    res = _a.sent();
                     // Country
                     return [4 /*yield*/, utils_1.values.insert("countries", db_interface, true, {
                             real_name: "Italia",
@@ -213,7 +152,7 @@ describe("Benchmarks tests", function () {
                         })];
                 case 11:
                     // Country
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("countries", db_interface, true, {
                             real_name: "Polska",
                             it_name: "Polonia",
@@ -222,7 +161,7 @@ describe("Benchmarks tests", function () {
                             fk_continent_id: 0
                         })];
                 case 12:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("countries", db_interface, true, {
                             real_name: "United States of America",
                             it_name: "Stati Uniti d'America",
@@ -231,7 +170,7 @@ describe("Benchmarks tests", function () {
                             fk_continent_id: 2
                         })];
                 case 13:
-                    _b.sent();
+                    _a.sent();
                     // City
                     return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "Roma",
@@ -241,7 +180,7 @@ describe("Benchmarks tests", function () {
                         })];
                 case 14:
                     // City
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "Milano",
                             it_name: "Milano",
@@ -249,7 +188,7 @@ describe("Benchmarks tests", function () {
                             fk_country_id: 1
                         })];
                 case 15:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "Kraków",
                             it_name: "Cracovia",
@@ -257,7 +196,7 @@ describe("Benchmarks tests", function () {
                             fk_country_id: 2
                         })];
                 case 16:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("cities", db_interface, true, {
                             real_name: "New York",
                             it_name: "New York",
@@ -265,7 +204,7 @@ describe("Benchmarks tests", function () {
                             fk_country_id: 3
                         })];
                 case 17:
-                    _b.sent();
+                    _a.sent();
                     // Monument
                     return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Colosseo",
@@ -278,7 +217,7 @@ describe("Benchmarks tests", function () {
                         })];
                 case 18:
                     // Monument
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Piazza di Spagna",
                             it_name: "Piazza di Spagna",
@@ -289,7 +228,7 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 1
                         })];
                 case 19:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Duomo",
                             it_name: "Duomo",
@@ -300,7 +239,7 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 2
                         })];
                 case 20:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Monumento Polacco",
                             it_name: "Monumento Polacco",
@@ -311,7 +250,7 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 3
                         })];
                 case 21:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("monuments", db_interface, true, {
                             real_name: "Monumento USA",
                             it_name: "Monumento USA",
@@ -322,7 +261,7 @@ describe("Benchmarks tests", function () {
                             fk_city_id: 4
                         })];
                 case 22:
-                    _b.sent();
+                    _a.sent();
                     // Language
                     return [4 /*yield*/, utils_1.values.insert("languages", db_interface, true, {
                             name: "English",
@@ -330,7 +269,7 @@ describe("Benchmarks tests", function () {
                         })];
                 case 23:
                     // Language
-                    _b.sent();
+                    _a.sent();
                     // User
                     return [4 /*yield*/, utils_1.values.insert("users", db_interface, true, {
                             id: 2,
@@ -338,7 +277,7 @@ describe("Benchmarks tests", function () {
                         })];
                 case 24:
                     // User
-                    _b.sent();
+                    _a.sent();
                     // Visit
                     return [4 /*yield*/, utils_1.values.insert("visits", db_interface, true, {
                             rating: 3,
@@ -349,7 +288,7 @@ describe("Benchmarks tests", function () {
                         })];
                 case 25:
                     // Visit
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("visits", db_interface, true, {
                             rating: 4,
                             private_description: "Visita molto bella",
@@ -358,7 +297,7 @@ describe("Benchmarks tests", function () {
                             fk_monument_id: 2
                         })];
                 case 26:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("visits", db_interface, true, {
                             rating: 5,
                             private_description: "Visita molto bella",
@@ -367,7 +306,7 @@ describe("Benchmarks tests", function () {
                             fk_monument_id: 3
                         })];
                 case 27:
-                    _b.sent();
+                    _a.sent();
                     // types_of_monuments
                     return [4 /*yield*/, utils_1.values.insert("types_of_monuments", db_interface, true, {
                             real_name: "Museo",
@@ -378,7 +317,7 @@ describe("Benchmarks tests", function () {
                         })];
                 case 28:
                     // types_of_monuments
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("types_of_monuments", db_interface, true, {
                             real_name: "Palace",
                             it_name: "Palazzo",
@@ -387,7 +326,7 @@ describe("Benchmarks tests", function () {
                             en_description: "History palace"
                         })];
                 case 29:
-                    _b.sent();
+                    _a.sent();
                     // monuments_types
                     return [4 /*yield*/, utils_1.values.insert("monument_types", db_interface, true, {
                             fk_type_id: 1,
@@ -395,21 +334,20 @@ describe("Benchmarks tests", function () {
                         })];
                 case 30:
                     // monuments_types
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("monument_types", db_interface, true, {
                             fk_type_id: 2,
                             fk_monument_id: 1
                         })];
                 case 31:
-                    _b.sent();
+                    _a.sent();
                     return [4 /*yield*/, utils_1.values.insert("monument_types", db_interface, true, {
                             fk_type_id: 1,
                             fk_monument_id: 2
                         })];
                 case 32:
-                    _b.sent();
+                    _a.sent();
                     db_interface.close();
-                    (_a = app_1.app.locals.DEFAULT_DB_INTERFACE) === null || _a === void 0 ? void 0 : _a.close();
                     return [2 /*return*/];
             }
         });
@@ -456,5 +394,40 @@ describe("Benchmarks tests", function () {
             }
         });
     }); });
-    it("", function () { return expect(1).toBe(1); });
+    describe("Continents", function () {
+        var route = "/continents";
+        it("should return all continents", function () { return __awaiter(void 0, void 0, void 0, function () {
+            var res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get(route + "/list_all")];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it("should return all countries", function () { return __awaiter(void 0, void 0, void 0, function () {
+            var res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get("/countries" + "/list_all?join=1")];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it("markers", function () { return __awaiter(void 0, void 0, void 0, function () {
+            var res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get("/monuments/markers")];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    });
 });

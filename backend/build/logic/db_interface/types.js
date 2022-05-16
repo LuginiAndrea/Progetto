@@ -25,9 +25,8 @@ function generate_placeholder_sequence(obj, gen_placeholder_seq) {
         throw new Error("gen_placeholder_seq must be greater than 1");
     return obj.map(function (_) { return "$".concat(gen_placeholder_seq++); }).join(", ");
 }
-function get_fields(table_name, alias, use_table_name, filter_by, gen_placeholder_seq, no_id) {
-    if (alias === void 0) { alias = ""; }
-    if (use_table_name === void 0) { use_table_name = false; }
+function get_fields(table_name, alias, filter_by, gen_placeholder_seq, no_id) {
+    if (alias === void 0) { alias = table_name; }
     if (gen_placeholder_seq === void 0) { gen_placeholder_seq = 1; }
     if (no_id === void 0) { no_id = false; }
     var fields = fields_dictionary[table_name];
@@ -35,9 +34,8 @@ function get_fields(table_name, alias, use_table_name, filter_by, gen_placeholde
         filter_by = set_filter_by(filter_by);
         fields = fields.filter(function (x) { return !(x === "id" && no_id); }).filter(filter_by);
     }
-    fields = use_table_name ?
-        fields.map(function (field) { return "".concat(table_name, ".").concat(field, " ").concat(alias ?
-            "AS ".concat(alias, "_").concat(field) : "", "\n        "); }) :
+    fields = alias ?
+        fields.map(function (field) { return "".concat(table_name, ".").concat(field, " ").concat("AS ".concat(alias, "_").concat(field)); }) :
         fields;
     return {
         fields: fields,
@@ -127,24 +125,24 @@ var body_validators = {
 exports.body_validators = body_validators;
 var exclude_fields_by_language = {
     continents: function (language, prefix) {
-        if (prefix === void 0) { prefix = ""; }
-        return get_fields("continents", prefix, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
+        if (prefix === void 0) { prefix = "continents"; }
+        return get_fields("continents", prefix, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
     },
     countries: function (language, prefix) {
-        if (prefix === void 0) { prefix = ""; }
-        return get_fields("countries", prefix, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
+        if (prefix === void 0) { prefix = "countries"; }
+        return get_fields("countries", prefix, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
     },
     cities: function (language, prefix) {
-        if (prefix === void 0) { prefix = ""; }
-        return get_fields("cities", prefix, true, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
+        if (prefix === void 0) { prefix = "cities"; }
+        return get_fields("cities", prefix, function (x) { return x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)); }, false);
     },
     monuments: function (language, prefix) {
-        if (prefix === void 0) { prefix = ""; }
-        return get_fields("monuments", prefix, true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false);
+        if (prefix === void 0) { prefix = "monuments"; }
+        return get_fields("monuments", prefix, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false);
     },
     types_of_monuments: function (language, prefix) {
-        if (prefix === void 0) { prefix = ""; }
-        return get_fields("types_of_monuments", prefix, true, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false);
+        if (prefix === void 0) { prefix = "types_of_monuments"; }
+        return get_fields("types_of_monuments", prefix, function (x) { return x.startsWith("real_") || !((x.endsWith("_name") || x.endsWith("_description")) && !x.startsWith(language)); }, false);
     }
 };
 exports.exclude_fields_by_language = exclude_fields_by_language;

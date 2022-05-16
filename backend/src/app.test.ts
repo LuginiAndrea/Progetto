@@ -253,24 +253,15 @@ describe("Benchmarks tests", () => {
         app.locals.DEFAULT_DB_INTERFACE?.close();
     }); 
     describe("Continents", () => {
-        // const route = "/continents";
-        // it("should return all continents", async () => {
-        //     const res = await request.get(route + "/list_all");
-        // });
+        const route = "/continents";
+        it("should return all continents", async () => {
+            const res = await request.get(route + "/list_all");
+        });
         it("should return all countries", async () => {
             const res = await request.get("/countries" + "/list_all?join=1");
         });
         it("markers", async () => {
             const res = await request.get("/monuments/markers");
-            console.log(res.body);
         });
-        // it("should return all cities", async () => {
-        //     const db_interface = new DB_interface({
-        //         connectionString: get_db_uri()
-        //     }, true);
-        //     const x = await db_interface.query("SELECT countries.en_name, countries.id, continents.id, continents.en_name FROM countries JOIN continents ON countries.fk_continent_id = continents.id", [], true);
-        //     if(typeof x !== "string")
-        //         console.log(x[0].rows);
-        // });
     });
 });
