@@ -54,8 +54,10 @@ var utils_3 = require("../logic/users/utils");
 var monuments_router = (0, express_1.Router)();
 var table_name = "monuments";
 function get_fields(req, language) {
-    return DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields.concat(req.query.join === "1" ? __spreadArray(__spreadArray(__spreadArray([], DB_interface_1.req_types.exclude_fields_by_language.cities(language, "cities").fields.filter(function (x) { return x !== "id"; }), true), DB_interface_1.req_types.exclude_fields_by_language.countries(language, "countries").fields.filter(function (x) { return x !== "id"; }), true), DB_interface_1.req_types.exclude_fields_by_language.continents(language, "language").fields.filter(function (x) { return x !== "id"; }), true) :
-        []);
+    return DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields
+        .filter(function (x) { return !x.includes("coordinates"); })
+        .concat(__spreadArray(["ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"], (req.query.join === "1" ? __spreadArray(__spreadArray(__spreadArray([], DB_interface_1.req_types.exclude_fields_by_language.cities(language, "cities").fields.filter(function (x) { return x !== "id"; }), true), DB_interface_1.req_types.exclude_fields_by_language.countries(language, "countries").fields.filter(function (x) { return x !== "id"; }), true), DB_interface_1.req_types.exclude_fields_by_language.continents(language, "language").fields.filter(function (x) { return x !== "id"; }), true) :
+        []), true));
 }
 var join_fields_query = "\n    JOIN Cities ON Cities.id = Monuments.fk_city_id\n    JOIN Countries ON Countries.id = Cities.fk_country_id\n    JOIN Continents ON Continents.id = Countries.fk_continent_id\n";
 /***************************************** TABLE *********************************************/
@@ -111,7 +113,9 @@ monuments_router.get("/list_all", function (req, res) { return __awaiter(void 0,
                 return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
-                fields = get_fields(req, language);
+                fields = get_fields(req, language)
+                    .filter(function (x) { return x !== "monuments_coordinates"; })
+                    .concat(["ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"]);
                 _a = utils_1.send_json;
                 _b = [res];
                 return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, fields, join_fields_query)];
@@ -193,7 +197,9 @@ monuments_router.get("/monuments_in_cities", function (req, res) { return __awai
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                ids = req.query.ids.split(",") || [];
+                ids = req.query.ids ?
+                    req.query.ids.split(",") :
+                    [];
                 if (!(ids.length === 0)) return [3 /*break*/, 1];
                 (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
                 return [3 /*break*/, 4];
@@ -218,7 +224,9 @@ monuments_router.get("/monuments_of_visits", function (req, res) { return __awai
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                ids = req.query.ids.split(",") || [];
+                ids = req.query.ids ?
+                    req.query.ids.split(",") :
+                    [];
                 if (!(ids.length === 0)) return [3 /*break*/, 1];
                 (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
                 return [3 /*break*/, 4];

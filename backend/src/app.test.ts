@@ -252,24 +252,33 @@ describe("Benchmarks tests", () => {
         db_interface.close();
         app.locals.DEFAULT_DB_INTERFACE?.close();
     }); 
-    describe("Continents", () => {
-        const route = "/continents";
-        it("should return all continents", async () => {
-            const res = await request.get(route + "/list_all");
-        });
-        it("should return all countries", async () => {
-            const res = await request.get("/countries" + "/list_all?join=1");
-        });
-        it("markers", async () => {
-            const res = await request.get("/monuments/markers");
-        });
-        it("vists", async () => {
-            const res = await request.get("/visits/visits_of_user").set("Authorization", "2");
-            console.log(res.body);
-        });
-        it("visits all", async () => {
-            const res = await request.get("/visits/list_all").set("Authorization", "1");
-            console.log(res.body);
+    describe("Specific api tests", () => {
+        describe("Get monuments in specified cities", () => {
+            it("Cities that are in the DB", async () => { 
+                const cities_id = [1, 2];
+                const monuments_name = ["Colosseo", "Piazza di Spagna", "Duomo"];
+                const response = await request.get(`/monuments/monuments_in_cities?ids=${cities_id.join(",")}`);
+                expect(response.status).toBe(200);
+                response.body = response.body[0];
+                expect(response.body.length).toBe(3);
+                for (let i = 0; i < response.body.length; i++) {
+                    const monument = response.body[i];
+                    expect(cities_id).toContain(monument.monuments_fk_city_id);
+                    expect(monuments_name).toContain(monument.monuments_real_name);
+                }
+            });
+            it("Cities not present in the DB", async () => {
+                const cities_id = [10];
+                const response = await request.get(`/monuments/monuments_in_cities?ids=${cities_id.join(",")}`);
+                expect(response.status).toBe(200);
+                response.body = response.body[0];
+                expect(response.body.length).toBe(0);
+            });
+            it("No cities passed", async () => {
+                const response = await request.get(`/monuments/monuments_in_cities`);
+                expect(response.status).toBe(400);
+            });
         });
     });
 });
+        

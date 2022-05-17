@@ -1,10 +1,5 @@
 import { DB_interface, get_db_uri } from "./DB_interface"
-import { app } from "../../app";
-it("", () => {expect(1).toBe(1);});
 describe("DB_interface", () => {
-    app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
-        connectionString: get_db_uri()
-    }, false);
     it("Connection on initialization", async () => {
         const db = new DB_interface({
             connectionString: get_db_uri()

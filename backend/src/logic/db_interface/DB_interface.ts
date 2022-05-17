@@ -1,4 +1,4 @@
-import { Pool, QueryArrayConfig, QueryConfig, QueryResult } from "pg";
+import { Pool, QueryResult } from "pg";
 import { send_generic_error_email } from "../email/email";
 import * as req_types from "./types";
 import { get_db_uri, validate_db_status, error_codes } from "./utils";

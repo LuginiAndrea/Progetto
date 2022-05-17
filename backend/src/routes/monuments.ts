@@ -8,15 +8,18 @@ import { get_language_of_user } from '../logic/users/utils';
 const monuments_router = Router();
 const table_name = "monuments";
 function get_fields(req: Request, language: string) {
-    return types.exclude_fields_by_language[table_name](language).fields.concat(
-        req.query.join === "1" ?
-            [
-                ...types.exclude_fields_by_language.cities(language, "cities").fields.filter(x => x !== "id"),
-                ...types.exclude_fields_by_language.countries(language, "countries").fields.filter(x => x !== "id"),
-                ...types.exclude_fields_by_language.continents(language, "language").fields.filter(x => x !== "id"),
-            ] :
-            []
-    );
+    return types.exclude_fields_by_language[table_name](language).fields        
+        .filter(x => !x.includes("coordinates"))
+        .concat(["ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude", ...(
+            req.query.join === "1" ?
+                [
+                    ...types.exclude_fields_by_language.cities(language, "cities").fields.filter(x => x !== "id"),
+                    ...types.exclude_fields_by_language.countries(language, "countries").fields.filter(x => x !== "id"),
+                    ...types.exclude_fields_by_language.continents(language, "language").fields.filter(x => x !== "id"),
+                ] :
+                []
+            )
+        ]);
 }
 const join_fields_query = `
     JOIN Cities ON Cities.id = Monuments.fk_city_id
@@ -47,7 +50,9 @@ monuments_router.get("/table_schema", async (req, res) => {
 monuments_router.get("/list_all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user( res.locals.UID, db_interface);
-    const fields = get_fields(req, language);
+    const fields = get_fields(req, language)
+        .filter(x => x !== "monuments_coordinates")
+        .concat(["ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"]);
     send_json(res,
         await values.get.all(table_name, db_interface, fields, join_fields_query)
     );
@@ -87,7 +92,9 @@ monuments_router.get("/list_by_rating", async (req, res) => {
 });
 
 monuments_router.get("/monuments_in_cities", async (req, res) => {
-    const ids = (req.query.ids as string).split(",") || [];
+    const ids = req.query.ids ? 
+        (req.query.ids as string).split(",") :
+        [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
@@ -101,7 +108,9 @@ monuments_router.get("/monuments_in_cities", async (req, res) => {
 });
 
 monuments_router.get("/monuments_of_visits", async (req, res) => {
-    const ids = (req.query.ids as string).split(",") || [];
+    const ids = req.query.ids ? 
+        (req.query.ids as string).split(",") :
+        [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {

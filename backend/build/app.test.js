@@ -394,64 +394,58 @@ describe("Benchmarks tests", function () {
             }
         });
     }); });
-    describe("Continents", function () {
-        var route = "/continents";
-        it("should return all continents", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var res;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get(route + "/list_all")];
-                    case 1:
-                        res = _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("should return all countries", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var res;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("/countries" + "/list_all?join=1")];
-                    case 1:
-                        res = _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("markers", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var res;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("/monuments/markers")];
-                    case 1:
-                        res = _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("vists", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var res;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("/visits/visits_of_user").set("Authorization", "2")];
-                    case 1:
-                        res = _a.sent();
-                        console.log(res.body);
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("visits all", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var res;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("/visits/list_all").set("Authorization", "1")];
-                    case 1:
-                        res = _a.sent();
-                        console.log(res.body);
-                        return [2 /*return*/];
-                }
-            });
-        }); });
+    describe("Specific api tests", function () {
+        describe("Get monuments in specified cities", function () {
+            it("Cities that are in the DB", function () { return __awaiter(void 0, void 0, void 0, function () {
+                var cities_id, monuments_name, response, i, monument;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            cities_id = [1, 2];
+                            monuments_name = ["Colosseo", "Piazza di Spagna", "Duomo"];
+                            return [4 /*yield*/, request.get("/monuments/monuments_in_cities?ids=".concat(cities_id.join(",")))];
+                        case 1:
+                            response = _a.sent();
+                            expect(response.status).toBe(200);
+                            response.body = response.body[0];
+                            expect(response.body.length).toBe(3);
+                            for (i = 0; i < response.body.length; i++) {
+                                monument = response.body[i];
+                                expect(cities_id).toContain(monument.monuments_fk_city_id);
+                                expect(monuments_name).toContain(monument.monuments_real_name);
+                            }
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+            it("Cities not present in the DB", function () { return __awaiter(void 0, void 0, void 0, function () {
+                var cities_id, response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            cities_id = [10];
+                            return [4 /*yield*/, request.get("/monuments/monuments_in_cities?ids=".concat(cities_id.join(",")))];
+                        case 1:
+                            response = _a.sent();
+                            expect(response.status).toBe(200);
+                            response.body = response.body[0];
+                            expect(response.body.length).toBe(0);
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+            it("No cities passed", function () { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, request.get("/monuments/monuments_in_cities")];
+                        case 1:
+                            response = _a.sent();
+                            expect(response.status).toBe(400);
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        });
     });
 });
