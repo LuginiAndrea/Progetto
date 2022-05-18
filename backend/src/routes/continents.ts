@@ -61,7 +61,7 @@ continents_router.get("/list_all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
         await values.get.all(table_name, db_interface, types.exclude_fields_by_language[table_name](
-                await get_language_of_user( res.locals.UID, db_interface),
+                await get_language_of_user(res.locals.UID, db_interface),
             ).fields, "ORDER BY id"
         )
     );
@@ -75,7 +75,7 @@ continents_router.get("/list_by_id", async (req, res) => {
         const db_interface = res.locals.DB_INTERFACE;
         send_json(res,
             await values.get.by_id(table_name, db_interface, ids, types.exclude_fields_by_language[table_name](
-                    await get_language_of_user( res.locals.UID, db_interface),
+                    await get_language_of_user(res.locals.UID, db_interface),
                 ).fields, "ORDER BY id"
             ),
         );
@@ -90,7 +90,7 @@ continents_router.get("/continents_of_countries", async (req, res) => {
         const db_interface = res.locals.DB_INTERFACE;
         send_json(res,
             await values.get.generic(table_name, db_interface, types.exclude_fields_by_language[table_name](
-                    await get_language_of_user( res.locals.UID, db_interface),
+                    await get_language_of_user(res.locals.UID, db_interface),
                 ).fields, 
                 "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id", 
                 [ids]

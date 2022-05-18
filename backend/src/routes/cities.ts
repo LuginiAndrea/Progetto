@@ -91,7 +91,7 @@ cities_router.get("/list_by_rating", async(req, res) => {
         send_json(res, error_codes.INVALID_BODY(table_name));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user( res.locals.UID, db_interface);
+        const language = await get_language_of_user(res.locals.UID, db_interface);
         const fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
         send_json(res, 
             await values.get.all(table_name, db_interface, fields, `${join_fields_query} WHERE rating ${operator} ${rating}`)
@@ -105,7 +105,7 @@ cities_router.get("/cities_in_countries", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user( res.locals.UID, db_interface);
+        const language = await get_language_of_user(res.locals.UID, db_interface);
         const fields = get_fields(req, language).filter(x => x !== "fk_country_id");
         send_json(res,
             await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_country_id = ANY($1)`, [ids])
@@ -119,7 +119,7 @@ cities_router.get("/cities_of_monuments", async (req, res) => {
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
     else {
         const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user( res.locals.UID, db_interface);
+        const language = await get_language_of_user(res.locals.UID, db_interface);
         const fields = get_fields(req, language);
         send_json(res,
             await values.get.generic(table_name, db_interface, fields, 

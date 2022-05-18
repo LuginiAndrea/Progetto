@@ -133,7 +133,7 @@ describe("Benchmarks tests", () => {
             real_name: "Colosseo",
             it_name: "Colosseo",
             en_name: "Colosseum",
-            coordinates: "SRID=4326;POINT(10.491667 41.891944)",
+            coordinates: "SRID=4326;POINT(12.4877369 41.8906032)",
             it_description: "Il monumento più bello del mondo",
             en_description: "The most beautiful monument in the world",
             fk_city_id: 1,
@@ -142,7 +142,7 @@ describe("Benchmarks tests", () => {
             real_name: "Piazza di Spagna",
             it_name: "Piazza di Spagna",
             en_name: "Piazza di Spagna",
-            coordinates: "SRID=4326;POINT(11.491667 41.891944)",
+            coordinates: "SRID=4326;POINT(12.4803623 41.9058439)",
             it_description: "Il secondo monumento più bello del mondo",
             en_description: "The second most beautiful monument in the world",
             fk_city_id: 1,
@@ -151,7 +151,7 @@ describe("Benchmarks tests", () => {
             real_name: "Duomo",
             it_name: "Duomo",
             en_name: "Duomo",
-            coordinates: "SRID=4326;POINT(45.491667 14.891944)",
+            coordinates: "SRID=4326;POINT(31.491667 14.891944)",
             it_description: "Il terzo monumento più bello del mondo",
             en_description: "The third most beautiful monument in the world",
             fk_city_id: 2,
@@ -160,7 +160,7 @@ describe("Benchmarks tests", () => {
             real_name: "Monumento Polacco",
             it_name: "Monumento Polacco",
             en_name: "Polish monument",
-            coordinates: "SRID=4326;POINT(15.491667 41.891944)",
+            coordinates: "SRID=4326;POINT(5.491667 41.891944)",
             it_description: "Il quarto monumento più bello del mondo",
             en_description: "The fourth most beautiful monument in the world",
             fk_city_id: 3,
@@ -169,7 +169,7 @@ describe("Benchmarks tests", () => {
             real_name: "Monumento USA",
             it_name: "Monumento USA",
             en_name: "American monument",
-            coordinates: "SRID=4326;POINT(23.491667 41.891944)",
+            coordinates: "SRID=4326;POINT(56.491667 41.891944)",
             it_description: "Il quinto monumento più bello del mondo",
             en_description: "The fifth most beautiful monument in the world",
             fk_city_id: 4,
@@ -277,6 +277,22 @@ describe("Benchmarks tests", () => {
             it("No cities passed", async () => {
                 const response = await request.get(`/monuments/monuments_in_cities`);
                 expect(response.status).toBe(400);
+            });
+        });
+        describe("Markers", () => {
+            it("Markers by distance", async () => {
+                const body = {
+                    distance: 3000,
+                    latitude: 41.8981325,
+                    longitude: 12.4785729
+                };
+                const response = await request.post("/monuments/markers_by_distance").send(body);
+                expect(response.status).toBe(200);
+                response.body = response.body[0];
+                console.log(response.body);
+                expect(response.body.length).toBe(2);
+                expect(response.body[0].monuments_real_name).toBe("Piazza di Spagna");
+                expect(response.body[1].monuments_real_name).toBe("Colosseo");
             });
         });
     });
