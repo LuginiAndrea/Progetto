@@ -69,7 +69,6 @@ cities_router.get("/list_all", async (req, res) => {
         await values.get.all(table_name, db_interface, fields, join_fields_query)
     );
 });
-
 cities_router.get("/list_by_id", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
@@ -83,8 +82,6 @@ cities_router.get("/list_by_id", async (req, res) => {
         );
     }
 });
-
-
 cities_router.get("/list_by_rating", async(req, res) => {
     const {valid, operator, rating} = validate_rating(req);
     if(!valid) 
@@ -98,7 +95,6 @@ cities_router.get("/list_by_rating", async(req, res) => {
         );
     }
 });
-
 cities_router.get("/cities_in_countries", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
@@ -112,7 +108,6 @@ cities_router.get("/cities_in_countries", async (req, res) => {
         );
     }
 });
-
 cities_router.get("/cities_of_monuments", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 

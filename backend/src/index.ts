@@ -1,6 +1,7 @@
 import { app } from "./app"
 import { get_db_uri, DB_interface } from "./logic/db_interface/DB_interface";
 import { send_generic_error_email } from "./logic/email/email";
+import { initializeApp } from "firebase/app";
 
 app.listen(process.env.PORT || 8080, () => { // On start connect to Database
     try {
@@ -11,5 +12,10 @@ app.listen(process.env.PORT || 8080, () => { // On start connect to Database
     catch (error) {
         send_generic_error_email("Error initializing database: ", error);
         app.locals.DEFAULT_DB_INTERFACE = null;
+    }
+    try { // Do this
+        app.locals.FIREBASE_APP = initializeApp({
+
+        })
     }
 });

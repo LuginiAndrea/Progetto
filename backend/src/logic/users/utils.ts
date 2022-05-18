@@ -16,9 +16,6 @@ async function authenticate_user (req: Request, res: Response, next: NextFunctio
 // nel caso sia presente 
 
 async function get_language_of_user (uid: string, db_instance: DB_interface) {
-    // The user uid is in res.locals.UID
-    // Finish to check this
-    // return "en";
     const result = await db_instance.query(
         `SELECT abbreviation FROM Languages
         WHERE id = (SELECT fk_language_id FROM Users WHERE id = $1)`, [uid]

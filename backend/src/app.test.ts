@@ -281,18 +281,15 @@ describe("Benchmarks tests", () => {
         });
         describe("Markers", () => {
             it("Markers by distance", async () => {
-                const body = {
-                    distance: 3000,
-                    latitude: 41.8981325,
-                    longitude: 12.4785729
-                };
-                const response = await request.post("/monuments/markers_by_distance").send(body);
+                const distance = 3000;
+                const latitude = 41.8981325;
+                const longitude = 12.4785729;
+                const response = await request.get(`/monuments/markers_by_distance?distance=${distance}&latitude=${latitude}&longitude=${longitude}`);
                 expect(response.status).toBe(200);
                 response.body = response.body[0];
-                console.log(response.body);
                 expect(response.body.length).toBe(2);
-                expect(response.body[0].monuments_real_name).toBe("Piazza di Spagna");
-                expect(response.body[1].monuments_real_name).toBe("Colosseo");
+                expect(response.body[0].real_name).toBe("Piazza di Spagna");
+                expect(response.body[1].real_name).toBe("Colosseo");
             });
         });
     });

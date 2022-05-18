@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request } from 'express';
 import { send_json } from '../utils';
 import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
@@ -67,7 +67,8 @@ monuments_router.get("/markers", async (req, res) => {
 });
 monuments_router.get("/markers_by_distance", async (req, res) => {
     const distance = parseInt(req.query.distance as string);
-    const [longitude, latitude] = (req.query.coordinates as string).split(",").map(x => parseFloat(x));
+    const longitude = parseFloat(req.query.longitude as string);
+    const latitude = parseFloat(req.query.latitude as string);
     if(!distance || !longitude || !latitude) 
         send_json(res, error_codes.INVALID_QUERY("distance, coordinates"));
     else {
@@ -76,13 +77,11 @@ monuments_router.get("/markers_by_distance", async (req, res) => {
         const fields = ["real_name", `${language}_name`, "ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"];
         send_json(res,
             await values.get.generic(table_name, db_interface, fields, 
-                `WHERE ST_DWithin(geography, ST_GeographyFromText('SRID=4326;POINT($1 $2})'), $3})`,
-                [longitude, latitude, distance]
+                `WHERE ST_DWithin(coordinates, ST_GeographyFromText('SRID=4326;POINT(${longitude} ${latitude})'), ${distance})`
             )
         );
     }
 });
-
 monuments_router.get("/list_by_id", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
@@ -108,7 +107,6 @@ monuments_router.get("/list_by_rating", async (req, res) => {
         );
     }
 });
-
 monuments_router.get("/monuments_in_cities", async (req, res) => {
     const ids = req.query.ids ? 
         (req.query.ids as string).split(",") :
@@ -124,7 +122,6 @@ monuments_router.get("/monuments_in_cities", async (req, res) => {
         );
     }
 });
-
 monuments_router.get("/monuments_of_visits", async (req, res) => {
     const ids = req.query.ids ? 
         (req.query.ids as string).split(",") :
