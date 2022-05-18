@@ -1,3 +1,4 @@
+import { app } from "build/app";
 import { Response, Request, NextFunction } from "express";
 import { DB_interface } from "../db_interface/DB_interface";
 
