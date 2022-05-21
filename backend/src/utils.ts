@@ -1,7 +1,7 @@
 
 import { Response } from "express";
 import { DB_result, QueryResult } from "./logic/db_interface/DB_interface";
-import { error_codes_to_status_code, convert_error_code } from "./logic/tables/utils";
+import { error_codes_to_status_code } from "./logic/tables/utils";
 
 type func = (arg: Array<QueryResult<any>>) => Object;
 type optional_args = {

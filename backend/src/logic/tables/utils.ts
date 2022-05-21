@@ -10,6 +10,8 @@ function gen_error_code(error_code: string) {
 
 const error_codes = {
     UNAUTHORIZED: gen_error_code("e_0_Unauthorized"),
+    NO_AUTH_TOKEN: gen_error_code("e_0_No Firebase JWT"),
+    NOT_VALID_TOKEN: gen_error_code("e_0_Not Valid Firebase JWT"),
     INVALID_BODY: gen_error_code("e_1_Invalid Body"),
     INVALID_QUERY: gen_error_code("e_1_Invalid Query"),
     NO_REFERENCED_ITEM: gen_error_code("e_1_No Referenced Item"),

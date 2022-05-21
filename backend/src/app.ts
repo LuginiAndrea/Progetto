@@ -18,7 +18,7 @@ import { validate_db_status, DB_interface, get_db_uri } from "./logic/db_interfa
 import { authenticate_user } from "./logic/users/utils";
 import bodyParser from "body-parser";
 import { send_json } from "./utils";
-
+import { error_codes } from "./logic/tables/utils";
 const app = express();
 
 app.use(validate_db_status);
@@ -40,25 +40,29 @@ app.get("/", (req, res) => {
     res.status(200).send({status: "Running"});
 });
 
-app.get("/reconnect_db", (req, res) => {
+app.connect("/reconnect_db", (req, res) => {
     const not_valid_connection = !app.locals.DEFAULT_DB_INTERFACE || !app.locals.DEFAULT_DB_INTERFACE.connected();
-    if(not_valid_connection) {
-        app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
-            connectionString: get_db_uri()
-        }, true);
-        if(app.locals.DEFAULT_DB_INTERFACE.connected())
+    if(res.locals.is_admin) {
+        if(not_valid_connection) {
+            app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
+                connectionString: get_db_uri()
+            }, true);
+            if(app.locals.DEFAULT_DB_INTERFACE.connected())
+                res.status(200).send({
+                    status: "Connected"
+                });
+            else 
+                res.status(500).send({
+                    error: "Not connected"
+                });
+        }
+        else
             res.status(200).send({
-                status: "Connected"
-            });
-        else 
-            res.status(500).send({
-                error: "Not connected"
-            });
+                status: "Already connected"
+            });   
     }
-    else
-        res.status(200).send({
-            status: "Already connected"
-        });    
+    else 
+        send_json(res, error_codes.UNAUTHORIZED("reconnect db"));
 });
 
 app.use("*", (req, res) => {

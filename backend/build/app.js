@@ -23,6 +23,7 @@ var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var utils_1 = require("./logic/users/utils");
 var body_parser_1 = __importDefault(require("body-parser"));
 var utils_2 = require("./utils");
+var utils_3 = require("./logic/tables/utils");
 var app = (0, express_1["default"])();
 exports.app = app;
 app.use(DB_interface_1.validate_db_status);
@@ -41,25 +42,29 @@ app.use("/visits", visits_1["default"]);
 app.get("/", function (req, res) {
     res.status(200).send({ status: "Running" });
 });
-app.get("/reconnect_db", function (req, res) {
+app.connect("/reconnect_db", function (req, res) {
     var not_valid_connection = !app.locals.DEFAULT_DB_INTERFACE || !app.locals.DEFAULT_DB_INTERFACE.connected();
-    if (not_valid_connection) {
-        app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
-            connectionString: (0, DB_interface_1.get_db_uri)()
-        }, true);
-        if (app.locals.DEFAULT_DB_INTERFACE.connected())
-            res.status(200).send({
-                status: "Connected"
-            });
+    if (res.locals.is_admin) {
+        if (not_valid_connection) {
+            app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
+                connectionString: (0, DB_interface_1.get_db_uri)()
+            }, true);
+            if (app.locals.DEFAULT_DB_INTERFACE.connected())
+                res.status(200).send({
+                    status: "Connected"
+                });
+            else
+                res.status(500).send({
+                    error: "Not connected"
+                });
+        }
         else
-            res.status(500).send({
-                error: "Not connected"
+            res.status(200).send({
+                status: "Already connected"
             });
     }
     else
-        res.status(200).send({
-            status: "Already connected"
-        });
+        (0, utils_2.send_json)(res, utils_3.error_codes.UNAUTHORIZED("reconnect db"));
 });
 app.use("*", function (req, res) {
     (0, utils_2.send_json)(res, "Method not found", { error: 404 });

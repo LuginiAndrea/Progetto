@@ -30,7 +30,7 @@
     "dotenv": "^16.0.0",
     "est": "^0.2.1-alpha",
     "express": "^4.17.3",
-    "firebase": "^9.8.1",
+    "firebase-admin": "^10.2.0",
     "googleapis": "^100.0.0",
     "nodemailer": "^6.7.3",
     "pg": "^8.7.3",

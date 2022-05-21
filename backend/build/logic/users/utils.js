@@ -42,12 +42,26 @@ function authenticate_user(req, res, next) {
         return __generator(this, function (_a) {
             // Authenticate user with firebase admin
             // puts the user UID in res.locals.UID
-            // also puts in user.role the role of the user
+            /******************** ENABLE IN PROD ***************/
+            // const firebase_app = app.locals.FIREBASE_APP as admin.app.App;
+            // const auth_token = req.headers.authorization;
+            // if(auth_token) {
+            //     try {
+            //         const decoded_token = await firebase_app.auth().verifyIdToken(auth_token);
+            //         res.locals.UID = decoded_token.uid;
+            //         res.locals.is_admin = res.locals.UID === process.env.FIREBASE_ADMIN_UID;
+            //         next();
+            //     }
+            //     catch(error) {
+            //         send_json(res, error_codes.NOT_VALID_TOKEN("authentication"));
+            //     }
+            // }
+            // else {
+            //     send_json(res, error_codes.NO_AUTH_TOKEN("authentication"));
+            // }
+            /******************** DISABLE IN PROD ***************/
             res.locals.UID = req.headers.authorization || "1234";
-            // console.log(res.locals.UID);
             res.locals.is_admin = res.locals.UID === "1";
-            // console.log("Authenticated user");
-            next();
             return [2 /*return*/];
         });
     });

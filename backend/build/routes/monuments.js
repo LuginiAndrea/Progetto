@@ -144,6 +144,33 @@ monuments_router.get("/markers", function (req, res) { return __awaiter(void 0, 
         }
     });
 }); });
+monuments_router.get("/markers_by_distance", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var distance, longitude, latitude, db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                distance = parseInt(req.query.distance);
+                longitude = parseFloat(req.query.longitude);
+                latitude = parseFloat(req.query.latitude);
+                if (!(!distance || !longitude || !latitude)) return [3 /*break*/, 1];
+                (0, utils_1.send_json)(res, utils_2.error_codes.INVALID_QUERY("distance, coordinates"));
+                return [3 /*break*/, 4];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
+            case 2:
+                language = _c.sent();
+                fields = ["real_name", "".concat(language, "_name"), "ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"];
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "WHERE ST_DWithin(coordinates, ST_GeographyFromText('SRID=4326;POINT(".concat(longitude, " ").concat(latitude, ")'), ").concat(distance, ")"))];
+            case 3:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                _c.label = 4;
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 monuments_router.get("/list_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {

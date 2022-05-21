@@ -48,7 +48,6 @@ users_router.get("/table_schema", async (req, res) => {
         await table.schema(table_name, res.locals.DB_INTERFACE)
     );
 });
-
 users_router.get("/list_all", async (req, res) => {
     send_json(res,
         await values.get.all(table_name, res.locals.DB_INTERFACE, "*", "ORDER BY id"),
