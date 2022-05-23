@@ -32,17 +32,17 @@ function get_fields(table_name: accepted_get_types, alias : string | false = tab
     let fields = fields_dictionary[table_name];
     if(filter_by) {
         filter_by = set_filter_by(filter_by);
-        fields = fields.filter(x => !(x === "id" && no_id)).filter(filter_by);
+        fields = fields.filter(x => !(x === "id" && no_id)).filter(filter_by); //remove id if no_id is true
     }
-    fields = alias ?
+    fields = alias ? //Put an alias name on the fields if the alias is not false
         fields.map(field => `${table_name}.${field} ${`AS ${alias}_${field}`}`) :
         fields;
     return {
-        fields: fields, 
+        fields: fields,  //Gen the placeholder sequence if requested
         placeholder_seq: gen_placeholder_seq === false ? "" : generate_placeholder_sequence(fields, gen_placeholder_seq)
     };
 }
-const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any => 
+const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any => //Generate an array with the values of the fields
     fields.map(field => (body as any)[field]); //Gets the values 
 
 // ***************** COUNTRIES *****************
@@ -185,7 +185,7 @@ const body_validators = {
     test: is_test
 };
 
-const exclude_fields_by_language = {
+const exclude_fields_by_language = { //Removes all the fields that are not needed for the language
     continents: (language: string, prefix = "continents") => get_fields("continents", prefix, 
         x => x.startsWith("real_") || !(x.endsWith("_name") && !x.startsWith(language)),
         false

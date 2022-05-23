@@ -19,7 +19,7 @@ function validate_db_status(req: Request, res: Response, next: NextFunction) {
     if(req.originalUrl.endsWith("/reconnect_db")) {
         res.locals.DB_INTERFACE = app.locals.DEFAULT_DB_INTERFACE;
         next();
-    }
+    }   //Check the database connection status
     if(!app.locals.DEFAULT_DB_INTERFACE)
         send_json(res, error_codes.NO_DB_INTERFACE)
     else if (!app.locals.DEFAULT_DB_INTERFACE.connected())

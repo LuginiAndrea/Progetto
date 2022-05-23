@@ -82,7 +82,7 @@ monuments_router.get("/markers_by_distance", async (req, res) => {
         );
     }
 });
-monuments_router.get("/list_by_id", async (req, res) => {
+monuments_router.get("/filter_by_id", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
@@ -94,7 +94,7 @@ monuments_router.get("/list_by_id", async (req, res) => {
         await values.get.by_id(table_name, db_interface, ids, fields, join_fields_query)
     );
 });
-monuments_router.get("/list_by_rating", async (req, res) => {
+monuments_router.get("/filter_by_rating", async (req, res) => {
     const {valid, operator, rating} = validate_rating(req);
     if(!valid)
         send_json(res, error_codes.INVALID_BODY(table_name));

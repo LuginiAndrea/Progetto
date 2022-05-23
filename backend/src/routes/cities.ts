@@ -29,9 +29,9 @@ cities_router.options("/", (req, res) => {
         { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
         { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
         { verb: "get", method: "list_all", description: "Gives the fields of all the cities"},
-        { verb: "get", method: "list_by_id", description: "Gives the fields of the specified cities" },
+        { verb: "get", method: "filter_by_id", description: "Gives the fields of the specified cities" },
         { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
-        { verb: "get", method: "list_by_rating", description: "Gives list of all the cities that meets the passed condition and rating passed with query string"},
+        { verb: "get", method: "filter_by_rating", description: "Gives list of all the cities that meets the passed condition and rating passed with query string"},
         { verb: "get", method: "cities_of_monuments", description: "Gives the cities of the monuments passed with the query string" },
         { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", is_admin: true },
         { verb: "put", method: "update/:country_id", description: "Updates a city. Parameters passed in the body", is_admin: true },
@@ -61,7 +61,7 @@ cities_router.delete("/delete_table", async (req, res) => {
     );
 });
 /************************************** GET ***************************************************/
-cities_router.get("/list_all", async (req, res) => {
+cities_router.get("/all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
     const fields = get_fields(req, language);
@@ -69,7 +69,7 @@ cities_router.get("/list_all", async (req, res) => {
         await values.get.all(table_name, db_interface, fields, join_fields_query)
     );
 });
-cities_router.get("/list_by_id", async (req, res) => {
+cities_router.get("/filter_by_id", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
@@ -82,7 +82,7 @@ cities_router.get("/list_by_id", async (req, res) => {
         );
     }
 });
-cities_router.get("/list_by_rating", async(req, res) => {
+cities_router.get("/filter_by_rating", async(req, res) => {
     const {valid, operator, rating} = validate_rating(req);
     if(!valid) 
         send_json(res, error_codes.INVALID_BODY(table_name));
