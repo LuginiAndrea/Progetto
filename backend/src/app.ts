@@ -12,7 +12,6 @@ import continents_router from "./routes/continents";
 import cities_router from "./routes/cities";
 import languages_router from "./routes/languages";
 import monuments_router from "./routes/monuments";
-import monument_types_router from "./routes/monument_types";
 import visits_router from "./routes/visits";
 import { validate_db_status, DB_interface, get_db_uri } from "./logic/db_interface/DB_interface";
 import { authenticate_user } from "./logic/users/utils";
@@ -33,7 +32,6 @@ app.use("/users", users_router);
 app.use("/continents", continents_router);
 app.use("/cities", cities_router);
 app.use("/monuments", monuments_router);
-app.use("/monument_types", monument_types_router);
 app.use("/visits", visits_router);
 
 app.get("/", (req, res) => {

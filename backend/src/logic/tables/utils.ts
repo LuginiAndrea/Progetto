@@ -1,4 +1,6 @@
-import { table_creates } from "../../sql/table_creates";
+import { table_creates } from "../../sql/tables";
+import { update_city_rating, update_monument_rating } from "../../sql/functions";
+import { update_monument_rating_trigger, update_visits_rating_trigger } from "../../sql/triggers";
 import { DB_interface, req_types as types } from "../db_interface/DB_interface";
 import { Request } from "express";
 
@@ -7,9 +9,8 @@ function gen_error_code(error_code: string) {
         return `${error_code}.${table_name}`;
     }
 }
-
-const error_codes = {
-    UNAUTHORIZED: gen_error_code("e_0_Unauthorized"),
+const error_codes = { //Based on the prefix we select the right error code, after the prefix 
+    UNAUTHORIZED: gen_error_code("e_0_Unauthorized"),  //there is the error message to give
     NO_AUTH_TOKEN: gen_error_code("e_0_No Firebase JWT"),
     NOT_VALID_TOKEN: gen_error_code("e_0_Not Valid Firebase JWT"),
     INVALID_BODY: gen_error_code("e_1_Invalid Body"),
@@ -18,22 +19,20 @@ const error_codes = {
     NO_ROW_AFFECTED: gen_error_code("e_2_No Row Affected"),
     NO_EXISTING_TABLE: gen_error_code("e_2_No Existing Table"),
 }
-
 function error_codes_to_status_code(error_code: string[]) {
-    if(error_code[0].startsWith("i"))
+    if(error_code[0].startsWith("i")) //Internal errors
         return 500;
-    if(error_code[0] === "23505") 
+    if(error_code[0] === "23505") //Conflict
         return 409;
-    if(error_code[1] === "0_") 
+    if(error_code[1] === "0_") //Forbidden
         return 403;
-    if(error_code[1] === "1_")
+    if(error_code[1] === "1_") //Error in the request
         return 400;
-    if(error_code[0] === "42P01" || error_code[1] === "2_")
+    if(error_code[0] === "42P01" || error_code[1] === "2_") //Not found
         return 404;
 
-    return 400;
+    return 400; //Generic error by client
 }
-
 function convert_error_code(error_code: string, table_name: string) {   
     switch(error_code) {
         case "42P01": return error_codes.NO_EXISTING_TABLE(table_name);
@@ -46,7 +45,23 @@ type table_name = keyof typeof table_creates;
 async function create_table(table_name: table_name, db_interface: DB_interface, is_admin: boolean) {
     if(!is_admin)
         return error_codes.UNAUTHORIZED(table_name);
-    const result = await db_interface.query(table_creates[table_name]);
+    let result;
+    if(table_name === "visits") { //Vists and monuments are separated 
+        result = await db_interface.transiction([ //because they also 
+            table_creates.visits,   //require the creation of
+            update_monument_rating, //other things such as triggers
+            update_visits_rating_trigger, // and functions
+        ]);
+    }
+    else if(table_name === "monuments") {
+        result = await db_interface.transiction([
+            table_creates.monuments,
+            update_city_rating,
+            update_monument_rating_trigger,
+        ]);
+    }
+    else 
+        result = await db_interface.query(table_creates[table_name]);
     return typeof result === "string" ?
         convert_error_code(result, table_name) :
         result;
@@ -54,7 +69,21 @@ async function create_table(table_name: table_name, db_interface: DB_interface, 
 async function delete_table(table_name: table_name, db_interface: DB_interface, is_admin: boolean) {
     if(!is_admin)
         return error_codes.UNAUTHORIZED(table_name);
-    const result = await db_interface.query(`DROP TABLE ${table_name}`);
+    let result;
+    if(table_name === "visits") { //Vists and monuments are separated because
+        result = await db_interface.transiction([ //they also require the deletion of 
+            `DROP FUNCTION IF EXISTS update_monument_rating() CASCADE;`, //other
+            `DROP TABLE visits;` //things too
+        ]);
+    }
+    else if(table_name === "monuments") {
+        result = await db_interface.transiction([
+            `DROP FUNCTION IF EXISTS update_city_rating() CASCADE;`,
+            `DROP TABLE monuments;`
+        ]);
+    }
+    else 
+        result = await db_interface.query(`DROP TABLE ${table_name}`);
     return typeof result === "string" ?
         convert_error_code(result, table_name) :
         result;
@@ -72,7 +101,6 @@ async function get_schema(table_name: table_name, db_interface: DB_interface) {
     return result;   
 }
 
-
 async function get_all(table_name: table_name, db_interface: DB_interface, fields: string[] | "*" = "*", rest_of_query: string = "") {
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} ${rest_of_query}`);
 }
@@ -83,15 +111,15 @@ async function get_generic(table_name: table_name, db_interface: DB_interface, f
     return await db_interface.query(`SELECT ${fields} FROM ${table_name} ${rest_of_query}`, args);
 }
 
-type valid_body_types = Exclude<table_name, "continents">;
+type valid_body_types = Exclude<table_name, "continents">; //Continents has all the values pre-inserted, so it's not accepted
 async function insert_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any) {
     if(!is_admin)
         return error_codes.UNAUTHORIZED(table_name);
-    if(!types.body_validators[table_name](data))  
+    if(!types.body_validators[table_name](data))  //Check if the body is composed in the right way
         return error_codes.INVALID_BODY(table_name);
-
-    const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 1);
-    const values = types.extract_values_of_fields(data, fields);
+    //Get the name of the fields and the placeholder sequence
+    const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 1); 
+    const values = types.extract_values_of_fields(data, fields); //Get the values of the fields
     return await db_interface.query(`
         INSERT INTO ${table_name} (${fields}) VALUES (${placeholder_seq})
         RETURNING id;`, 
@@ -107,24 +135,24 @@ async function update_values(table_name: valid_body_types, db_interface: DB_inte
     if(!id) 
         return error_codes.NO_REFERENCED_ITEM(table_name);
     if(!types.body_validators[table_name](data)) 
-        error_codes.INVALID_BODY(table_name);
+        return error_codes.INVALID_BODY(table_name);
 
     const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 2, true);
-    if(fields.length === 0)
+    if(fields.length === 0) //If there are no right fields it means that there is nothing to update
         return error_codes.INVALID_BODY(table_name);
     const values = types.extract_values_of_fields(data, fields);
     const result = fields.length > 1 ? //If there are more than 1 field to update we need to change syntax
         await db_interface.query(`
-            UPDATE ${table_name} SET (${fields}) = (${placeholder_seq})
+            UPDATE ${table_name} SET (${fields}) = (${placeholder_seq}) 
             WHERE id = $1
             RETURNING *;`,
-            [id, ...values]
-        ) :
+            [id, ...values] //Multi-fields syntax
+        ) : 
         await db_interface.query(`
             UPDATE ${table_name} SET ${fields} = $2
             WHERE id = $1
             RETURNING *;`,
-            [id, ...values]
+            [id, ...values] //Single field syntax
         );
     if(typeof result !== "string")
         return result[0].rowCount === 0 ? // Check if a row was affected
@@ -165,8 +193,8 @@ const values = {
         generic: get_generic,
     }
 };
-function validate_rating(req: Request) {
-    const operator = (req.query.operator as string).toUpperCase();
+function validate_rating(req: Request) { //Function to check if the parameters for comparing
+    const operator = (req.query.operator as string).toUpperCase(); //rating are correct
     const rating = req.query.rating === "NULL" ?
         "NULL" :
         parseInt(req.query.rating as string)

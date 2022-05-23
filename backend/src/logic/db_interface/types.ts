@@ -1,5 +1,3 @@
-import {req_types as types} from "./DB_interface";
-
 const fields_dictionary = { //List of all the tables with all the fields in them
     continents: ["id", "it_name", "en_name"],
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
@@ -131,7 +129,6 @@ type visits_body = {
     rating: number,
     private_description?: string,
     date_time: string,
-    fk_user_id: number,
     fk_monument_id: number
 }
 function is_visits_body(obj: any): obj is visits_body {
@@ -139,7 +136,6 @@ function is_visits_body(obj: any): obj is visits_body {
         obj.rating >= 0 && obj.rating <= 5 &&
         (!obj.private_description || typeof obj.private_description === "string") &&
         typeof obj.date_time === "string" &&
-        typeof obj.fk_user_id === "number" &&
         typeof obj.fk_monument_id === "number";
 }
 // ***************** TYPES OF MONUMENTS *****************
@@ -169,7 +165,6 @@ function is_monument_types_body(obj: any): obj is monument_types_body {
 }
 // ***************** TEST TYPES *****************
 type test_body = {
-    id: number,
     name: string,
     number: number,
 }

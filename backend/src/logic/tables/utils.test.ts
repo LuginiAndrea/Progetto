@@ -1,6 +1,7 @@
 import { app } from "../../app";
 import {DB_interface, QueryResult, get_db_uri} from "../db_interface/DB_interface";
 import {error_codes, table, values} from "./utils";
+import {body_validators} from "../db_interface/types";
 
 
 describe("Table operations", () => {
@@ -74,7 +75,9 @@ describe("Table operations", () => {
             expect(result).toEqual(error_codes.UNAUTHORIZED("test"));
         });
         it("Authorization but wrong data", async () => {
-            const result = await values.insert("test", db_interface, true, {});
+            const result = await values.insert("test", db_interface, true, {
+                name: "Mirco"
+            });
             expect(result).toEqual(error_codes.INVALID_BODY("test"));
         });
         it("Authorization and valid data", async () => {
@@ -95,7 +98,9 @@ describe("Table operations", () => {
             expect(result).toEqual(error_codes.NO_REFERENCED_ITEM("test"));
         });
         it("Authorization but wrong data", async () => {
-            const result = await values.update("test", db_interface, true, {}, id);
+            const result = await values.update("test", db_interface, true, {
+                name: 5
+            }, id);
             expect(result).toEqual(error_codes.INVALID_BODY("test"));
         });
         it("Authorization and valid data", async () => {
@@ -120,3 +125,12 @@ describe("Table operations", () => {
         });
     });
 });
+
+it("?????", () => {
+    let x = body_validators.test({name: "marcello", number: 5});
+    expect(x).toBe(true);
+    x = body_validators.test({name: "marcello", number: "5"});
+    expect(x).toBe(false);
+    x = body_validators.test({name: "marcello"});
+    expect(x).toBe(false);
+})

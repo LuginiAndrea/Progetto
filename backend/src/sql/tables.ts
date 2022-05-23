@@ -28,7 +28,7 @@ const create_cities_table =
         fk_country_id INTEGER REFERENCES Countries
             ON DELETE CASCADE
             ON UPDATE CASCADE,
-        UNIQUE(real_name, fk_country_id)
+        UNIQUE(real_name, fk_country_id),
     );`;
 
 const create_languages_table =
@@ -75,7 +75,8 @@ const create_visits_table =
         fk_monument_id INTEGER REFERENCES Monuments
             ON DELETE CASCADE
             ON UPDATE CASCADE,
-        UNIQUE(date_time, fk_user_id, fk_monument_id)
+        UNIQUE(date_time, fk_user_id, fk_monument_id),
+        CHECK (rating BETWEEN 1 AND 5)
     );`;
 
 const create_types_of_monuments_table =
