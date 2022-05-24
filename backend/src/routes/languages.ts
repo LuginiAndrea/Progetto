@@ -46,7 +46,7 @@ languages_router.get("/table_schema", async (req, res) => {
 });
 
 /************************************** GET ***************************************************/
-languages_router.get("/list_all", async (req, res) => {
+languages_router.get("/all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res, 
         await values.get.all(table_name, db_interface, "*", "ORDER BY language_name")

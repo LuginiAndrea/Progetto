@@ -134,14 +134,14 @@ async function update_values(table_name: valid_body_types, db_interface: DB_inte
         id;
     if(!id) 
         return error_codes.NO_REFERENCED_ITEM(table_name);
-    if(!types.body_validators[table_name](data)) 
+    if(!types.body_validators[table_name](data, true))  //Check if the body is composed in the right way (flag for update is up)
         return error_codes.INVALID_BODY(table_name);
 
     const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 2, true);
     if(fields.length === 0) //If there are no right fields it means that there is nothing to update
         return error_codes.INVALID_BODY(table_name);
     const values = types.extract_values_of_fields(data, fields);
-    const result = fields.length > 1 ? //If there are more than 1 field to update we need to change syntax
+    const result = fields.length > 1 ? //If there is more than 1 field to update we need to change syntax
         await db_interface.query(`
             UPDATE ${table_name} SET (${fields}) = (${placeholder_seq}) 
             WHERE id = $1

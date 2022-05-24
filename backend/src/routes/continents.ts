@@ -41,7 +41,7 @@ continents_router.get("/table_schema", async (req, res) => {
         await table.schema(table_name, res.locals.DB_INTERFACE),
     );
 });
-continents_router.post("/insert_continents", async (req, res) => {
+continents_router.post("/insert", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const result = await db_interface.query(`
         INSERT INTO continents (id, it_name, en_name) VALUES 
@@ -57,7 +57,7 @@ continents_router.post("/insert_continents", async (req, res) => {
     send_json(res, result, {success: 201});
 });
 /************************************** GET ***************************************************/
-continents_router.get("/list_all", async (req, res) => {
+continents_router.get("/all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
         await values.get.all(table_name, db_interface, types.exclude_fields_by_language[table_name](

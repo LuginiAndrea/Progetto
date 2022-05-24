@@ -22,7 +22,6 @@ const join_fields_query = `
     JOIN Continents ON Continents.id = Countries.fk_continent_id
 `;
 
-/****************************************** ROUTES **********************************************/
 cities_router.options("/", (req, res) => {
     const method_list = [
         { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },

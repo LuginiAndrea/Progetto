@@ -133,4 +133,6 @@ it("?????", () => {
     expect(x).toBe(false);
     x = body_validators.test({name: "marcello"});
     expect(x).toBe(false);
+    x = body_validators.test({name: "marcello"}, true);
+    expect(x).toBe(true);
 })

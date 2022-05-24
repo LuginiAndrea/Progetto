@@ -47,7 +47,7 @@ monuments_router.get("/table_schema", async (req, res) => {
 });
 
 /***************************************** GET *********************************************/
-monuments_router.get("/list_all", async (req, res) => {
+monuments_router.get("/all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
     const fields = get_fields(req, language)

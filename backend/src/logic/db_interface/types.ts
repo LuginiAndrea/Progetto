@@ -53,14 +53,12 @@ type countries_body = {
     iso_alpha_3: string;
     fk_continent_id: number;
 }
-function is_countries_body(obj: any): obj is countries_body {
-    return typeof obj.real_name === "string" &&
-        obj.real_name.length <= 50 &&
+function is_countries_body(obj: any, is_update: boolean = false): obj is countries_body {
+    return ((!obj.real_name && is_update) || (typeof obj.real_name === "string" && obj.real_name.length <= 50)) &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
-        typeof obj.iso_alpha_3 === "string" &&
-        obj.iso_alpha_3.length === 3 &&
-        typeof obj.fk_continent_id === "number";
+        ((!obj.iso_alpha_3 && is_update) || (typeof obj.iso_alpha_3 === "string" && obj.iso_alpha_3.length === 3)) &&
+        ((!obj.fk_continent_id && is_update) || typeof obj.fk_continent_id === "number");
 }
 // ***************** CITIES *****************
 type cities_body = {
@@ -71,34 +69,31 @@ type cities_body = {
     votes_sum?: number,
     fk_country_id: number
 }
-function is_cities_body(obj: any): obj is cities_body {
-    return typeof obj.real_name === "string" &&
-        obj.real_name.length <= 50 &&
+function is_cities_body(obj: any, is_update: boolean = false): obj is cities_body {
+    return ((!obj.real_name && is_update) || (typeof obj.real_name === "string" && obj.real_name.length <= 50)) &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
         (!obj.number_of_votes || (typeof obj.rating === "number" && obj.number_of_votes >= 0)) &&
         (!obj.votes_sum || (typeof obj.votes_sum === "number" && obj.votes_sum >= 0)) &&
-        typeof obj.fk_country_id === "number";
+        ((!obj.fk_country_id && is_update) || typeof obj.fk_country_id === "number");
 }
 // ***************** LANGUAGES *****************
 type languages_body = {
     name: string,
     abbreviation: string
 }
-function is_languages_body(obj: any): obj is languages_body {
-    return typeof obj.name === "string" &&
-        obj.name.length <= 50 &&
-        typeof obj.abbreviation === "string" &&
-        obj.abbreviation.length === 2;
+function is_languages_body(obj: any, is_update: boolean = false): obj is languages_body {
+    return ((!obj.name && is_update) || (typeof obj.name === "string" && obj.name.length <= 50)) &&
+        ((!obj.abbreviation && is_update) || (typeof obj.abbreviation === "string" && obj.abbreviation.length === 2));
 }
 // ***************** USERS *****************
 type users_body = {
     id: number,
     fk_language_id: number
 }
-function is_users_body(obj: any): obj is users_body {
-    return typeof obj.id === "number" &&
-        typeof obj.fk_language_id === "number";
+function is_users_body(obj: any, is_update: boolean = false): obj is users_body {
+    return ((!obj.id && is_update) || typeof obj.id === "number") &&
+        ((!obj.fk_language_id && is_update) || (typeof obj.fk_language_id === "number"));
 }
 // ***************** MONUMENTS *****************
 type monuments_body = {
@@ -112,17 +107,16 @@ type monuments_body = {
     en_description?: string,
     fk_city_id: number
 }
-function is_monuments_body(obj: any): obj is monuments_body {
-    return typeof obj.real_name === "string" &&
-        obj.real_name.length <= 50 &&
+function is_monuments_body(obj: any, is_update: boolean = false): obj is monuments_body {
+    return ((!obj.real_name && is_update) || (typeof obj.real_name === "string" && obj.real_name.length <= 50)) &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
-        typeof obj.coordinates === "string" &&
+        ((!obj.coordinates && is_update) || typeof obj.coordinates === "string") &&
         (!obj.it_description || typeof obj.it_description === "string") &&
         (!obj.en_description || typeof obj.en_description === "string") &&
         (!obj.number_of_votes || (typeof obj.rating === "number" && obj.number_of_votes >= 0)) &&
         (!obj.votes_sum || (typeof obj.votes_sum === "number" && obj.votes_sum >= 0)) &&
-        typeof obj.fk_city_id === "number";
+        ((!obj.fk_city_id && is_update) || typeof obj.fk_city_id === "number");
 }
 // ***************** VISITS *****************
 type visits_body = {
@@ -131,12 +125,11 @@ type visits_body = {
     date_time: string,
     fk_monument_id: number
 }
-function is_visits_body(obj: any): obj is visits_body {
-    return typeof obj.rating === "number" &&
-        obj.rating >= 0 && obj.rating <= 5 &&
+function is_visits_body(obj: any, is_update: boolean = false): obj is visits_body {
+    return ((!obj.rating && is_update) || (typeof obj.rating === "number" && obj.rating >= 0 && obj.rating <= 5)) &&
         (!obj.private_description || typeof obj.private_description === "string") &&
-        typeof obj.date_time === "string" &&
-        typeof obj.fk_monument_id === "number";
+        ((!obj.date_time && is_update) || typeof obj.date_time === "string") &&
+        ((!obj.fk_monument_id && is_update) || typeof obj.fk_monument_id === "number");
 }
 // ***************** TYPES OF MONUMENTS *****************
 type types_of_monuments_body = {
@@ -146,9 +139,8 @@ type types_of_monuments_body = {
     it_description?: string,
     en_description?: string,
 }
-function is_types_of_monuments_body(obj: any): obj is types_of_monuments_body {
-    return typeof obj.real_name === "string" &&
-        obj.real_name.length <= 50 &&
+function is_types_of_monuments_body(obj: any, is_update : boolean = false): obj is types_of_monuments_body {
+    return ((!obj.real_name && is_update) || (typeof obj.real_name === "string" && obj.real_name.length <= 50)) &&
         (!obj.it_name || (typeof obj.it_name === "string" && obj.it_name.length <= 50)) &&
         (!obj.en_name || (typeof obj.en_name === "string" && obj.en_name.length <= 50)) &&
         (!obj.it_description || typeof obj.it_description === "string") &&
@@ -159,18 +151,18 @@ type monument_types_body = {
     fk_monument_id: number,
     fk_type_id: number
 }
-function is_monument_types_body(obj: any): obj is monument_types_body {
-    return typeof obj.fk_monument_id === "number" &&
-        typeof obj.fk_type_id === "number";
+function is_monument_types_body(obj: any, is_update : boolean = false): obj is monument_types_body {
+    return ((!obj.fk_monument_id && is_update) || typeof obj.fk_monument_id === "number") &&
+        ((!obj.fk_type_id && is_update) || typeof obj.fk_type_id === "number");
 }
-// ***************** TEST TYPES *****************
+// ***************** TEST TYPES (Disable in prod) *****************
 type test_body = {
     name: string,
     number: number,
 }
-function is_test(obj: any): obj is test_body {
-    return typeof obj.name === "string" && obj.name.length <= 50 &&
-        typeof obj.number === "number";
+function is_test(obj: any, is_update : boolean = false): obj is test_body {
+    return ((!obj.name && is_update) || typeof obj.name === "string" && obj.name.length <= 50) &&
+        ((!obj.number && is_update) || typeof obj.number === "number");
 }
 
 const body_validators = {
@@ -182,7 +174,7 @@ const body_validators = {
     visits: is_visits_body,
     types_of_monuments: is_types_of_monuments_body,
     monument_types: is_monument_types_body, 
-    test: is_test
+    test: is_test, //Disable test in production
 };
 
 const exclude_fields_by_language = { //Removes all the fields that are not needed for the language

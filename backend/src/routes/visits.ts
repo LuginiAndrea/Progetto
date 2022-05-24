@@ -61,6 +61,16 @@ visits_router.delete("/delete_table", async (req, res) => {
     );
 });
 /************************************** LIST ***************************************************/   
+visits_router.get("/all", async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = types.get_fields(table_name, table_name).fields.concat([
+        `monuments.${language}_name AS monument_name`
+    ]);
+    send_json(res,
+        await values.get.all(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id")
+    );
+});
 visits_router.get("/visits_of_user", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
@@ -72,24 +82,27 @@ visits_router.get("/visits_of_user", async (req, res) => {
         await values.get.generic(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id WHERE visits.fk_user_id = $1", [res.locals.UID]),
     );
 });
-visits_router.get("/list_all", async (req, res) => {
-    const db_interface = res.locals.DB_INTERFACE;
-    const language = await get_language_of_user(res.locals.UID, db_interface);
-    const fields = types.get_fields(table_name, table_name).fields.concat([
-        `monuments.${language}_name AS monument_name`
-    ]);
-    send_json(res,
-        await values.get.all(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id")
-    );
-});
 
 visits_router.post("/insert", async (req, res) => {
-    const db_interface = res.locals.DB_INTERFACE;
     const body = {
         fk_user_id: res.locals.UID,
         ...req.body
     };
-    const rating : number = body.rating;
-    if (!validate_rating(rating)) {
+    send_json(res,
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, body),
+        { success: 201 }
+    );
+});
 
+visits_router.put("/update/:id", async (req, res) => {
+    send_json(res,
+        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)
+    );
+});
+
+visits_router.delete("/delete/:id", async (req, res) => {
+    send_json(res,
+        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)
+    );
+});
 export default visits_router;
