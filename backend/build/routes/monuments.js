@@ -104,7 +104,7 @@ monuments_router.get("/table_schema", function (req, res) { return __awaiter(voi
     });
 }); });
 /***************************************** GET *********************************************/
-monuments_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+monuments_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -171,7 +171,7 @@ monuments_router.get("/markers_by_distance", function (req, res) { return __awai
         }
     });
 }); });
-monuments_router.get("/list_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+monuments_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -184,17 +184,17 @@ monuments_router.get("/list_by_id", function (req, res) { return __awaiter(void 
                 return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
-                fields = get_fields(req, language);
+                fields = get_fields(req, language).concat("visits.fk_monument_id AS visit_fk_monument_id");
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, ids, fields, join_fields_query)];
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, join_fields_query + "LEFT JOIN visits ON visits.fk_monument_id = monuments.id \n            WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)", [res.locals.UID, ids])];
             case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
         }
     });
 }); });
-monuments_router.get("/list_by_rating", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+monuments_router.get("/filter_by_rating", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, valid, operator, rating, db_interface, language, fields, _b, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {

@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -55,25 +66,6 @@ var table_name = "visits";
 //     );
 // }
 var join_fields_query = "\n    JOIN Countries ON Countries.id = Cities.fk_country_id\n    JOIN Continents ON Continents.id = Countries.fk_continent_id\n";
-/****************************************** ROUTES **********************************************/
-visits_router.options("/", function (req, res) {
-    var method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },
-        { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
-        { verb: "get", method: "list_all", description: "Gives the fields of all the cities" },
-        { verb: "get", method: "list_by_id", description: "Gives the fields of the specified cities" },
-        { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
-        { verb: "get", method: "list_by_rating", description: "Gives list of all the cities that meets the passed condition and rating passed with query string" },
-        { verb: "get", method: "cities_of_monuments", description: "Gives the cities of the monuments passed with the query string" },
-        { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", is_admin: true },
-        { verb: "put", method: "update/:country_id", description: "Updates a city. Parameters passed in the body", is_admin: true },
-        { verb: "delete", method: "delete/:country_id", description: "Deletes a city", is_admin: true }
-    ];
-    res.status(200).json(res.locals.is_admin ?
-        method_list :
-        method_list.filter(function (x) { return x.is_admin; }));
-});
 /************************************** TABLE ***************************************************/
 visits_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
@@ -118,6 +110,27 @@ visits_router["delete"]("/delete_table", function (req, res) { return __awaiter(
     });
 }); });
 /************************************** LIST ***************************************************/
+visits_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
+            case 1:
+                language = _c.sent();
+                fields = DB_interface_1.req_types.get_fields(table_name, table_name).fields.concat([
+                    "monuments.".concat(language, "_name AS monument_name")
+                ]);
+                _a = utils_2.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id")];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
 visits_router.get("/visits_of_user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
@@ -140,22 +153,44 @@ visits_router.get("/visits_of_user", function (req, res) { return __awaiter(void
         }
     });
 }); });
-visits_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, language, fields, _a, _b;
+visits_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var body, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
-            case 1:
-                language = _c.sent();
-                fields = DB_interface_1.req_types.get_fields(table_name, table_name).fields.concat([
-                    "monuments.".concat(language, "_name AS monument_name")
-                ]);
+                body = __assign({ fk_user_id: res.locals.UID }, req.body);
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id")];
-            case 2:
+                return [4 /*yield*/, utils_3.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, body)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+visits_router.put("/update/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_2.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_3.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+visits_router["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_2.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_3.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
+            case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
         }

@@ -7,23 +7,6 @@ import { table, values, error_codes } from '../logic/tables/utils';
 /******************** CONSTANTS ***********************/
 const continents_router: Router = Router();
 const table_name = "continents";
-/****************************************** ROUTES **********************************************/
-continents_router.options("/", (req, res) => {
-    const method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },
-        { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
-        { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", is_admin: true },
-        { verb: "get", method: "list_all", description: "Gives the fields of all the continents"},
-        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single continents" },
-        { verb: "get", method: "continents_of_countries", description: "Gives the continents of the countries passed with the query string" },
-    ];
-    res.status(200).json(
-        res.locals.is_admin ?
-            method_list : 
-            method_list.filter(x => x.is_admin)
-    );
-});
 /************************************** TABLE ***************************************************/
 continents_router.post("/create_table", async (req, res) => {
     send_json(res, 

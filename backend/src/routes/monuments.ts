@@ -89,9 +89,11 @@ monuments_router.get("/filter_by_id", async (req, res) => {
     else {}
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
-    const fields = get_fields(req, language);
+    const fields = get_fields(req, language).concat("visits.fk_monument_id AS visit_fk_monument_id");
     send_json(res, 
-        await values.get.by_id(table_name, db_interface, ids, fields, join_fields_query)
+        await values.get.generic(table_name, db_interface, fields, 
+            join_fields_query + `LEFT JOIN visits ON visits.fk_monument_id = monuments.id 
+            WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)`, [res.locals.UID, ids])
     );
 });
 monuments_router.get("/filter_by_rating", async (req, res) => {

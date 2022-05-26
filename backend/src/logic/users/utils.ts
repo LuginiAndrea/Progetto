@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import { DB_interface } from "../db_interface/DB_interface";
 import { app } from "../../app";
-import * as admin from "firebase-admin";
+// import * as admin from "firebase-admin";
 import { error_codes } from "../tables/utils";
 import { send_json } from "../../utils";
 

@@ -44,21 +44,6 @@ var utils_3 = require("../logic/tables/utils");
 /******************** CONSTANTS ***********************/
 var continents_router = (0, express_1.Router)();
 var table_name = "continents";
-/****************************************** ROUTES **********************************************/
-continents_router.options("/", function (req, res) {
-    var method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },
-        { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
-        { verb: "post", method: "insert_continents", description: "Inserts all the continents. To be used only when table is reset", is_admin: true },
-        { verb: "get", method: "list_all", description: "Gives the fields of all the continents" },
-        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single continents" },
-        { verb: "get", method: "continents_of_countries", description: "Gives the continents of the countries passed with the query string" },
-    ];
-    res.status(200).json(res.locals.is_admin ?
-        method_list :
-        method_list.filter(function (x) { return x.is_admin; }));
-});
 /************************************** TABLE ***************************************************/
 continents_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
@@ -102,7 +87,7 @@ continents_router.get("/table_schema", function (req, res) { return __awaiter(vo
         }
     });
 }); });
-continents_router.post("/insert_continents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+continents_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -117,7 +102,7 @@ continents_router.post("/insert_continents", function (req, res) { return __awai
     });
 }); });
 /************************************** GET ***************************************************/
-continents_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+continents_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b, _c, _d, _e, _f, _g;
     return __generator(this, function (_h) {
         switch (_h.label) {
@@ -136,7 +121,7 @@ continents_router.get("/list_all", function (req, res) { return __awaiter(void 0
         }
     });
 }); });
-continents_router.get("/list_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+continents_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, _a, _b, _c, _d, _e, _f, _g;
     return __generator(this, function (_h) {
         switch (_h.label) {

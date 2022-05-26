@@ -46,7 +46,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 exports.__esModule = true;
 exports.convert_error_code = exports.validate_rating = exports.error_codes_to_status_code = exports.error_codes = exports.values = exports.table = void 0;
-var table_creates_1 = require("../../sql/table_creates");
+var tables_1 = require("../../sql/tables");
+var functions_1 = require("../../sql/functions");
+var triggers_1 = require("../../sql/triggers");
 var DB_interface_1 = require("../db_interface/DB_interface");
 function gen_error_code(error_code) {
     return function (table_name) {
@@ -65,21 +67,21 @@ var error_codes = {
 };
 exports.error_codes = error_codes;
 function error_codes_to_status_code(error_code) {
-    if (error_code[0].startsWith("i"))
+    if (error_code[0].startsWith("i")) //Internal errors
         return 500;
-    if (error_code[0] === "23505")
+    if (error_code[0] === "23505") //Conflict
         return 409;
-    if (error_code[1] === "0_")
+    if (error_code[1] === "0_") //Forbidden
         return 403;
-    if (error_code[1] === "1_")
+    if (error_code[1] === "1_") //Error in the request
         return 400;
-    if (error_code[0] === "42P01" || error_code[1] === "2_")
+    if (error_code[0] === "42P01" || error_code[1] === "2_") //Not found
         return 404;
-    return 400;
+    return 400; //Generic error by client
 }
 exports.error_codes_to_status_code = error_codes_to_status_code;
 function convert_error_code(error_code, table_name) {
-    switch (error_code) {
+    switch (error_code) { //Converts error codes given by the database to defined ones
         case "42P01": return error_codes.NO_EXISTING_TABLE(table_name);
         default: return gen_error_code(error_code)(table_name);
     }
@@ -93,12 +95,32 @@ function create_table(table_name, db_interface, is_admin) {
                 case 0:
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
-                    return [4 /*yield*/, db_interface.query(table_creates_1.table_creates[table_name])];
+                    if (!(table_name === "visits")) return [3 /*break*/, 2];
+                    return [4 /*yield*/, db_interface.transiction([
+                            tables_1.table_creates.visits,
+                            functions_1.update_monument_rating,
+                            triggers_1.update_visits_rating_trigger, // and functions
+                        ])];
                 case 1:
                     result = _a.sent();
-                    return [2 /*return*/, typeof result === "string" ?
-                            convert_error_code(result, table_name) :
-                            result];
+                    return [3 /*break*/, 6];
+                case 2:
+                    if (!(table_name === "monuments")) return [3 /*break*/, 4];
+                    return [4 /*yield*/, db_interface.transiction([
+                            tables_1.table_creates.monuments,
+                            functions_1.update_city_rating,
+                            triggers_1.update_monument_rating_trigger,
+                        ])];
+                case 3:
+                    result = _a.sent();
+                    return [3 /*break*/, 6];
+                case 4: return [4 /*yield*/, db_interface.query(tables_1.table_creates[table_name])];
+                case 5:
+                    result = _a.sent();
+                    _a.label = 6;
+                case 6: return [2 /*return*/, typeof result === "string" ?
+                        convert_error_code(result, table_name) :
+                        result];
             }
         });
     });
@@ -111,12 +133,30 @@ function delete_table(table_name, db_interface, is_admin) {
                 case 0:
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
-                    return [4 /*yield*/, db_interface.query("DROP TABLE ".concat(table_name))];
+                    if (!(table_name === "visits")) return [3 /*break*/, 2];
+                    return [4 /*yield*/, db_interface.transiction([
+                            "DROP FUNCTION IF EXISTS update_monument_rating() CASCADE;",
+                            "DROP TABLE visits;" //things too
+                        ])];
                 case 1:
                     result = _a.sent();
-                    return [2 /*return*/, typeof result === "string" ?
-                            convert_error_code(result, table_name) :
-                            result];
+                    return [3 /*break*/, 6];
+                case 2:
+                    if (!(table_name === "monuments")) return [3 /*break*/, 4];
+                    return [4 /*yield*/, db_interface.transiction([
+                            "DROP FUNCTION IF EXISTS update_city_rating() CASCADE;",
+                            "DROP TABLE monuments;"
+                        ])];
+                case 3:
+                    result = _a.sent();
+                    return [3 /*break*/, 6];
+                case 4: return [4 /*yield*/, db_interface.query("DROP TABLE ".concat(table_name))];
+                case 5:
+                    result = _a.sent();
+                    _a.label = 6;
+                case 6: return [2 /*return*/, typeof result === "string" ?
+                        convert_error_code(result, table_name) :
+                        result];
             }
         });
     });
@@ -183,12 +223,13 @@ function insert_values(table_name, db_interface, is_admin, data) {
                 case 0:
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
-                    if (!DB_interface_1.req_types.body_validators[table_name](data))
+                    if (!DB_interface_1.req_types.body_validators[table_name](data)) //Check if the body is composed in the right way
                         return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
                     _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 1), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
                     return [4 /*yield*/, db_interface.query("\n        INSERT INTO ".concat(table_name, " (").concat(fields, ") VALUES (").concat(placeholder_seq, ")\n        RETURNING id;"), values)];
-                case 1: return [2 /*return*/, _b.sent()];
+                case 1: //Get the values of the fields
+                return [2 /*return*/, _b.sent()];
             }
         });
     });
@@ -206,14 +247,14 @@ function update_values(table_name, db_interface, is_admin, data, id) {
                         id;
                     if (!id)
                         return [2 /*return*/, error_codes.NO_REFERENCED_ITEM(table_name)];
-                    if (!DB_interface_1.req_types.body_validators[table_name](data))
-                        error_codes.INVALID_BODY(table_name);
+                    if (!DB_interface_1.req_types.body_validators[table_name](data, true)) //Check if the body is composed in the right way (flag for update is up)
+                        return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
                     _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 2, true), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
-                    if (fields.length === 0)
+                    if (fields.length === 0) //If there are no right fields it means that there is nothing to update
                         return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
                     values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
                     if (!(fields.length > 1)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, db_interface.query("\n            UPDATE ".concat(table_name, " SET (").concat(fields, ") = (").concat(placeholder_seq, ")\n            WHERE id = $1\n            RETURNING *;"), __spreadArray([id], values, true))];
+                    return [4 /*yield*/, db_interface.query("\n            UPDATE ".concat(table_name, " SET (").concat(fields, ") = (").concat(placeholder_seq, ") \n            WHERE id = $1\n            RETURNING *;"), __spreadArray([id], values, true))];
                 case 1:
                     _b = _c.sent();
                     return [3 /*break*/, 4];
@@ -272,7 +313,7 @@ var values = {
 };
 exports.values = values;
 function validate_rating(req) {
-    var operator = req.query.operator.toUpperCase();
+    var operator = req.query.operator.toUpperCase(); //rating are correct
     var rating = req.query.rating === "NULL" ?
         "NULL" :
         parseInt(req.query.rating);

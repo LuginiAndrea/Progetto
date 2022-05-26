@@ -51,20 +51,6 @@ users_router.use(function (req, res, next) {
     else
         next();
 });
-users_router.options("/", function (req, res) {
-    var method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table" },
-        { verb: "delete", method: "delete_table", description: "Deletes the table" },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
-        { verb: "get", method: "list_all", description: "Gives the fields of all the users" },
-        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single user" },
-        { verb: "get", method: "list_single_by_email/:user_email", description: "Gives the fields of a single user" },
-        { verb: "post", method: "insert", description: "Inserts a new user. Parameters passed in the body" },
-        { verb: "put", method: "update/:user_id", description: "Updates a user. Parameters passed in the body" },
-        { verb: "delete", method: "delete/:user_id", description: "Deletes a user" },
-    ];
-    res.status(200).json(method_list);
-});
 users_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
@@ -107,7 +93,7 @@ users_router.get("/table_schema", function (req, res) { return __awaiter(void 0,
         }
     });
 }); });
-users_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+users_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -121,7 +107,7 @@ users_router.get("/list_all", function (req, res) { return __awaiter(void 0, voi
         }
     });
 }); });
-users_router.get("/list_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+users_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {

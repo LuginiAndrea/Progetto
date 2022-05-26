@@ -42,25 +42,6 @@ var utils_2 = require("../logic/tables/utils");
 /******************** CONSTANTS ***********************/
 var languages_router = (0, express_1.Router)();
 var table_name = "languages";
-/****************************************** ROUTES **********************************************/
-languages_router.options("/", function (req, res) {
-    var method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },
-        { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
-        { verb: "get", method: "list_all", description: "Gives the fields of all the countries" },
-        { verb: "get", method: "list_single/:id", description: "Gives the fields of a single country" },
-        { verb: "get", method: "list_single_by_iso_code/:country_iso_code", description: "Gives the fields of a single country" },
-        { verb: "get", method: "countries_in_continents", description: "Gives list of all countries in the continents passed with the query string" },
-        { verb: "get", method: "country_of_city", description: "Gives the country of a city passed with the query string" },
-        { verb: "post", method: "insert", description: "Inserts a new country. Parameters passed in the body", is_admin: true },
-        { verb: "put", method: "update/:country_id", description: "Updates a country. Parameters passed in the body", is_admin: true },
-        { verb: "delete", method: "delete/:country_id", description: "Deletes a country", is_admin: true },
-    ];
-    res.status(200).json(res.locals.is_admin ?
-        method_list :
-        method_list.filter(function (x) { return x.is_admin; }));
-});
 /************************************** TABLE ***************************************************/
 languages_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
@@ -105,7 +86,7 @@ languages_router.get("/table_schema", function (req, res) { return __awaiter(voi
     });
 }); });
 /************************************** GET ***************************************************/
-languages_router.get("/list_all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+languages_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -120,7 +101,7 @@ languages_router.get("/list_all", function (req, res) { return __awaiter(void 0,
         }
     });
 }); });
-languages_router.get("/list_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+languages_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {

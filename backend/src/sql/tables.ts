@@ -28,7 +28,7 @@ const create_cities_table =
         fk_country_id INTEGER REFERENCES Countries
             ON DELETE CASCADE
             ON UPDATE CASCADE,
-        UNIQUE(real_name, fk_country_id),
+        UNIQUE(real_name, fk_country_id)
     );`;
 
 const create_languages_table =
