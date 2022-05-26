@@ -47,17 +47,17 @@ async function create_table(table_name: table_name, db_interface: DB_interface, 
         return error_codes.UNAUTHORIZED(table_name);
     let result;
     if(table_name === "visits") { //Vists and monuments are separated 
-        result = await db_interface.transiction([ //because they also 
+        result = await db_interface.transaction([ //because they also 
             table_creates.visits,   //require the creation of
             update_monument_rating, //other things such as triggers
-            update_visits_rating_trigger, // and functions
+            update_visits_rating_trigger  // and functions
         ]);
     }
     else if(table_name === "monuments") {
-        result = await db_interface.transiction([
+        result = await db_interface.transaction([
             table_creates.monuments,
             update_city_rating,
-            update_monument_rating_trigger,
+            update_monument_rating_trigger
         ]);
     }
     else 
@@ -71,13 +71,13 @@ async function delete_table(table_name: table_name, db_interface: DB_interface, 
         return error_codes.UNAUTHORIZED(table_name);
     let result;
     if(table_name === "visits") { //Vists and monuments are separated because
-        result = await db_interface.transiction([ //they also require the deletion of 
+        result = await db_interface.transaction([ //they also require the deletion of 
             `DROP FUNCTION IF EXISTS update_monument_rating() CASCADE;`, //other
             `DROP TABLE visits;` //things too
         ]);
     }
     else if(table_name === "monuments") {
-        result = await db_interface.transiction([
+        result = await db_interface.transaction([
             `DROP FUNCTION IF EXISTS update_city_rating() CASCADE;`,
             `DROP TABLE monuments;`
         ]);

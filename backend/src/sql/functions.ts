@@ -29,11 +29,11 @@ const update_city_rating = `
         IF (TG_OP = 'DELETE') THEN
             UPDATE cities
             SET number_of_votes = number_of_votes - 1,
-                votes_sum = votes_sum - OLD.rating
+                votes_sum = votes_sum - OLD.votes_sum
             WHERE id = OLD.fk_city_id;
         ELSEIF (TG_OP = 'UPDATE') THEN
             UPDATE cities
-            SET votes_sum = votes_sum - OLD.rating + NEW.rating
+            SET votes_sum = votes_sum - OLD.votes_sum + NEW.votes_sum
             WHERE id = OLD.fk_city_id;
         END IF;
         RETURN NEW;

@@ -73,7 +73,7 @@ cities_router.get("/filter_by_rating", async(req, res) => {
         );
     }
 });
-cities_router.get("/cities_in_countries", async (req, res) => {
+cities_router.get("/filter_by_countries", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
@@ -86,7 +86,7 @@ cities_router.get("/cities_in_countries", async (req, res) => {
         );
     }
 });
-cities_router.get("/cities_of_monuments", async (req, res) => {
+cities_router.get("/filter_by_monuments", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));

@@ -65,7 +65,7 @@ continents_router.get("/filter_by_id", async (req, res) => {
     }
 });
 
-continents_router.get("/continents_of_countries", async (req, res) => {
+continents_router.get("/filter_by_countries", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));

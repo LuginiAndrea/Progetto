@@ -7,19 +7,13 @@ import { table, values, error_codes, validate_rating } from '../logic/tables/uti
 /******************** CONSTANTS ***********************/
 const visits_router: Router = Router();
 const table_name = "visits";
-// function get_fields(req : Request, language: string) {
-//     return types.exclude_fields_by_language[table_name](language).fields.concat(
-//         req.query.join === "1" ?
-//             [
-//                 ...types.exclude_fields_by_language.continents(language).fields.filter(x => x !== "id"),
-//                 ...types.exclude_fields_by_language.countries(language).fields.filter(x => x !== "id"),
-//             ] :
-//             []
-//     );
-// }
+function get_fields(req: Request, language: string) {
+    return types.get_fields(table_name, table_name).fields.concat(
+        [`monuments.${language}_name AS monument_name`, `ST_X(coordinates::geometry) AS longitude`, `ST_Y(coordinates::geometry) AS latitude`]
+    );
+}
 const join_fields_query = `
-    JOIN Countries ON Countries.id = Cities.fk_country_id
-    JOIN Continents ON Continents.id = Countries.fk_continent_id
+    JOIN monuments ON monuments.id = visits.fk_monument_id
 `;
 /************************************** TABLE ***************************************************/
 visits_router.post("/create_table", async (req, res) => {
@@ -42,22 +36,17 @@ visits_router.delete("/delete_table", async (req, res) => {
 visits_router.get("/all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
-    const fields = types.get_fields(table_name, table_name).fields.concat([
-        `monuments.${language}_name AS monument_name`
-    ]);
+    const fields = get_fields(req, language);
     send_json(res,
-        await values.get.all(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id")
+        await values.get.all(table_name, db_interface, fields, join_fields_query)
     );
 });
-visits_router.get("/visits_of_user", async (req, res) => {
+visits_router.get("/filter_single_by_user", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
-    const fields = types.get_fields(table_name, table_name).fields.concat([
-        `monuments.${language}_name AS monument_name`
-    ]);
-    console.log(res.locals.UID);
+    const fields = get_fields(req, language);
     send_json(res,
-        await values.get.generic(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id WHERE visits.fk_user_id = $1", [res.locals.UID]),
+        await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE visits.fk_user_id = $1`, [res.locals.UID]),
     );
 });
 

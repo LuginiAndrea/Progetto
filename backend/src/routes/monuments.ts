@@ -92,9 +92,10 @@ monuments_router.get("/filter_by_id", async (req, res) => {
     const fields = get_fields(req, language).concat("visits.fk_monument_id AS visit_fk_monument_id");
     send_json(res, 
         await values.get.generic(table_name, db_interface, fields, 
-            join_fields_query + `LEFT JOIN visits ON visits.fk_monument_id = monuments.id 
-            WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)`, [res.locals.UID, ids])
-    );
+            join_fields_query + `LEFT JOIN visits ON visits.fk_monument_id = monuments.id
+            WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)`, [res.locals.UID,ids]) 
+    ); 
+    // WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2) [res.locals.UID,ids] 
 });
 monuments_router.get("/filter_by_rating", async (req, res) => {
     const {valid, operator, rating} = validate_rating(req);
@@ -109,7 +110,7 @@ monuments_router.get("/filter_by_rating", async (req, res) => {
         );
     }
 });
-monuments_router.get("/monuments_in_cities", async (req, res) => {
+monuments_router.get("/filter_by_cities", async (req, res) => {
     const ids = req.query.ids ? 
         (req.query.ids as string).split(",") :
         [];
@@ -124,7 +125,7 @@ monuments_router.get("/monuments_in_cities", async (req, res) => {
         );
     }
 });
-monuments_router.get("/monuments_of_visits", async (req, res) => {
+monuments_router.get("/filter_by_visits", async (req, res) => {
     const ids = req.query.ids ? 
         (req.query.ids as string).split(",") :
         [];
@@ -138,6 +139,27 @@ monuments_router.get("/monuments_of_visits", async (req, res) => {
             await values.get.generic(table_name, db_interface, fields, 
                 `${join_fields_query} WHERE id = ANY (SELECT fk_monument_id = ANY ($1))`, 
                 [ids]
+            )
+        );
+    }
+});
+monuments_router.get("/filter_by_types", async (req, res) => {
+    const ids = req.query.ids ?
+        (req.query.ids as string).split(",") :
+        [];
+    if(ids.length === 0)
+        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
+    else {
+        const db_interface = res.locals.DB_INTERFACE;
+        const language = await get_language_of_user(res.locals.UID, db_interface);
+        const fields = get_fields(req, language).concat([
+            `types_of_monuments.${language}_name AS type_name`, `types_of_monuments.real_name AS type_real_name`
+        ]);
+        send_json(res,
+            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} 
+                JOIN monument_types ON monuments.id = monument_types.fk_monument_id    
+                JOIN types_of_monuments ON types_of_monuments.id = monument_types.fk_type_id
+                WHERE monument_types.fk_type_id = ANY($1)`, [ids]
             )
         );
     }

@@ -1,7 +1,7 @@
 import { app } from "./app";
 import { DB_interface, get_db_uri } from "./logic/db_interface/DB_interface";
 import supertest from "supertest";
-jest.setTimeout(50000);
+jest.setTimeout(30000);
 import { table, values } from "./logic/tables/utils";
 // describe("Top Level routes tests", () => {
 //     // SETUP
@@ -80,8 +80,7 @@ describe("Benchmarks tests", () => {
         await table.create("types_of_monuments", db_interface, true);
         await table.create("monument_types", db_interface, true);
 
-        const res = await request.post("/continents/insert_continents").set("Authorization", "1");
-        // Country
+        const res = await request.post("/continents/insert").set("Authorization", "1");
         await values.insert("countries", db_interface, true, {
             real_name: "Italia",
             it_name: "Italia",
@@ -129,7 +128,7 @@ describe("Benchmarks tests", () => {
             fk_country_id: 3
         });
         // Monument
-        await values.insert("monuments", db_interface, true, {
+        let col_id = await values.insert("monuments", db_interface, true, {
             real_name: "Colosseo",
             it_name: "Colosseo",
             en_name: "Colosseum",
@@ -138,6 +137,8 @@ describe("Benchmarks tests", () => {
             en_description: "The most beautiful monument in the world",
             fk_city_id: 1,
         });
+        if(typeof col_id !== "string")
+            console.log(col_id[0].rows);
         await values.insert("monuments", db_interface, true, {
             real_name: "Piazza di Spagna",
             it_name: "Piazza di Spagna",
@@ -234,21 +235,25 @@ describe("Benchmarks tests", () => {
             fk_type_id: 1,
             fk_monument_id: 2
         });
+        await values.insert("monument_types", db_interface, true, {
+            fk_type_id: 2,
+            fk_monument_id: 3
+        });
         db_interface.close();
     });
     afterAll(async () => {
         const db_interface = new DB_interface({
             connectionString: get_db_uri()
         }, true);
-        // await table.delete("monument_types", db_interface, true);
-        // await table.delete("types_of_monuments", db_interface, true);
-        // await table.delete("visits", db_interface, true);
-        // await table.delete("monuments", db_interface, true);
-        // await table.delete("cities", db_interface, true);
-        // await table.delete("users", db_interface, true);
-        // await table.delete("languages", db_interface, true);
-        // await table.delete("countries", db_interface, true);
-        // await table.delete("continents", db_interface, true);
+        await table.delete("monument_types", db_interface, true);
+        await table.delete("types_of_monuments", db_interface, true);
+        await table.delete("visits", db_interface, true);
+        await table.delete("monuments", db_interface, true);
+        await table.delete("cities", db_interface, true);
+        await table.delete("users", db_interface, true);
+        await table.delete("languages", db_interface, true);
+        await table.delete("countries", db_interface, true);
+        await table.delete("continents", db_interface, true);
         db_interface.close();
         app.locals.DEFAULT_DB_INTERFACE?.close();
     }); 
@@ -292,15 +297,27 @@ describe("Benchmarks tests", () => {
         //         expect(response.body[1].real_name).toBe("Colosseo");
         //     });
         // });
-        // describe("Monuments", () => {
-        //     it("Visited monument", async () => {
-        //         const id = 1; //Colosseo
-        //         const response = await request.get(`/monuments/filter_by_id?ids=${id}`);
-        //         expect(response.status).toBe(200);
-        //         console.log(response.body);
-        //     });
-        // });
-        it("", ()  => { expect(true).toBe(true); });
+        describe("Monuments", () => {
+            it("Visited monument", async () => {
+                const id = 1; //Colosseo
+                const response = await request.get(`/monuments/filter_by_id?ids=${id}`).set("Authorization", "2");
+                expect(response.status).toBe(200);
+                console.log(response.body);
+            });
+            it("By types", async () => {
+                const types = 2; //Museo
+                const response = await request.get(`/monuments/filter_by_types?ids=${types}`);
+                expect(response.status).toBe(200);
+                console.log(response.body);
+            });
+        });
+        describe("Visits", () => {
+            it("Get visits", async () => {
+                const response = await request.get(`/visits/filter_single_by_user`).set("Authorization", "2");
+                expect(response.status).toBe(200);
+                console.log(response.body);
+            });
+        });
     });
 });
         

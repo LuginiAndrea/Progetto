@@ -43,14 +43,14 @@ languages_router.get("/filter_by_id", async (req, res) => {
     }
 });
 
-languages_router.get("/list_single_by_abbreviation/:abbreviation", async (req, res) => {
+languages_router.get("/filter_single_by_abbreviation/:abbreviation", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
         await values.get.generic(table_name, db_interface, "*", "WHERE abbreviation = $1", [req.params.abbreviation])
     );
 });
 
-languages_router.get("/language_of_users", async (req, res) => {
+languages_router.get("/filter_by_users", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     send_json(res,
         await values.get.generic(table_name, db_interface, "*", "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.UID])

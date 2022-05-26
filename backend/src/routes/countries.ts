@@ -57,7 +57,7 @@ countries_router.get("/filter_by_id", async (req, res) => {
     }
 });
 
-countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req, res) => {
+countries_router.get("/filter_single_by_iso_code/:country_iso_code", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
     const fields = get_fields(req, language);
@@ -66,7 +66,7 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", async (req, r
     );
 });
 
-countries_router.get("/countries_in_continents", async (req, res) => { 
+countries_router.get("/filter_by_continents", async (req, res) => { 
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
@@ -81,7 +81,7 @@ countries_router.get("/countries_in_continents", async (req, res) => {
     }
 });
 
-countries_router.get("/countries_of_cities", async (req, res) => {
+countries_router.get("/filter_by_cities", async (req, res) => {
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
