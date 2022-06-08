@@ -95,7 +95,6 @@ monuments_router.get("/filter_by_id", async (req, res) => {
             join_fields_query + `LEFT JOIN visits ON visits.fk_monument_id = monuments.id
             WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)`, [res.locals.UID,ids]) 
     ); 
-    // WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2) [res.locals.UID,ids] 
 });
 monuments_router.get("/filter_by_rating", async (req, res) => {
     const {valid, operator, rating} = validate_rating(req);
@@ -164,6 +163,51 @@ monuments_router.get("/filter_by_types", async (req, res) => {
         );
     }
 });
+/* 3 raccomandazioni:
+    - 1: monumento non visitato col rating più alto in generale
+    - 2: monumento non visitato col rating più altodel type del monumento più amato dall'utente
+    - 3: monumento non visitato col rating più alto della città più amata dall'utente
+*/
+monuments_router.get("/discover", async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    let result = [
+        values.get.generic("monuments", db_interface, get_fields(req, language), `
+            LEFT JOIN visits ON visits.fk_monument_id = monuments.id
+            WHERE visits.fk_user_id = $1 AND visits.fk_monument_id IS NULL
+            ORDER BY (votes_sum / number_of_votes) DESC
+            LIMIT 1`, [res.locals.UID]
+        ),
+        values.get.generic("monuments", db_interface, get_fields(req, language), `
+            LEFT JOIN visits ON visits.fk_monument_id = monuments.id
+            JOIN monument_types ON monuments.id = monument_types.fk_monument_id
+            WHERE visits.fk_user_id = $1 AND visits.fk_monument_id IS NULL
+            AND fk_type_id = ANY(
+                SELECT fk_type_id FROM monument_types JOIN visits ON visits.fk_monument_id = monument_types.fk_monument_id
+                GROUP BY fk_type_id
+                ORDER BY rating
+                LIMIT 1
+            )
+            ORDER BY (votes_sum / number_of_votes) DESC
+            LIMIT 1`, [res.locals.UID]
+        ),
+        values.get.generic("monuments", db_interface, get_fields(req, language), `
+            LEFT JOIN visits ON visits.fk_monument_id = monuments.id
+            WHERE visits.fk_user_id = $1 AND visits.fk_monument_id IS NULL 
+            AND fk_city_id = (
+                SELECT fk_city_id FROM monuments JOIN visits ON visits.fk_monument_id = monuments.id
+                GROUP BY fk_city_id
+                ORDER BY rating
+                LIMIT 1
+            )
+            ORDER BY (votes_sum / number_of_votes) DESC
+            LIMIT 1`, [res.locals.UID]
+        )
+    ];
+    send_json(res, await Promise.all(result));
+});
+
+
 /******************************** POST *****************************/
 monuments_router.post("/insert", async (req, res) => {
     send_json(res,

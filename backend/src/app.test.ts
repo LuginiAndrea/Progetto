@@ -313,7 +313,7 @@ describe("Benchmarks tests", () => {
         });
         describe("Visits", () => {
             it("Get visits", async () => {
-                const response = await request.get(`/visits/filter_single_by_user`).set("Authorization", "2");
+                const response = await request.get(`/visits/filter_by_single_user`).set("Authorization", "2");
                 expect(response.status).toBe(200);
                 console.log(response.body);
             });

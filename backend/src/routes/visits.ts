@@ -41,7 +41,7 @@ visits_router.get("/all", async (req, res) => {
         await values.get.all(table_name, db_interface, fields, join_fields_query)
     );
 });
-visits_router.get("/filter_single_by_user", async (req, res) => {
+visits_router.get("/filter_by_single_user", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
     const fields = get_fields(req, language);

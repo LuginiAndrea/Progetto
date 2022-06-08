@@ -57,7 +57,7 @@ countries_router.get("/filter_by_id", async (req, res) => {
     }
 });
 
-countries_router.get("/filter_single_by_iso_code/:country_iso_code", async (req, res) => {
+countries_router.get("/filter_by_single_iso_code/:country_iso_code", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
     const fields = get_fields(req, language);
