@@ -112,19 +112,42 @@ async function get_generic(table_name: table_name, db_interface: DB_interface, f
 }
 
 type valid_body_types = Exclude<table_name, "continents">; //Continents has all the values pre-inserted, so it's not accepted
+// As of now, insert_values is the only method that accepts an array of values, will be added to update and delete later
 async function insert_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any) {
     if(!is_admin)
         return error_codes.UNAUTHORIZED(table_name);
-    if(!types.body_validators[table_name](data))  //Check if the body is composed in the right way
-        return error_codes.INVALID_BODY(table_name);
-    //Get the name of the fields and the placeholder sequence
-    const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 1); 
-    const values = types.extract_values_of_fields(data, fields); //Get the values of the fields
-    return await db_interface.query(`
-        INSERT INTO ${table_name} (${fields}) VALUES (${placeholder_seq})
-        RETURNING id;`, 
-        values
-    ); 
+    if(Array.isArray(data)) {
+        for (const single of data) {
+            if(!types.body_validators[table_name](single))  //Check if the body is composed in the right way
+                return error_codes.INVALID_BODY(table_name);
+        }
+        const {fields} = types.get_fields(table_name, false, Object.keys(data[0]), false); 
+        const values = data.map(single => types.extract_values_of_fields(single, fields)).flat(); //flatten it to be consumed by the query interface
+        let placeholder_seq = "("; //Generate the placeholder sequence 
+        for (let i = 1; i <= values.length; i++) {
+            placeholder_seq += `$${i}`;
+            if(i % fields.length === 0)  //If the current insert is full start a new one
+                placeholder_seq += "),(";
+            else 
+                placeholder_seq += ",";
+        }
+        placeholder_seq = placeholder_seq.slice(0, -2); //Remove the last ",("            
+        return await db_interface.query(
+            `INSERT INTO ${table_name} (${fields}) VALUES ${placeholder_seq} RETURNING id;`, values
+        );
+    }
+    else {
+        if(!types.body_validators[table_name](data))  //Check if the body is composed in the right way
+            return error_codes.INVALID_BODY(table_name);
+        //Get the name of the fields and the placeholder sequence
+        const {fields, placeholder_seq} = types.get_fields(table_name, false, Object.keys(data), 1); 
+        const values = types.extract_values_of_fields(data, fields); //Get the values of the fields
+        return await db_interface.query(`
+            INSERT INTO ${table_name} (${fields}) VALUES (${placeholder_seq})
+            RETURNING id;`, 
+            values
+        ); 
+    }
 }
 async function update_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any, id: number | string) {
     if(!is_admin)

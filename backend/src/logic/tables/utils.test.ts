@@ -66,23 +66,57 @@ describe("Table operations", () => {
         });
     });
     describe("Insert values", () => {
-        const to_send = {
-            name: "Marcello",
-            number: 5
-        };
-        it("No authorization", async () => {
-            const result = await values.insert("test", db_interface, false, {});
-            expect(result).toEqual(error_codes.UNAUTHORIZED("test"));
-        });
-        it("Authorization but wrong data", async () => {
-            const result = await values.insert("test", db_interface, true, {
-                name: "Mirco"
+        describe("Single value insert", () => {
+            const to_send = {
+                name: "Marcello",
+                number: 5
+            };
+            it("No authorization", async () => {
+                const result = await values.insert("test", db_interface, false, {});
+                expect(result).toEqual(error_codes.UNAUTHORIZED("test"));
             });
-            expect(result).toEqual(error_codes.INVALID_BODY("test"));
+            it("Authorization but wrong data", async () => {
+                const result = await values.insert("test", db_interface, true, {
+                    name: "Mirco"
+                });
+                expect(result).toEqual(error_codes.INVALID_BODY("test"));
+            });
+            it("Authorization and valid data", async () => {
+                const result = await values.insert("test", db_interface, true, to_send);
+                expect((result[0] as QueryResult<any>).rows).toEqual([{id: 1}]);
+            });
         });
-        it("Authorization and valid data", async () => {
-            const result = await values.insert("test", db_interface, true, to_send);
-            expect((result[0] as QueryResult<any>).rows).toEqual([{id: 1}]);
+        describe("Multiple value insert", () => {
+            const to_send = [
+                {
+                    name: "Paolo",
+                    number: 6
+                },
+                {
+                    name: "Mirco",
+                    number: 7
+                }
+            ];
+            it("No authorization", async () => {
+                const result = await values.insert("test", db_interface, false, {});
+                expect(result).toEqual(error_codes.UNAUTHORIZED("test"));
+            });
+            it("Authorization but wrong data", async () => {
+                const result = await values.insert("test", db_interface, true, [
+                    {
+                        name: "Mirco",
+                        number: 7
+                    },
+                    {
+                        name: "Paolo"
+                    }
+                ]);
+                expect(result).toEqual(error_codes.INVALID_BODY("test"));
+            });
+            it("Authorization and valid data", async () => {
+                const result = await values.insert("test", db_interface, true, to_send);
+                expect((result[0] as QueryResult<any>).rows).toEqual([{id: 2}, {id: 3}]);
+            });
         });
     });
     describe("Update values", () => {
@@ -121,7 +155,7 @@ describe("Table operations", () => {
             let result = await values.delete("test", db_interface, true, id);
             expect((result[0] as QueryResult<any>).rows).toEqual([{id: id}]);
             result = await values.get.all("test", db_interface);
-            expect((result[0] as QueryResult<any>).rows).toEqual([]);
+            expect((result[0] as QueryResult<any>).rows.length).toEqual(2);
         });
     });
 });

@@ -49,3 +49,23 @@ types_of_monuments.get("/filter_by_id", async (req, res) => {
         );
     }
 });
+
+/************************************** POST ***************************************************/
+types_of_monuments.post("/insert", async (req, res) => {
+    send_json(res,
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
+        {success: 201}
+    );
+});
+/************************************** PUT ***************************************************/
+types_of_monuments.put("/update/:id", async (req, res) => {
+    send_json(res,
+        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)
+    );
+});
+/************************************** DELETE ***************************************************/
+types_of_monuments.delete("/delete/:id", async (req, res) => {
+    send_json(res,
+        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)
+    );
+});

@@ -42,7 +42,7 @@ function get_fields(table_name: accepted_get_types, alias : string | false = tab
         placeholder_seq: gen_placeholder_seq === false ? "" : generate_placeholder_sequence(fields, gen_placeholder_seq)
     };
 }
-const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any => //Generate an array with the values of the fields
+const extract_values_of_fields = (body: accepted_extract_types, fields: string[]): any[] => //Generate an array with the values of the fields
     fields.map(field => (body as any)[field]); //Gets the values 
 
 // ***************** COUNTRIES *****************
