@@ -9,15 +9,30 @@ type optional_args = {
     error?: number,
 };
 
-function send_json(res: Response, result: DB_result | string | DB_result[], args?: optional_args) {
+function send_json(res: Response, result: DB_result | DB_result[], args?: optional_args) {
     let {success, error} = args || {};
-    if(typeof result === "string") {
-        const destructured_error = result.split("_");
-        const status = error || error_codes_to_status_code(destructured_error);
-        res.status(status).send({error:destructured_error[destructured_error.length - 1]});
+    let status = {
+        code: 200,
+        error_found: false
+    };
+    let to_send: Array<any> = [];
+    if(!(Array.isArray(result) && (Array.isArray(result[0]) || typeof result[0] === "string"))) //In this case it is DB_result[]
+        result = [result as DB_result];
+    for(const single of result as DB_result[]) {
+        if(typeof single === "string") {
+            const destructured_error = single.split("_");
+            const code = error || error_codes_to_status_code(destructured_error);
+            status.error_found = true;
+            status.code = code;
+            to_send.push({code: code, error:destructured_error[destructured_error.length - 1]});
+        }
+        else {
+            status.code = !status.error_found ? success || 200 : status.code;
+            const mapped = single.map(s => s.rows);
+            to_send.push(mapped);
+        }
     }
-    else 
-        res.status(success|| 200).send(result);
+    res.status(status.code).json(to_send);
 }
 
 export {send_json, optional_args};

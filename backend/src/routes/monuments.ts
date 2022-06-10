@@ -171,38 +171,39 @@ monuments_router.get("/filter_by_types", async (req, res) => {
 monuments_router.get("/discover", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const language = await get_language_of_user(res.locals.UID, db_interface);
-    let result = [
+    // LEFT JOIN visits ON visits.fk_monument_id = monuments.id
+    // WHERE visits.fk_user_id = $1 AND visits.fk_monument_id IS NULL
+    let result = [ //Greatest is needed to avoid / by 0 problems, will still give 0 because if number_of_votes is 0, then votes_sum is 0 too
         values.get.generic("monuments", db_interface, get_fields(req, language), `
-            LEFT JOIN visits ON visits.fk_monument_id = monuments.id
-            WHERE visits.fk_user_id = $1 AND visits.fk_monument_id IS NULL
-            ORDER BY (votes_sum / number_of_votes) DESC
+            WHERE monuments.id NOT IN (SELECT fk_monument_id FROM visits WHERE fk_user_id = $1)
+            ORDER BY (votes_sum / GREATEST(number_of_votes, 1)) DESC, number_of_votes DESC
             LIMIT 1`, [res.locals.UID]
         ),
         values.get.generic("monuments", db_interface, get_fields(req, language), `
-            LEFT JOIN visits ON visits.fk_monument_id = monuments.id
             JOIN monument_types ON monuments.id = monument_types.fk_monument_id
-            WHERE visits.fk_user_id = $1 AND visits.fk_monument_id IS NULL
-            AND fk_type_id = ANY(
+            AND monument_types.fk_type_id = ANY(
                 SELECT fk_type_id FROM monument_types JOIN visits ON visits.fk_monument_id = monument_types.fk_monument_id
+                WHERE visits.fk_user_id = $1
                 GROUP BY fk_type_id
-                ORDER BY rating
-                LIMIT 1
-            )
-            ORDER BY (votes_sum / number_of_votes) DESC
+                ORDER BY SUM(rating) DESC
+                FETCH FIRST 1 ROWS WITH TIES
+            ) 
+            AND monuments.id NOT IN (SELECT fk_monument_id FROM visits WHERE fk_user_id = $1)
+            ORDER BY (votes_sum / GREATEST(number_of_votes, 1)) DESC, number_of_votes DESC
             LIMIT 1`, [res.locals.UID]
         ),
         values.get.generic("monuments", db_interface, get_fields(req, language), `
-            LEFT JOIN visits ON visits.fk_monument_id = monuments.id
-            WHERE visits.fk_user_id = $1 AND visits.fk_monument_id IS NULL 
-            AND fk_city_id = (
+            WHERE monuments.fk_city_id = (
                 SELECT fk_city_id FROM monuments JOIN visits ON visits.fk_monument_id = monuments.id
+                WHERE visits.fk_user_id = $1
                 GROUP BY fk_city_id
-                ORDER BY rating
-                LIMIT 1
+                ORDER BY SUM(rating) DESC
+                FETCH FIRST 1 ROWS WITH TIES
             )
-            ORDER BY (votes_sum / number_of_votes) DESC
+            AND monuments.id NOT IN (SELECT fk_monument_id FROM visits WHERE fk_user_id = $1)
+            ORDER BY (votes_sum / GREATEST(number_of_votes, 1)) DESC, number_of_votes DESC
             LIMIT 1`, [res.locals.UID]
-        )
+        ) //The FETCH WITH TIES is used as a limit 1 which also includes rows with the same value as the top one
     ];
     send_json(res, await Promise.all(result));
 });
