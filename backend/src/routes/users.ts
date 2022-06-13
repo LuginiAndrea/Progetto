@@ -48,19 +48,24 @@ users_router.get("/filter_by_id", async (req, res) => {
 });
 
 users_router.post("/insert", async (req, res) => {
-    send_json(res,
-        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
-        {success: 201}
-    );
+    if(!res.locals.is_admin && req.body.is_admin === true)
+        send_json(res, error_codes.UNAUTHORIZED(table_name));
+    else 
+        send_json(res,
+            await values.insert(table_name, res.locals.DB_INTERFACE, true, {id: res.locals.UID, ...req.body}),
+            {success: 201}
+        );
 });
 users_router.put("/update/:id", async (req, res) => {
+    if(!res.locals.is_admin && req.body.is_admin !== undefined)
+        send_json(res, error_codes.UNAUTHORIZED(table_name));
     send_json(res,
-        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)
+        await values.update(table_name, res.locals.DB_INTERFACE, true, req.body, res.locals.UID)
     );
 });
 users_router.delete("/delete/:id", async (req, res) => {
     send_json(res,
-        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)
+        await values.delete(table_name, res.locals.DB_INTERFACE, true, res.locals.UID)
     );
 });
 

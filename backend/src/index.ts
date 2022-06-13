@@ -17,6 +17,7 @@ app.listen(process.env.PORT || 8080, () => { // On start connect to Database
     try { // Do this
         app.locals.FIREBASE_APP = admin.initializeApp({
             credential: admin.credential.cert(service_account),
+            storageBucket: process.env.FIREBASE_BUCKET_URL
         });
     }
     catch(error) {

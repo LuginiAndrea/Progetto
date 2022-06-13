@@ -138,7 +138,7 @@ countries_router.get("/filter_by_id", function (req, res) { return __awaiter(voi
         }
     });
 }); });
-countries_router.get("/list_single_by_iso_code/:country_iso_code", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.get("/filter_by_single_iso_code/:country_iso_code", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -157,7 +157,7 @@ countries_router.get("/list_single_by_iso_code/:country_iso_code", function (req
         }
     });
 }); });
-countries_router.get("/countries_in_continents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.get("/filter_by_continents", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -182,7 +182,7 @@ countries_router.get("/countries_in_continents", function (req, res) { return __
         }
     });
 }); });
-countries_router.get("/countries_of_cities", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+countries_router.get("/filter_by_cities", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {

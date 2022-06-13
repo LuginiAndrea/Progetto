@@ -63,7 +63,8 @@ var error_codes = {
     INVALID_QUERY: gen_error_code("e_1_Invalid Query"),
     NO_REFERENCED_ITEM: gen_error_code("e_1_No Referenced Item"),
     NO_ROW_AFFECTED: gen_error_code("e_2_No Row Affected"),
-    NO_EXISTING_TABLE: gen_error_code("e_2_No Existing Table")
+    NO_EXISTING_TABLE: gen_error_code("e_2_No Existing Table"),
+    GENERIC: gen_error_code("i_0_Generic")
 };
 exports.error_codes = error_codes;
 function error_codes_to_status_code(error_code) {
@@ -96,20 +97,20 @@ function create_table(table_name, db_interface, is_admin) {
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
                     if (!(table_name === "visits")) return [3 /*break*/, 2];
-                    return [4 /*yield*/, db_interface.transiction([
+                    return [4 /*yield*/, db_interface.transaction([
                             tables_1.table_creates.visits,
                             functions_1.update_monument_rating,
-                            triggers_1.update_visits_rating_trigger, // and functions
+                            triggers_1.update_visits_rating_trigger // and functions
                         ])];
                 case 1:
                     result = _a.sent();
                     return [3 /*break*/, 6];
                 case 2:
                     if (!(table_name === "monuments")) return [3 /*break*/, 4];
-                    return [4 /*yield*/, db_interface.transiction([
+                    return [4 /*yield*/, db_interface.transaction([
                             tables_1.table_creates.monuments,
                             functions_1.update_city_rating,
-                            triggers_1.update_monument_rating_trigger,
+                            triggers_1.update_monument_rating_trigger
                         ])];
                 case 3:
                     result = _a.sent();
@@ -134,7 +135,7 @@ function delete_table(table_name, db_interface, is_admin) {
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
                     if (!(table_name === "visits")) return [3 /*break*/, 2];
-                    return [4 /*yield*/, db_interface.transiction([
+                    return [4 /*yield*/, db_interface.transaction([
                             "DROP FUNCTION IF EXISTS update_monument_rating() CASCADE;",
                             "DROP TABLE visits;" //things too
                         ])];
@@ -143,7 +144,7 @@ function delete_table(table_name, db_interface, is_admin) {
                     return [3 /*break*/, 6];
                 case 2:
                     if (!(table_name === "monuments")) return [3 /*break*/, 4];
-                    return [4 /*yield*/, db_interface.transiction([
+                    return [4 /*yield*/, db_interface.transaction([
                             "DROP FUNCTION IF EXISTS update_city_rating() CASCADE;",
                             "DROP TABLE monuments;"
                         ])];
@@ -215,20 +216,42 @@ function get_generic(table_name, db_interface, fields, rest_of_query, args) {
         });
     });
 }
+// As of now, insert_values is the only method that accepts an array of values, will be added to update and delete later
 function insert_values(table_name, db_interface, is_admin, data) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, fields, placeholder_seq, values;
+        var _i, data_1, single, fields_1, values_1, placeholder_seq, i, _a, fields, placeholder_seq, values_2;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
+                    if (!Array.isArray(data)) return [3 /*break*/, 2];
+                    for (_i = 0, data_1 = data; _i < data_1.length; _i++) {
+                        single = data_1[_i];
+                        if (!DB_interface_1.req_types.body_validators[table_name](single)) //Check if the body is composed in the right way
+                            return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
+                    }
+                    fields_1 = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data[0]), false).fields;
+                    values_1 = data.map(function (single) { return DB_interface_1.req_types.extract_values_of_fields(single, fields_1); }).flat();
+                    placeholder_seq = "(";
+                    for (i = 1; i <= values_1.length; i++) {
+                        placeholder_seq += "$".concat(i);
+                        if (i % fields_1.length === 0) //If the current insert is full start a new one
+                            placeholder_seq += "),(";
+                        else
+                            placeholder_seq += ",";
+                    }
+                    placeholder_seq = placeholder_seq.slice(0, -2); //Remove the last ",("            
+                    return [4 /*yield*/, db_interface.query("INSERT INTO ".concat(table_name, " (").concat(fields_1, ") VALUES ").concat(placeholder_seq, " RETURNING id;"), values_1)];
+                case 1: //Remove the last ",("            
+                return [2 /*return*/, _b.sent()];
+                case 2:
                     if (!DB_interface_1.req_types.body_validators[table_name](data)) //Check if the body is composed in the right way
                         return [2 /*return*/, error_codes.INVALID_BODY(table_name)];
                     _a = DB_interface_1.req_types.get_fields(table_name, false, Object.keys(data), 1), fields = _a.fields, placeholder_seq = _a.placeholder_seq;
-                    values = DB_interface_1.req_types.extract_values_of_fields(data, fields);
-                    return [4 /*yield*/, db_interface.query("\n        INSERT INTO ".concat(table_name, " (").concat(fields, ") VALUES (").concat(placeholder_seq, ")\n        RETURNING id;"), values)];
-                case 1: //Get the values of the fields
+                    values_2 = DB_interface_1.req_types.extract_values_of_fields(data, fields);
+                    return [4 /*yield*/, db_interface.query("\n            INSERT INTO ".concat(table_name, " (").concat(fields, ") VALUES (").concat(placeholder_seq, ")\n            RETURNING id;"), values_2)];
+                case 3: //Get the values of the fields
                 return [2 /*return*/, _b.sent()];
             }
         });

@@ -132,7 +132,7 @@ var DB_interface = /** @class */ (function () {
             });
         });
     };
-    DB_interface.prototype.transiction = function (queries, params, close_connection) {
+    DB_interface.prototype.transaction = function (queries, params, close_connection) {
         if (params === void 0) { params = []; }
         if (close_connection === void 0) { close_connection = false; }
         return __awaiter(this, void 0, void 0, function () {
@@ -168,7 +168,7 @@ var DB_interface = /** @class */ (function () {
                         return [2 /*return*/, result];
                     case 8:
                         error_2 = _c.sent();
-                        console.log("On transiction:\n ".concat(error_2, ": ").concat(error_2.code)); // Disable in production
+                        console.log("On transaction:\n ".concat(error_2, ": ").concat(error_2.code)); // Disable in production
                         return [4 /*yield*/, this.pool.query('ROLLBACK')];
                     case 9:
                         _c.sent();

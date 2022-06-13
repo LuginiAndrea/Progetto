@@ -55,17 +55,10 @@ var utils_3 = require("../logic/tables/utils");
 /******************** CONSTANTS ***********************/
 var visits_router = (0, express_1.Router)();
 var table_name = "visits";
-// function get_fields(req : Request, language: string) {
-//     return types.exclude_fields_by_language[table_name](language).fields.concat(
-//         req.query.join === "1" ?
-//             [
-//                 ...types.exclude_fields_by_language.continents(language).fields.filter(x => x !== "id"),
-//                 ...types.exclude_fields_by_language.countries(language).fields.filter(x => x !== "id"),
-//             ] :
-//             []
-//     );
-// }
-var join_fields_query = "\n    JOIN Countries ON Countries.id = Cities.fk_country_id\n    JOIN Continents ON Continents.id = Countries.fk_continent_id\n";
+function get_fields(req, language) {
+    return DB_interface_1.req_types.get_fields(table_name, table_name).fields.concat(["monuments.".concat(language, "_name AS monument_name"), "ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"]);
+}
+var join_fields_query = "\n    JOIN monuments ON monuments.id = visits.fk_monument_id\n";
 /************************************** TABLE ***************************************************/
 visits_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
@@ -119,19 +112,17 @@ visits_router.get("/all", function (req, res) { return __awaiter(void 0, void 0,
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
-                fields = DB_interface_1.req_types.get_fields(table_name, table_name).fields.concat([
-                    "monuments.".concat(language, "_name AS monument_name")
-                ]);
+                fields = get_fields(req, language);
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id")];
+                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, fields, join_fields_query)];
             case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
         }
     });
 }); });
-visits_router.get("/visits_of_user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+visits_router.get("/filter_by_single_user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -140,13 +131,10 @@ visits_router.get("/visits_of_user", function (req, res) { return __awaiter(void
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
             case 1:
                 language = _c.sent();
-                fields = DB_interface_1.req_types.get_fields(table_name, table_name).fields.concat([
-                    "monuments.".concat(language, "_name AS monument_name")
-                ]);
-                console.log(res.locals.UID);
+                fields = get_fields(req, language);
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.get.generic(table_name, db_interface, fields, "JOIN monuments ON monuments.id = visits.fk_monument_id WHERE visits.fk_user_id = $1", [res.locals.UID])];
+                return [4 /*yield*/, utils_3.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE visits.fk_user_id = $1"), [res.locals.UID])];
             case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];

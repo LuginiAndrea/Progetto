@@ -50,6 +50,7 @@ var utils_1 = require("../utils");
 var DB_interface_1 = require("../logic/db_interface/DB_interface");
 var utils_2 = require("../logic/tables/utils");
 var utils_3 = require("../logic/users/utils");
+var storage_1 = require("firebase-admin/storage");
 /******************** CONSTANTS ***********************/
 var monuments_router = (0, express_1.Router)();
 var table_name = "monuments";
@@ -187,7 +188,7 @@ monuments_router.get("/filter_by_id", function (req, res) { return __awaiter(voi
                 fields = get_fields(req, language).concat("visits.fk_monument_id AS visit_fk_monument_id");
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, join_fields_query + "LEFT JOIN visits ON visits.fk_monument_id = monuments.id \n            WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)", [res.locals.UID, ids])];
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, join_fields_query + "LEFT JOIN visits ON visits.fk_monument_id = monuments.id\n            WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)", [res.locals.UID, ids])];
             case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -219,7 +220,7 @@ monuments_router.get("/filter_by_rating", function (req, res) { return __awaiter
         }
     });
 }); });
-monuments_router.get("/monuments_in_cities", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+monuments_router.get("/filter_by_cities", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -246,7 +247,7 @@ monuments_router.get("/monuments_in_cities", function (req, res) { return __awai
         }
     });
 }); });
-monuments_router.get("/monuments_of_visits", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+monuments_router.get("/filter_by_visits", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -270,6 +271,64 @@ monuments_router.get("/monuments_of_visits", function (req, res) { return __awai
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 _c.label = 4;
             case 4: return [2 /*return*/];
+        }
+    });
+}); });
+monuments_router.get("/filter_by_types", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var ids, db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                ids = req.query.ids ?
+                    req.query.ids.split(",") :
+                    [];
+                if (!(ids.length === 0)) return [3 /*break*/, 1];
+                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
+                return [3 /*break*/, 4];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
+            case 2:
+                language = _c.sent();
+                fields = get_fields(req, language).concat([
+                    "types_of_monuments.".concat(language, "_name AS type_name"),
+                    "types_of_monuments.real_name AS type_real_name"
+                ]);
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " \n                JOIN monument_types ON monuments.id = monument_types.fk_monument_id    \n                JOIN types_of_monuments ON types_of_monuments.id = monument_types.fk_type_id\n                WHERE monument_types.fk_type_id = ANY($1)"), [ids])];
+            case 3:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                _c.label = 4;
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+/* 3 raccomandazioni:
+    - 1: monumento non visitato col rating più alto in generale
+    - 2: monumento non visitato col rating più altodel type del monumento più amato dall'utente
+    - 3: monumento non visitato col rating più alto della città più amata dall'utente
+*/
+monuments_router.get("/discover", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, result, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
+            case 1:
+                language = _c.sent();
+                result = [
+                    utils_2.values.get.generic("monuments", db_interface, get_fields(req, language), "\n            WHERE monuments.id NOT IN (SELECT fk_monument_id FROM visits WHERE fk_user_id = $1)\n            ORDER BY (votes_sum / GREATEST(number_of_votes, 1)) DESC, number_of_votes DESC\n            LIMIT 1", [res.locals.UID]),
+                    utils_2.values.get.generic("monuments", db_interface, get_fields(req, language), "\n            JOIN monument_types ON monuments.id = monument_types.fk_monument_id\n            AND monument_types.fk_type_id = ANY(\n                SELECT fk_type_id FROM monument_types JOIN visits ON visits.fk_monument_id = monument_types.fk_monument_id\n                WHERE visits.fk_user_id = $1\n                GROUP BY fk_type_id\n                ORDER BY SUM(rating) DESC\n                FETCH FIRST 1 ROWS WITH TIES\n            ) \n            AND monuments.id NOT IN (SELECT fk_monument_id FROM visits WHERE fk_user_id = $1)\n            ORDER BY (votes_sum / GREATEST(number_of_votes, 1)) DESC, number_of_votes DESC\n            LIMIT 1", [res.locals.UID]),
+                    utils_2.values.get.generic("monuments", db_interface, get_fields(req, language), "\n            WHERE monuments.fk_city_id = (\n                SELECT fk_city_id FROM monuments JOIN visits ON visits.fk_monument_id = monuments.id\n                WHERE visits.fk_user_id = $1\n                GROUP BY fk_city_id\n                ORDER BY SUM(rating) DESC\n                FETCH FIRST 1 ROWS WITH TIES\n            )\n            AND monuments.id NOT IN (SELECT fk_monument_id FROM visits WHERE fk_user_id = $1)\n            ORDER BY (votes_sum / GREATEST(number_of_votes, 1)) DESC, number_of_votes DESC\n            LIMIT 1", [res.locals.UID]) //The FETCH WITH TIES is used as a limit 1 which also includes rows with the same value as the top one
+                ];
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, Promise.all(result)];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
         }
     });
 }); });
@@ -305,15 +364,19 @@ monuments_router.put("/update/:id", function (req, res) { return __awaiter(void 
 }); });
 /************************************** DELETE ***************************************************/
 monuments_router["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                _a = utils_1.send_json;
-                _b = [res];
-                return [4 /*yield*/, utils_2.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
+    var result, bucket;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, utils_2.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
             case 1:
-                _a.apply(void 0, _b.concat([_c.sent()]));
+                result = _a.sent();
+                if (typeof result !== "string") {
+                    bucket = (0, storage_1.getStorage)().bucket();
+                    bucket.deleteFiles({
+                        prefix: "".concat(req.params.id, "_")
+                    });
+                }
+                (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
     });

@@ -18,6 +18,7 @@ const error_codes = { //Based on the prefix we select the right error code, afte
     NO_REFERENCED_ITEM: gen_error_code("e_1_No Referenced Item"),
     NO_ROW_AFFECTED: gen_error_code("e_2_No Row Affected"),
     NO_EXISTING_TABLE: gen_error_code("e_2_No Existing Table"),
+    GENERIC: gen_error_code("i_0_Generic"),
 }
 function error_codes_to_status_code(error_code: string[]) {
     if(error_code[0].startsWith("i")) //Internal errors

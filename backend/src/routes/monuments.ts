@@ -3,6 +3,7 @@ import { send_json } from '../utils';
 import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
 import { get_language_of_user } from '../logic/users/utils';
+import { getStorage } from "firebase-admin/storage";
 
 /******************** CONSTANTS ***********************/
 const monuments_router = Router();
@@ -178,7 +179,7 @@ monuments_router.get("/discover", async (req, res) => {
             WHERE monuments.id NOT IN (SELECT fk_monument_id FROM visits WHERE fk_user_id = $1)
             ORDER BY (votes_sum / GREATEST(number_of_votes, 1)) DESC, number_of_votes DESC
             LIMIT 1`, [res.locals.UID]
-        ),
+        ), //May replace it with a UNION query after remodeling with PRISMA
         values.get.generic("monuments", db_interface, get_fields(req, language), `
             JOIN monument_types ON monuments.id = monument_types.fk_monument_id
             AND monument_types.fk_type_id = ANY(
@@ -224,9 +225,14 @@ monuments_router.put("/update/:id", async (req, res) => {
 });
 /************************************** DELETE ***************************************************/
 monuments_router.delete("/delete/:id", async (req, res) => {
-    send_json(res,
-        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)
-    );
+    const result = await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id);
+    if(typeof result !== "string") {
+        const bucket = getStorage().bucket();
+        bucket.deleteFiles({
+            prefix: `${req.params.id}_`
+        });
+    }
+    send_json(res, result);
 });
 
 export default monuments_router;

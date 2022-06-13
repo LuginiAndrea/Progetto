@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import { DB_interface } from "../db_interface/DB_interface";
 import { app } from "../../app";
-// import * as admin from "firebase-admin";
+import * as admin from "firebase-admin";
 import { error_codes } from "../tables/utils";
 import { send_json } from "../../utils";
 
@@ -15,8 +15,13 @@ async function authenticate_user(req: Request, res: Response, next: NextFunction
     //     try {
     //         const decoded_token = await firebase_app.auth().verifyIdToken(auth_token);
     //         res.locals.UID = decoded_token.uid;
-    //         res.locals.is_admin = res.locals.UID === process.env.FIREBASE_ADMIN_UID;
-    //         next();
+    //         const db_interface = app.locals.DB_INTERFACE as DB_interface;
+    //         const result = await db_interface.query("SELECT is_admin FROM Users WHERE id = $1", [res.locals.UID]);
+    //         if(typeof result === "string") send_json(res, error_codes.GENERIC("Error in getting the role of the user"));
+    //         else {
+    //             res.locals.is_admin = result[0].rows[0].is_admin;
+    //             next();
+    //         }
     //     }
     //     catch(error) {
     //         send_json(res, error_codes.NOT_VALID_TOKEN("authentication"));
@@ -34,7 +39,7 @@ async function authenticate_user(req: Request, res: Response, next: NextFunction
 //Implementare lettura dall'header della risposta
 // nel caso sia presente 
 
-async function get_language_of_user (uid: string, db_instance: DB_interface) {
+async function get_language_of_user(uid: string, db_instance: DB_interface) {
     const result = await db_instance.query(
         `SELECT abbreviation FROM Languages
         WHERE id = (SELECT fk_language_id FROM Users WHERE id = $1)`, [uid]

@@ -39,7 +39,8 @@ app_1.app.listen(process.env.PORT || 8080, function () {
     }
     try { // Do this
         app_1.app.locals.FIREBASE_APP = admin.initializeApp({
-            credential: admin.credential.cert(service_account)
+            credential: admin.credential.cert(service_account),
+            storageBucket: process.env.FIREBASE_BUCKET_URL
         });
     }
     catch (error) {

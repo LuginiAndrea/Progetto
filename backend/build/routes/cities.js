@@ -171,7 +171,7 @@ cities_router.get("/filter_by_rating", function (req, res) { return __awaiter(vo
         }
     });
 }); });
-cities_router.get("/cities_in_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+cities_router.get("/filter_by_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -196,7 +196,7 @@ cities_router.get("/cities_in_countries", function (req, res) { return __awaiter
         }
     });
 }); });
-cities_router.get("/cities_of_monuments", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+cities_router.get("/filter_by_monuments", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {

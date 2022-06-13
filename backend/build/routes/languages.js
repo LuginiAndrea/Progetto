@@ -122,7 +122,7 @@ languages_router.get("/filter_by_id", function (req, res) { return __awaiter(voi
         }
     });
 }); });
-languages_router.get("/list_single_by_abbreviation/:abbreviation", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+languages_router.get("/filter_single_by_abbreviation/:abbreviation", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -137,7 +137,7 @@ languages_router.get("/list_single_by_abbreviation/:abbreviation", function (req
         }
     });
 }); });
-languages_router.get("/language_of_users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+languages_router.get("/filter_by_users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {

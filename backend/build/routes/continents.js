@@ -146,7 +146,7 @@ continents_router.get("/filter_by_id", function (req, res) { return __awaiter(vo
         }
     });
 }); });
-continents_router.get("/continents_of_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+continents_router.get("/filter_by_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, db_interface, _a, _b, _c, _d, _e, _f, _g;
     return __generator(this, function (_h) {
         switch (_h.label) {
