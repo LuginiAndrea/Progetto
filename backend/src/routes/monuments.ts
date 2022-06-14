@@ -213,24 +213,29 @@ monuments_router.get("/discover", async (req, res) => {
 /******************************** POST *****************************/
 monuments_router.post("/insert", async (req, res) => {
     send_json(res,
-        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body),
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
         {success: 201}
     );
 });
 /************************************** PUT ***************************************************/
 monuments_router.put("/update/:id", async (req, res) => {
     send_json(res,
-        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)
+        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)
     );
 });
 /************************************** DELETE ***************************************************/
 monuments_router.delete("/delete/:id", async (req, res) => {
-    const result = await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id);
+    const result = await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id);
     if(typeof result !== "string") {
-        const bucket = getStorage().bucket();
-        bucket.deleteFiles({
-            prefix: `${req.params.id}_`
-        });
+        try {
+            const bucket = getStorage().bucket();
+            await bucket.deleteFiles({
+                prefix: `${req.params.id}_`
+            });
+        } catch(err) {
+            send_json(res, error_codes.GENERIC("Error deleting files"));
+            return;
+        }
     }
     send_json(res, result);
 });

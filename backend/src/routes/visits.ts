@@ -56,20 +56,20 @@ visits_router.post("/insert", async (req, res) => {
         ...req.body
     };
     send_json(res,
-        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, body),
+        await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, body),
         { success: 201 }
     );
 });
 
 visits_router.put("/update/:id", async (req, res) => {
     send_json(res,
-        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)
+        await values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)
     );
 });
 
 visits_router.delete("/delete/:id", async (req, res) => {
     send_json(res,
-        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)
+        await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)
     );
 });
 export default visits_router;

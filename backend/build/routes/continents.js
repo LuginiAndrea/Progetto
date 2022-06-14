@@ -93,7 +93,7 @@ continents_router.post("/insert", function (req, res) { return __awaiter(void 0,
         switch (_a.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
-                return [4 /*yield*/, db_interface.query("\n        INSERT INTO continents (id, it_name, en_name) VALUES \n        (0, 'Europa', 'Europe'), \n        (1, 'Asia', 'Asia'), \n        (2, 'Nord America', 'North America'), \n        (3, 'Sud America', 'South America'),\n        (4, 'America Centrale', 'Central America'), \n        (5, 'Africa', 'Africa'), \n        (6, 'Oceania', 'Oceania'), \n        (7, 'Antartica', 'Antarctica');")];
+                return [4 /*yield*/, db_interface.query("\n        INSERT INTO continents (id, it_name, en_name) VALUES \n        (1, 'Europa', 'Europe'), \n        (2, 'Asia', 'Asia'), \n        (3, 'Nord America', 'North America'), \n        (4, 'Sud America', 'South America'),\n        (5, 'America Centrale', 'Central America'), \n        (6, 'Africa', 'Africa'), \n        (7, 'Oceania', 'Oceania'), \n        (8, 'Antartica', 'Antarctica');")];
             case 1:
                 result = _a.sent();
                 (0, utils_2.send_json)(res, result, { success: 201 });

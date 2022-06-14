@@ -149,7 +149,7 @@ visits_router.post("/insert", function (req, res) { return __awaiter(void 0, voi
                 body = __assign({ fk_user_id: res.locals.UID }, req.body);
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, body)];
+                return [4 /*yield*/, utils_3.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, body)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
                 return [2 /*return*/];
@@ -163,7 +163,7 @@ visits_router.put("/update/:id", function (req, res) { return __awaiter(void 0, 
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)];
+                return [4 /*yield*/, utils_3.values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -177,7 +177,7 @@ visits_router["delete"]("/delete/:id", function (req, res) { return __awaiter(vo
             case 0:
                 _a = utils_2.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_3.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
+                return [4 /*yield*/, utils_3.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];

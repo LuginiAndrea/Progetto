@@ -28,14 +28,14 @@ continents_router.post("/insert", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
     const result = await db_interface.query(`
         INSERT INTO continents (id, it_name, en_name) VALUES 
-        (0, 'Europa', 'Europe'), 
-        (1, 'Asia', 'Asia'), 
-        (2, 'Nord America', 'North America'), 
-        (3, 'Sud America', 'South America'),
-        (4, 'America Centrale', 'Central America'), 
-        (5, 'Africa', 'Africa'), 
-        (6, 'Oceania', 'Oceania'), 
-        (7, 'Antartica', 'Antarctica');`
+        (1, 'Europa', 'Europe'), 
+        (2, 'Asia', 'Asia'), 
+        (3, 'Nord America', 'North America'), 
+        (4, 'Sud America', 'South America'),
+        (5, 'America Centrale', 'Central America'), 
+        (6, 'Africa', 'Africa'), 
+        (7, 'Oceania', 'Oceania'), 
+        (8, 'Antartica', 'Antarctica');`
     );
     send_json(res, result, {success: 201});
 });

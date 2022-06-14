@@ -340,7 +340,7 @@ monuments_router.post("/insert", function (req, res) { return __awaiter(void 0, 
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body)];
+                return [4 /*yield*/, utils_2.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
                 return [2 /*return*/];
@@ -355,7 +355,7 @@ monuments_router.put("/update/:id", function (req, res) { return __awaiter(void 
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.update(table_name, res.locals.DB_INTERFACE, res.locals.role, req.body, req.params.id)];
+                return [4 /*yield*/, utils_2.values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -364,18 +364,28 @@ monuments_router.put("/update/:id", function (req, res) { return __awaiter(void 
 }); });
 /************************************** DELETE ***************************************************/
 monuments_router["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result, bucket;
+    var result, bucket, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, utils_2.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.role, req.params.id)];
+            case 0: return [4 /*yield*/, utils_2.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)];
             case 1:
                 result = _a.sent();
-                if (typeof result !== "string") {
-                    bucket = (0, storage_1.getStorage)().bucket();
-                    bucket.deleteFiles({
+                if (!(typeof result !== "string")) return [3 /*break*/, 5];
+                _a.label = 2;
+            case 2:
+                _a.trys.push([2, 4, , 5]);
+                bucket = (0, storage_1.getStorage)().bucket();
+                return [4 /*yield*/, bucket.deleteFiles({
                         prefix: "".concat(req.params.id, "_")
-                    });
-                }
+                    })];
+            case 3:
+                _a.sent();
+                return [3 /*break*/, 5];
+            case 4:
+                err_1 = _a.sent();
+                (0, utils_1.send_json)(res, utils_2.error_codes.GENERIC("Error deleting files"));
+                return [2 /*return*/];
+            case 5:
                 (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }

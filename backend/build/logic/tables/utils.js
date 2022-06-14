@@ -72,9 +72,9 @@ function error_codes_to_status_code(error_code) {
         return 500;
     if (error_code[0] === "23505") //Conflict
         return 409;
-    if (error_code[1] === "0_") //Forbidden
+    if (error_code[1] === "0") //Forbidden
         return 403;
-    if (error_code[1] === "1_") //Error in the request
+    if (error_code[1] === "1") //Error in the request
         return 400;
     if (error_code[0] === "42P01" || error_code[1] === "2_") //Not found
         return 404;
