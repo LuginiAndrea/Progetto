@@ -1,11 +1,5 @@
-// *************************************************************************************************
-// -------------------- In production remove the dev_shortcuts folder -----------------------------*
-// -------------------- In production also remove the SQL folder and the .env file. -------------- *
-// *************************************************************************************************
-
 import "dotenv/config";
 import express from "express";
-// import db_shortcut_router from "./routes/dev_shortcuts/DB_shortcuts"; // Remove this in production code
 import users_router from "./routes/users";
 import countries_router from "./routes/countries";
 import continents_router from "./routes/continents";
@@ -25,7 +19,6 @@ app.use(validate_db_status);
 app.use(bodyParser.json());
 app.use(authenticate_user)
 
-// app.use("/db_shortcuts", db_shortcut_router); // Remove this in production code
 app.use("/languages", languages_router);
 app.use("/countries", countries_router);
 app.use("/users", users_router);
