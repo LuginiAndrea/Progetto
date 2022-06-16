@@ -41,7 +41,6 @@ const create_languages_table =
 const create_users_table = // 1 = English
     `CREATE TABLE IF NOT EXISTS Users (
         id INTEGER PRIMARY KEY,
-        is_admin BOOLEAN DEFAULT FALSE,
         fk_language_id INTEGER DEFAULT 1 REFERENCES Languages
             ON DELETE SET DEFAULT
             ON UPDATE CASCADE

@@ -3,7 +3,7 @@ const fields_dictionary = { //List of all the tables with all the fields in them
     countries: ["id", "real_name", "it_name", "en_name", "iso_alpha_3", "fk_continent_id"],
     cities: ["id", "real_name", "it_name", "en_name", "number_of_votes", "votes_sum", "fk_country_id"],
     languages: ["id", "name", "abbreviation"],
-    users: ["id", "is_admin", "fk_language_id"],
+    users: ["id", "fk_language_id"],
     monuments: ["id", "real_name", "it_name", "en_name", "coordinates", "it_description", "en_description", "number_of_votes", "votes_sum", "fk_city_id"],
     visits: ["id", "rating", "private_description", "date_time", "fk_user_id", "fk_monument_id"],
     types_of_monuments: ["id", "real_name", "it_name", "en_name", "it_description", "en_description"],

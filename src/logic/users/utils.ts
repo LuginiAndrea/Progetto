@@ -15,11 +15,8 @@ async function authenticate_user(req: Request, res: Response, next: NextFunction
         try {
             const decoded_token = await firebase_app.auth().verifyIdToken(auth_token);
             res.locals.UID = decoded_token.uid;
-            const db_interface = app.locals.DB_INTERFACE as DB_interface;
-            const result = await db_interface.query("SELECT is_admin FROM Users WHERE id = $1", [res.locals.UID]);
-            if(typeof result === "string") send_json(res, error_codes.GENERIC("Error in getting the role of the user"));
-            else {
-                res.locals.is_admin = result[0].rows[0].is_admin;
+            if(res.locals.UID === process.env.FIREBASE_SUPERADMIN_UID) {
+                res.locals.is_admin;
                 next();
             }
         }
