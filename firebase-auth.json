@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "time-travel-a262e",
+  "private_key_id": "b2523b8b587322169aeb0fac299046f8e5572f4b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDFxOIBwfduelQf\nD/DdjUV+nqM58yJ28AKdtZyKLoOfPVIW1JhynkMqSf30Q+CbSp5gMRwIguDG5imu\nFQJD2CYUPeMJQce7xFpC+PiB3vSpybxdWrIPK2RtgdPnwwL8CCvIxJHg/c8sixmc\nK2XygoexBfW/MH9CIMaM81raMnCTqoMvodtwnhNcrGCw3nqoaYiT+2OE+k/QArZM\nMlQfD0Tx35rl7QC+e1CwywV5ytPlMMyFAmzeuNbCyKaYHK0bKerBcA5Rz9DdtR4f\nwWRveoh6593q12ZkYGkfEfPyUxBr8G3G/ovaoz8pnh/28kZyGBlBo2qpBtIhgRmX\n6hfh4JerAgMBAAECggEAGfg1t1u0SpZsrRwyRF2J28vSt52E5Tpfauc6FEPHC+Yz\np9ooifCHSv/RWxMouiuiar44Jf6jAUCgW4LYZnaf4CDqSxZktx7caBalHKSy2wgp\nyyvJiEgUlXQAErB0bV+t+YdPzUwhjtdV4xXTJXUHgsg7Z2zjtm1zCneQSBO/MwdB\ntIx/wWai6MKXJX08wniAKaz47t3krhbjip14LzZ7pdX2zqbakLlXSojuwFim366J\nPZUma7o6bYQb3bJlJAWcmemFH8AoAm228tqAi7jVe7nIYUrce+VwyhRbHWkeNsWY\nmVw7KTveZR9eeMXfwsmxSy6/0ZOTEQg2Br6D9QX5PQKBgQD75zyybbJa5cpzImJP\npLY2z06jMmW58y3hACoN4CSpNIsoAIbjHUad+F+FkmtRhH5IK9lDz/SmpEUNvBy6\nFMC7T89M55y9eIBE9yIAd7DDvd4i3HgiFVPCEbUqUSWQvnI0Q0JlasYy3jbqHu9/\ntGW6aN+8zgQzJ89axc7F52mjpQKBgQDI/EQNZ2pLvcAc8Q0UUi5ONU3I61uMcC6y\nHukM+hOHpU4+BFJDTWQJFdlzreY32xmfkYZynIcIa0421UJdaymNYUsIYj5jCUGE\n8TCngyhdGOE2NmjkSrVksgOiXX2mJ3PckMtKdkIcSztQwDzJlkNgRfrsugD9lVf0\n3Oif+XwtDwKBgQDcBRr01e+EiVUMvymTWtB0ixmqXWiQxCB8eAJDYFVlHSm2ZM9s\nK7P0Ym48Yqkt6EXMj9AS9N5BdxWBa57DwUCd2pW8HEjBDTEsC5c9RU21im8tj9e2\nHV6tEX5lWb8v78gcceraXiqDX6gjUaXqqwx3hwZ1CJSOgeUQ6dky7m9MqQKBgQDF\nQNCJVzW7oD8sKGftybooh6gPyO3Qp0ktB6kyUz1Xo6VmuFcENrA3OnpwTfvkVeSP\n9wM8+OKOIMJijmrTxJjDaPl7APC5whvLnetifBbhR8nAqyXG6IueiBeJAriOmanc\njz71lZrMqglM916xeggmNIhQTT0ro6bvat/kIbb9gQKBgF6fnBEcCJC9Pa7sYPXH\nQX8mFoLxNmYzhN/HFxV4xs2whK2VcHQQtkmeWpv28q1ZqiMrQjce40wWX1O0gi3U\nKxvvPAvLNxN8CRpXbhBL5sTfeTitRJIVcnLCSWG/uKvx/tFBJ8nU++skVhK8C4NW\nMROTksqsGs3ok/wKTM9X0GwH\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-h7j4n@time-travel-a262e.iam.gserviceaccount.com",
+  "client_id": "107311877338947447995",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-h7j4n%40time-travel-a262e.iam.gserviceaccount.com"
+}
