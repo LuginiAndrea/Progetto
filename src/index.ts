@@ -32,6 +32,7 @@ app.listen(process.env.PORT || 8080, () => { // On start connect to Database
         });
     }
     catch(error) {
+        console.log(error);
         send_generic_error_email("Error initializing firebase: ", error);
         process.exit(2);
     }

@@ -39,7 +39,11 @@ const createTransporter = async () => {
 
 
 async function send_generic_error_email (subject:string, body: string) {
-    const transporter = await createTransporter();
+    try {
+        const transporter = await createTransporter();
+    } catch(error) {
+        console.log(error);
+    }
     transporter.sendMail({
         from: process.env.EMAIL,
         to: process.env.EMAIL,
