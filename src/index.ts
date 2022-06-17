@@ -2,8 +2,6 @@ import { app } from "./app"
 import { get_db_uri, DB_interface } from "./logic/db_interface/DB_interface";
 import { send_generic_error_email } from "./logic/email/email";
 import * as admin from "firebase-admin";
-const service_account = require("../firebase-auth.json");
-
 
 app.listen(process.env.PORT || 8080, () => { // On start connect to Database
     try {
@@ -15,6 +13,18 @@ app.listen(process.env.PORT || 8080, () => { // On start connect to Database
         send_generic_error_email("Error initializing database: ", error);
     }
     try { // Do this
+        const service_account = {
+            type: process.env.FIREBASE_TYPE,
+            project_id: process.env.FIREBASE_PROJECT_ID,
+            private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+            private_key: process.env.FIREBASE_PRIVATE_KEY,
+            client_email: process.env.FIREBASE_CLIENT_EMAIL,
+            client_id: process.env.FIREBASE_CLIENT_ID,
+            auth_uri: process.env.FIREBASE_AUTH_URI,
+            token_uri: process.env.FIREBASE_TOKEN_URI,
+            auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+            client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
+        } as any; //Has to be put as any or cert admin.credential.cert will throw type error
         app.locals.FIREBASE_APP = admin.initializeApp({
             credential: admin.credential.cert(service_account),
             storageBucket: process.env.FIREBASE_BUCKET_URL

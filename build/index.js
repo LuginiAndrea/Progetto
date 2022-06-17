@@ -27,7 +27,6 @@ var app_1 = require("./app");
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var email_1 = require("./logic/email/email");
 var admin = __importStar(require("firebase-admin"));
-var service_account = require("../firebase-auth.json");
 app_1.app.listen(process.env.PORT || 8080, function () {
     try {
         app_1.app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
@@ -38,6 +37,18 @@ app_1.app.listen(process.env.PORT || 8080, function () {
         (0, email_1.send_generic_error_email)("Error initializing database: ", error);
     }
     try { // Do this
+        var service_account = {
+            type: process.env.FIREBASE_TYPE,
+            project_id: process.env.FIREBASE_PROJECT_ID,
+            private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+            private_key: process.env.FIREBASE_PRIVATE_KEY,
+            client_email: process.env.FIREBASE_CLIENT_EMAIL,
+            client_id: process.env.FIREBASE_CLIENT_ID,
+            auth_uri: process.env.FIREBASE_AUTH_URI,
+            token_uri: process.env.FIREBASE_TOKEN_URI,
+            auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+            client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
+        }; //Has to be put as any or cert admin.credential.cert will throw type error
         app_1.app.locals.FIREBASE_APP = admin.initializeApp({
             credential: admin.credential.cert(service_account),
             storageBucket: process.env.FIREBASE_BUCKET_URL

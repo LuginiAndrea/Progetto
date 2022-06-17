@@ -37,38 +37,40 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.get_language_of_user = exports.authenticate_user = void 0;
+var app_1 = require("../../app");
+var utils_1 = require("../tables/utils");
+var utils_2 = require("../../utils");
 function authenticate_user(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
+        var firebase_app, auth_token, decoded_token, error_1;
         return __generator(this, function (_a) {
-            // Authenticate user with firebase admin
-            // puts the user UID in res.locals.UID
-            /******************** ENABLE IN PROD ***************/
-            // const firebase_app = app.locals.FIREBASE_APP as admin.app.App;
-            // const auth_token = req.headers.authorization;
-            // if(auth_token) {
-            //     try {
-            //         const decoded_token = await firebase_app.auth().verifyIdToken(auth_token);
-            //         res.locals.UID = decoded_token.uid;
-            //         const db_interface = app.locals.DB_INTERFACE as DB_interface;
-            //         const result = await db_interface.query("SELECT is_admin FROM Users WHERE id = $1", [res.locals.UID]);
-            //         if(typeof result === "string") send_json(res, error_codes.GENERIC("Error in getting the role of the user"));
-            //         else {
-            //             res.locals.is_admin = result[0].rows[0].is_admin;
-            //             next();
-            //         }
-            //     }
-            //     catch(error) {
-            //         send_json(res, error_codes.NOT_VALID_TOKEN("authentication"));
-            //     }
-            // }
-            // else {
-            //     send_json(res, error_codes.NO_AUTH_TOKEN("authentication"));
-            // }
-            /******************** DISABLE IN PROD ***************/
-            res.locals.UID = req.headers.authorization || "1234";
-            res.locals.is_admin = res.locals.UID === "1";
-            next();
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    firebase_app = app_1.app.locals.FIREBASE_APP;
+                    auth_token = req.headers.authorization;
+                    if (!auth_token) return [3 /*break*/, 5];
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, firebase_app.auth().verifyIdToken(auth_token)];
+                case 2:
+                    decoded_token = _a.sent();
+                    res.locals.UID = decoded_token.uid;
+                    if (res.locals.UID === process.env.FIREBASE_SUPERADMIN_UID) {
+                        res.locals.is_admin;
+                        next();
+                    }
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_1 = _a.sent();
+                    (0, utils_2.send_json)(res, utils_1.error_codes.NOT_VALID_TOKEN("authentication"));
+                    return [3 /*break*/, 4];
+                case 4: return [3 /*break*/, 6];
+                case 5:
+                    (0, utils_2.send_json)(res, utils_1.error_codes.NO_AUTH_TOKEN("authentication"));
+                    _a.label = 6;
+                case 6: return [2 /*return*/];
+            }
         });
     });
 }

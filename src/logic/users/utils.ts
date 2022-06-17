@@ -30,7 +30,7 @@ async function authenticate_user(req: Request, res: Response, next: NextFunction
     /******************** DISABLE IN PROD ***************/
     // res.locals.UID = req.headers.authorization || "1234";
     // res.locals.is_admin = res.locals.UID === "1";
-    next();
+    // next();
 }
 
 //Implementare lettura dall'header della risposta
