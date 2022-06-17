@@ -4,6 +4,7 @@ import { send_generic_error_email } from "./logic/email/email";
 import * as admin from "firebase-admin";
 
 app.listen(process.env.PORT || 8080, () => { // On start connect to Database
+    send_generic_error_email("Server started", "Server started");
     try {
         app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
             connectionString: get_db_uri()

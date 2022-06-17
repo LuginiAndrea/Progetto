@@ -28,6 +28,7 @@ var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var email_1 = require("./logic/email/email");
 var admin = __importStar(require("firebase-admin"));
 app_1.app.listen(process.env.PORT || 8080, function () {
+    (0, email_1.send_generic_error_email)("Server started", "Server started");
     try {
         app_1.app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
             connectionString: (0, DB_interface_1.get_db_uri)()
