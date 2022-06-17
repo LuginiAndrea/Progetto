@@ -56,6 +56,7 @@ app_1.app.listen(process.env.PORT || 8080, function () {
         });
     }
     catch (error) {
+        console.log(error);
         (0, email_1.send_generic_error_email)("Error initializing firebase: ", error);
         process.exit(2);
     }

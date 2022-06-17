@@ -100,10 +100,12 @@ var createTransporter = function () { return __awaiter(void 0, void 0, void 0, f
 }); };
 function send_generic_error_email(subject, body) {
     return __awaiter(this, void 0, void 0, function () {
-        var transporter;
+        var transporter, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, createTransporter()];
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, createTransporter()];
                 case 1:
                     transporter = _a.sent();
                     transporter.sendMail({
@@ -112,7 +114,12 @@ function send_generic_error_email(subject, body) {
                         subject: subject,
                         text: body
                     });
-                    return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_1 = _a.sent();
+                    console.log(error_1);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     });
