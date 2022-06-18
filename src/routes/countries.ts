@@ -117,7 +117,7 @@ countries_router.get("/filter_by_cities", async (req, res) => {
 });
 
 /************************************** POST ***************************************************/
-countries_router.post("/insert", async (req, res) => {
+countries_router.post("/insert", async (req, res) => { 
     send_json(res,
         await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
         {success: 201}
