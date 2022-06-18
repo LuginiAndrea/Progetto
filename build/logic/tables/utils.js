@@ -99,7 +99,6 @@ function create_table(table_name, db_interface, is_admin) {
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
                     if (!(table_name === "visits")) return [3 /*break*/, 2];
-                    console.log(tables_1.table_creates.visits);
                     return [4 /*yield*/, db_interface.transaction([
                             tables_1.table_creates.visits,
                             functions_1.update_monument_rating,
@@ -177,8 +176,6 @@ function get_schema(table_name, db_interface) {
                         return [2 /*return*/, result[0].rowCount === 0 ? // Check if a row was affected
                                 error_codes.NO_EXISTING_TABLE(table_name) :
                                 result];
-                    else
-                        console.log(result);
                     return [2 /*return*/, result];
             }
         });

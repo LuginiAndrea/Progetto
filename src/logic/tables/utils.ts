@@ -50,7 +50,6 @@ async function create_table(table_name: table_name, db_interface: DB_interface, 
         return error_codes.UNAUTHORIZED(table_name);
     let result;
     if(table_name === "visits") { //Vists and monuments are separated 
-        console.log(table_creates.visits);
         result = await db_interface.transaction([ //because they also 
             table_creates.visits,   //require the creation of
             update_monument_rating, //other things such as triggers
@@ -102,7 +101,6 @@ async function get_schema(table_name: table_name, db_interface: DB_interface) {
         return result[0].rowCount === 0 ? // Check if a row was affected
             error_codes.NO_EXISTING_TABLE(table_name) :
             result;
-    else console.log(result);
     return result;   
 }
 
