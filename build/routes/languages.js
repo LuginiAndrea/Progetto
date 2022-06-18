@@ -113,7 +113,7 @@ languages_router.get("/all", function (req, res) { return __awaiter(void 0, void
                 db_interface = res.locals.DB_INTERFACE;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, "*", "ORDER BY language_name")];
+                return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, "*", "ORDER BY name")];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
