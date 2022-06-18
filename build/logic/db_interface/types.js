@@ -71,8 +71,7 @@ function is_languages_body(obj, is_update) {
 }
 function is_users_body(obj, is_update) {
     if (is_update === void 0) { is_update = false; }
-    return ((!obj.id && is_update) || typeof obj.id === "number") &&
-        ((!obj.is_admin && is_update) || typeof obj.is_admin === "boolean") &&
+    return ((!obj.id && is_update) || typeof obj.id === "string") &&
         ((!obj.fk_language_id && is_update) || (typeof obj.fk_language_id === "number"));
 }
 function is_monuments_body(obj, is_update) {

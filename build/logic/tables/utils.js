@@ -83,7 +83,6 @@ function error_codes_to_status_code(error_code) {
 }
 exports.error_codes_to_status_code = error_codes_to_status_code;
 function convert_error_code(error_code, table_name) {
-    console.log("SIUM");
     switch (error_code) { //Converts error codes given by the database to defined ones
         case "42P01": return error_codes.NO_EXISTING_TABLE(table_name);
         case "2BP01": return error_codes.DEPENDED_ON_TABLE(table_name);
@@ -100,6 +99,7 @@ function create_table(table_name, db_interface, is_admin) {
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
                     if (!(table_name === "visits")) return [3 /*break*/, 2];
+                    console.log(tables_1.table_creates.visits);
                     return [4 /*yield*/, db_interface.transaction([
                             tables_1.table_creates.visits,
                             functions_1.update_monument_rating,
