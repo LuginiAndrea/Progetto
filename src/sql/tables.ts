@@ -69,7 +69,7 @@ const create_visits_table =
         rating SMALLINT NOT NULL, 
         private_description TEXT DEFAULT NULL,
         date_time TIMESTAMP WITH TIME ZONE NOT NULL,
-        fk_user_id INTEGER REFERENCES Users
+        fk_user_id TEXT REFERENCES Users
             ON DELETE CASCADE
             ON UPDATE CASCADE,
         fk_monument_id INTEGER REFERENCES Monuments
