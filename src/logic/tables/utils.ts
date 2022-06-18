@@ -117,6 +117,7 @@ async function get_generic(table_name: table_name, db_interface: DB_interface, f
 type valid_body_types = Exclude<table_name, "continents">; //Continents has all the values pre-inserted, so it's not accepted
 // As of now, insert_values is the only method that accepts an array of values, will be added to update and delete later
 async function insert_values(table_name: valid_body_types, db_interface: DB_interface, is_admin: boolean, data: any) {
+    console.log(data);
     if(!is_admin)
         return error_codes.UNAUTHORIZED(table_name);
     if(Array.isArray(data)) {

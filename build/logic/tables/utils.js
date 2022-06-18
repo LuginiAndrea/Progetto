@@ -225,6 +225,7 @@ function insert_values(table_name, db_interface, is_admin, data) {
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
+                    console.log(data);
                     if (!is_admin)
                         return [2 /*return*/, error_codes.UNAUTHORIZED(table_name)];
                     if (!Array.isArray(data)) return [3 /*break*/, 2];
