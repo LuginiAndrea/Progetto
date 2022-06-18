@@ -93,8 +93,7 @@ type users_body = {
     fk_language_id: number
 }
 function is_users_body(obj: any, is_update: boolean = false): obj is users_body {
-    return ((!obj.id && is_update) || typeof obj.id === "number") &&
-        ((!obj.is_admin && is_update) || typeof obj.is_admin === "boolean") &&
+    return ((!obj.id && is_update) || typeof obj.id === "string") &&
         ((!obj.fk_language_id && is_update) || (typeof obj.fk_language_id === "number"));
 }
 // ***************** MONUMENTS *****************
