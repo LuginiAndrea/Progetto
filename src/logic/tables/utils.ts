@@ -36,7 +36,6 @@ function error_codes_to_status_code(error_code: string[]) {
     return 400; //Generic error by client
 }
 function convert_error_code(error_code: string, table_name: string) {   
-    console.log("SIUM");
     switch(error_code) { //Converts error codes given by the database to defined ones
         case "42P01": return error_codes.NO_EXISTING_TABLE(table_name);
         case "2BP01": return error_codes.DEPENDED_ON_TABLE(table_name);
