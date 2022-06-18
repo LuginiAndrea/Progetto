@@ -89,7 +89,6 @@ function is_languages_body(obj: any, is_update: boolean = false): obj is languag
 // ***************** USERS *****************
 type users_body = {
     id: number,
-    is_admin: boolean,
     fk_language_id: number
 }
 function is_users_body(obj: any, is_update: boolean = false): obj is users_body {
