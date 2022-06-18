@@ -58,6 +58,26 @@ function get_fields(req, language) {
         []);
 }
 var join_fields_query = "\n    JOIN Countries ON Countries.id = Cities.fk_country_id\n    JOIN Continents ON Continents.id = Countries.fk_continent_id\n";
+cities_router.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var routes;
+    return __generator(this, function (_a) {
+        routes = [
+            { method: "POST", path: "/create_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/table_schema", body: "NO", is_admin: false },
+            { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/all", body: "NO", is_admin: false },
+            { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: false },
+            { method: "GET", path: "/filter_by_rating", body: "Query_String", is_admin: false },
+            { method: "GET", path: "/filter_by_countries", body: "Query_String", is_admin: false },
+            { method: "GET", path: "/filter_by_monuments", body: "Query_String", is_admin: false },
+            { method: "POST", path: "/insert", body: "JSON", is_admin: true },
+            { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
+            { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
+        ];
+        res.status(200).json(res.locals.is_admin ? routes : routes.filter(function (x) { return !x.is_admin; }));
+        return [2 /*return*/];
+    });
+}); });
 /************************************** TABLE ***************************************************/
 cities_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
@@ -126,6 +146,10 @@ cities_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
+                if (req.query.ids === undefined) {
+                    (0, utils_2.send_json)(res, utils_3.error_codes.INVALID_QUERY("ids"));
+                    return [2 /*return*/];
+                }
                 ids = req.query.ids.split(",") || [];
                 if (!(ids.length === 0)) return [3 /*break*/, 1];
                 (0, utils_2.send_json)(res, utils_3.error_codes.NO_REFERENCED_ITEM("ids"));

@@ -40,40 +40,29 @@ var express_1 = require("express");
 var utils_1 = require("../utils");
 var utils_2 = require("../logic/tables/utils");
 /******************** CONSTANTS ***********************/
-var monument_types_router = (0, express_1.Router)();
+var monument_types = (0, express_1.Router)();
 var table_name = "monument_types";
-// function get_fields(req : Request, language: string) {
-//     return types.exclude_fields_by_language[table_name](language).fields.concat(
-//         req.query.join === "1" ?
-//             [
-//                 ...types.exclude_fields_by_language.continents(language).fields.filter(x => x !== "id"),
-//                 ...types.exclude_fields_by_language.countries(language).fields.filter(x => x !== "id"),
-//             ] :
-//             []
-//     );
-// }
-var join_fields_query = "\n    JOIN Countries ON Countries.id = Cities.fk_country_id\n    JOIN Continents ON Continents.id = Countries.fk_continent_id\n";
-/****************************************** ROUTES **********************************************/
-monument_types_router.options("/", function (req, res) {
-    var method_list = [
-        { verb: "post", method: "create_table", description: "Creates the table", is_admin: true },
-        { verb: "delete", method: "delete_table", description: "Deletes the table", is_admin: true },
-        { verb: "get", method: "table_schema", description: "Gets the schema of the table" },
-        { verb: "get", method: "list_all", description: "Gives the fields of all the cities" },
-        { verb: "get", method: "list_by_id", description: "Gives the fields of the specified cities" },
-        { verb: "get", method: "cities_in_countries", description: "Gives list of all cities in countries passed with the query string" },
-        { verb: "get", method: "list_by_rating", description: "Gives list of all the cities that meets the passed condition and rating passed with query string" },
-        { verb: "get", method: "cities_of_monuments", description: "Gives the cities of the monuments passed with the query string" },
-        { verb: "post", method: "insert", description: "Inserts a new city. Parameters passed in the body", is_admin: true },
-        { verb: "put", method: "update/:country_id", description: "Updates a city. Parameters passed in the body", is_admin: true },
-        { verb: "delete", method: "delete/:country_id", description: "Deletes a city", is_admin: true }
-    ];
-    res.status(200).json(res.locals.is_admin ?
-        method_list :
-        method_list.filter(function (x) { return x.is_admin; }));
-});
+monument_types.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var routes;
+    return __generator(this, function (_a) {
+        routes = [
+            { method: "POST", path: "/create_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/table_schema", body: "NO", is_admin: false },
+            { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/all", body: "NO", is_admin: false },
+            { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: false },
+            { method: "GET", path: "/filter_by_types", body: "Query_String", is_admin: false },
+            { method: "GET", path: "/filter_by_monuments", body: "Query_String", is_admin: false },
+            { method: "POST", path: "/insert", body: "JSON", is_admin: true },
+            { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
+            { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
+        ];
+        res.status(200).json(res.locals.is_admin ? routes : routes.filter(function (x) { return !x.is_admin; }));
+        return [2 /*return*/];
+    });
+}); });
 /************************************** TABLE ***************************************************/
-monument_types_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+monument_types.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -87,21 +76,7 @@ monument_types_router.post("/create_table", function (req, res) { return __await
         }
     });
 }); });
-monument_types_router.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                _a = utils_1.send_json;
-                _b = [res];
-                return [4 /*yield*/, utils_2.table.schema(table_name, res.locals.DB_INTERFACE)];
-            case 1:
-                _a.apply(void 0, _b.concat([_c.sent()]));
-                return [2 /*return*/];
-        }
-    });
-}); });
-monument_types_router["delete"]("/delete_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+monument_types["delete"]("/delete_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -115,4 +90,146 @@ monument_types_router["delete"]("/delete_table", function (req, res) { return __
         }
     });
 }); });
-exports["default"] = monument_types_router;
+monument_types.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.table.schema(table_name, res.locals.DB_INTERFACE)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+/************************************** GET ***************************************************/
+monument_types.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                db_interface = res.locals.DB_INTERFACE;
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, "*")];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+monument_types.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var ids, db_interface, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                if (req.query.ids === undefined) {
+                    (0, utils_1.send_json)(res, utils_2.error_codes.INVALID_QUERY("ids"));
+                    return [2 /*return*/];
+                }
+                ids = req.query.ids.split(",") || [];
+                if (!(ids.length === 0)) return [3 /*break*/, 1];
+                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
+                return [3 /*break*/, 3];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, ids)];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                _c.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+monument_types.get("/filter_by_monuments", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var ids, db_interface, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                ids = req.query.ids.split(",") || [];
+                if (!(ids.length === 0)) return [3 /*break*/, 1];
+                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
+                return [3 /*break*/, 3];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "WHERE fk_monument_id = ANY($1)", [ids])];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                _c.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+monument_types.get("/filter_by_types", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var ids, db_interface, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                ids = req.query.ids.split(",") || [];
+                if (!(ids.length === 0)) return [3 /*break*/, 1];
+                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
+                return [3 /*break*/, 3];
+            case 1:
+                db_interface = res.locals.DB_INTERFACE;
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "WHERE fk_type_id = ANY($1)", [ids])];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                _c.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+/************************************** POST ***************************************************/
+monument_types.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+/************************************** PUT ***************************************************/
+monument_types.put("/update/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.update(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body, req.params.id)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+/************************************** DELETE ***************************************************/
+monument_types["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values["delete"](table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+exports["default"] = monument_types;

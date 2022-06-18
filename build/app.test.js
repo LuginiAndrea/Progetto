@@ -44,60 +44,6 @@ var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var supertest_1 = __importDefault(require("supertest"));
 jest.setTimeout(50000);
 var utils_1 = require("./logic/tables/utils");
-// describe("Top Level routes tests", () => {
-//     // SETUP
-//     const request = supertest(app);
-//     app.locals.DEFAULT_DB_INTERFACE = new DB_interface({
-//         connectionString: get_db_uri()
-//     }, true);
-//     //Tests
-//     it("/", async() => {
-//         const response = await request.get("/");
-//         expect(response.status).toBe(200);
-//         expect(response.body).toEqual({status: "Running"});
-//     });
-//     it("/not_real_endpoint", async() => {
-//         const response = await request.get("/not_real_endpoint");
-//         expect(response.status).toBe(404);
-//         expect(response.body).toEqual({error: "Method not found"});
-//     });
-//     describe("/reconnect_db", () => {
-//         it("Reconnect with open connection", async () => {
-//             const response = await request.get("/reconnect_db");
-//             expect(response.status).toBe(200);
-//             expect(response.body).toEqual({status: "Already connected"});
-//         });
-//         it("Reconnect with closed connection", async () => {
-//             app.locals.DEFAULT_DB_INTERFACE.close();
-//             const response = await request.get("/reconnect_db");
-//             expect(response.status).toBe(200);
-//             expect(response.body).toEqual({status: "Connected"});
-//         });
-//         it("Reconnect with never opened connection", async () => {
-//             app.locals.DEFAULT_DB_INTERFACE = null;
-//             const response = await request.get("/reconnect_db");
-//             expect(response.status).toBe(200);
-//             expect(response.body).toEqual({status: "Connected"});
-//         });
-//     });
-//     describe("Test first-level middleware", () => {
-//         it("No database connection", async () => {
-//             app.locals.DEFAULT_DB_INTERFACE.close();
-//             const response = await request.get("/");
-//             expect(response.status).toBe(500);
-//             expect(response.body).toEqual({error: "Not connected"});
-//         });
-//         it("No database interface", async () => {
-//             app.locals.DEFAULT_DB_INTERFACE = null;
-//             const response = await request.get("/");
-//             expect(response.status).toBe(500);
-//             expect(response.body).toEqual({error: "No interface"});
-//         });
-//     });
-//     afterAll(() => {
-//         app.locals.DEFAULT_DB_INTERFACE?.close();
-//     });
-// });
 describe("Benchmarks tests", function () {
     // SETUP
     var request = (0, supertest_1["default"])(app_1.app);

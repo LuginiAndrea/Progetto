@@ -18,25 +18,28 @@ const error_codes = { //Based on the prefix we select the right error code, afte
     NO_REFERENCED_ITEM: gen_error_code("e_1_No Referenced Item"),
     NO_ROW_AFFECTED: gen_error_code("e_2_No Row Affected"),
     NO_EXISTING_TABLE: gen_error_code("e_2_No Existing Table"),
+    DEPENDED_ON_TABLE: gen_error_code("e_2_Other tables_depend_on_this"),
     GENERIC: gen_error_code("i_0_Generic"),
 }
 function error_codes_to_status_code(error_code: string[]) {
     if(error_code[0].startsWith("i")) //Internal errors
         return 500;
-    if(error_code[0] === "23505") //Conflict
-        return 409;
     if(error_code[1] === "0") //Forbidden
         return 403;
     if(error_code[1] === "1") //Error in the request
         return 400;
-    if(error_code[0] === "42P01" || error_code[1] === "2_") //Not found
+    if(error_code[0] === "42P01" || error_code[1] === "2") //Not found
         return 404;
+    if(error_code[0] === "23505" || error_code[0] === "2BP01" ) //Conflict
+        return 409;
 
     return 400; //Generic error by client
 }
 function convert_error_code(error_code: string, table_name: string) {   
+    console.log("SIUM");
     switch(error_code) { //Converts error codes given by the database to defined ones
         case "42P01": return error_codes.NO_EXISTING_TABLE(table_name);
+        case "2BP01": return error_codes.DEPENDED_ON_TABLE(table_name);
         default: return gen_error_code(error_code)(table_name);
     }
 }
@@ -99,6 +102,7 @@ async function get_schema(table_name: table_name, db_interface: DB_interface) {
         return result[0].rowCount === 0 ? // Check if a row was affected
             error_codes.NO_EXISTING_TABLE(table_name) :
             result;
+    else console.log(result);
     return result;   
 }
 

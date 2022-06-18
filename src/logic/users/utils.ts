@@ -15,12 +15,11 @@ async function authenticate_user(req: Request, res: Response, next: NextFunction
         try {
             const decoded_token = await firebase_app.auth().verifyIdToken(auth_token);
             res.locals.UID = decoded_token.uid;
-            if(res.locals.UID === process.env.FIREBASE_SUPERADMIN_UID) {
-                res.locals.is_admin;
-                next();
-            }
+            res.locals.is_admin = (res.locals.UID === process.env.FIREBASE_SUPERADMIN_UID);
+            next();
         }
         catch(error) {
+            console.log(error);
             send_json(res, error_codes.NOT_VALID_TOKEN("authentication"));
         }
     }
@@ -41,6 +40,7 @@ async function get_language_of_user(uid: string, db_instance: DB_interface) {
         `SELECT abbreviation FROM Languages
         WHERE id = (SELECT fk_language_id FROM Users WHERE id = $1)`, [uid]
     );
+    if(result === "42P01") return "en";
     if(typeof result === "string") throw Error(result);
     return result[0].rows[0]?.abbreviation || "en"; //return abbreviation or "en"
 }

@@ -44,6 +44,22 @@ var utils_3 = require("../logic/tables/utils");
 /******************** CONSTANTS ***********************/
 var continents_router = (0, express_1.Router)();
 var table_name = "continents";
+continents_router.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var routes;
+    return __generator(this, function (_a) {
+        routes = [
+            { method: "POST", path: "/create_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/table_schema", body: "NO", is_admin: false },
+            { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/all", body: "NO", is_admin: false },
+            { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: false },
+            { method: "GET", path: "/filter_by_countries", body: "Query_String", is_admin: false },
+            { method: "POST", path: "/insert", body: "NO", is_admin: true }
+        ];
+        res.status(200).json(res.locals.is_admin ? routes : routes.filter(function (x) { return !x.is_admin; }));
+        return [2 /*return*/];
+    });
+}); });
 /************************************** TABLE ***************************************************/
 continents_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
@@ -126,6 +142,10 @@ continents_router.get("/filter_by_id", function (req, res) { return __awaiter(vo
     return __generator(this, function (_h) {
         switch (_h.label) {
             case 0:
+                if (req.query.ids === undefined) {
+                    (0, utils_2.send_json)(res, utils_3.error_codes.INVALID_QUERY("ids"));
+                    return [2 /*return*/];
+                }
                 ids = req.query.ids.split(",") || [];
                 if (!(ids.length === 0)) return [3 /*break*/, 1];
                 (0, utils_2.send_json)(res, utils_3.error_codes.NO_REFERENCED_ITEM("ids"));

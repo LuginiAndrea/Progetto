@@ -56,6 +56,23 @@ var utils_2 = require("../logic/tables/utils");
 */
 var users_router = (0, express_1.Router)();
 var table_name = "users";
+users_router.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var routes;
+    return __generator(this, function (_a) {
+        routes = [
+            { method: "POST", path: "/create_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/table_schema", body: "NO", is_admin: true },
+            { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/all", body: "NO", is_admin: true },
+            { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: true },
+            { method: "POST", path: "/insert", body: "JSON", is_admin: true },
+            { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
+            { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
+        ];
+        res.status(200).json(res.locals.is_admin ? routes : routes.filter(function (x) { return !x.is_admin; }));
+        return [2 /*return*/];
+    });
+}); });
 users_router.use(function (req, res, next) {
     if (!res.locals.is_admin)
         (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
@@ -123,6 +140,10 @@ users_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0,
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
+                if (req.query.ids === undefined) {
+                    (0, utils_1.send_json)(res, utils_2.error_codes.INVALID_QUERY("ids"));
+                    return [2 /*return*/];
+                }
                 ids = req.query.ids.split(",") || [];
                 if (!(ids.length === 0)) return [3 /*break*/, 1];
                 (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));

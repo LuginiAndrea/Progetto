@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 exports.app = void 0;
 require("dotenv/config");
+var cors_1 = __importDefault(require("cors"));
 var express_1 = __importDefault(require("express"));
 var users_1 = __importDefault(require("./routes/users"));
 var countries_1 = __importDefault(require("./routes/countries"));
@@ -13,6 +14,8 @@ var cities_1 = __importDefault(require("./routes/cities"));
 var languages_1 = __importDefault(require("./routes/languages"));
 var monuments_1 = __importDefault(require("./routes/monuments"));
 var visits_1 = __importDefault(require("./routes/visits"));
+var monument_types_1 = __importDefault(require("./routes/monument_types"));
+var types_of_monuments_1 = __importDefault(require("./routes/types_of_monuments"));
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var utils_1 = require("./logic/users/utils");
 var body_parser_1 = __importDefault(require("body-parser"));
@@ -21,6 +24,7 @@ var utils_3 = require("./logic/tables/utils");
 var app = (0, express_1["default"])();
 exports.app = app;
 app.use(DB_interface_1.validate_db_status);
+app.use((0, cors_1["default"])());
 // Authenticate user
 app.use(body_parser_1["default"].json());
 app.use(utils_1.authenticate_user);
@@ -31,6 +35,8 @@ app.use("/continents", continents_1["default"]);
 app.use("/cities", cities_1["default"]);
 app.use("/monuments", monuments_1["default"]);
 app.use("/visits", visits_1["default"]);
+app.use("/monument_types", monument_types_1["default"]);
+app.use("/types_of_monuments", types_of_monuments_1["default"]);
 app.get("/", function (req, res) {
     res.status(200).send({ status: "Running" });
 });

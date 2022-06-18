@@ -20,7 +20,8 @@ function send_json(res: Response, result: DB_result | DB_result[], args?: option
         result = [result as DB_result];
     for(const single of result as DB_result[]) {
         if(typeof single === "string") {
-            const destructured_error = single.split("_");
+            const [first, second, ...rest] = single.split("_");
+            const destructured_error = [first, second, rest.join("_")];
             const code = error || error_codes_to_status_code(destructured_error);
             status.error_found = true;
             status.code = code;

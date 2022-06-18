@@ -56,13 +56,12 @@ function authenticate_user(req, res, next) {
                 case 2:
                     decoded_token = _a.sent();
                     res.locals.UID = decoded_token.uid;
-                    if (res.locals.UID === process.env.FIREBASE_SUPERADMIN_UID) {
-                        res.locals.is_admin;
-                        next();
-                    }
+                    res.locals.is_admin = (res.locals.UID === process.env.FIREBASE_SUPERADMIN_UID);
+                    next();
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();
+                    console.log(error_1);
                     (0, utils_2.send_json)(res, utils_1.error_codes.NOT_VALID_TOKEN("authentication"));
                     return [3 /*break*/, 4];
                 case 4: return [3 /*break*/, 6];
@@ -86,6 +85,8 @@ function get_language_of_user(uid, db_instance) {
                 case 0: return [4 /*yield*/, db_instance.query("SELECT abbreviation FROM Languages\n        WHERE id = (SELECT fk_language_id FROM Users WHERE id = $1)", [uid])];
                 case 1:
                     result = _b.sent();
+                    if (result === "42P01")
+                        return [2 /*return*/, "en"];
                     if (typeof result === "string")
                         throw Error(result);
                     return [2 /*return*/, ((_a = result[0].rows[0]) === null || _a === void 0 ? void 0 : _a.abbreviation) || "en"]; //return abbreviation or "en"

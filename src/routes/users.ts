@@ -10,6 +10,20 @@ import { table, values, error_codes } from "../logic/tables/utils";
 const users_router = Router();
 const table_name = "users";
 
+users_router.get("/routes", async (req, res) => {
+    const routes = [
+        { method: "POST", path: "/create_table", body: "NO", is_admin: true },
+        { method: "GET", path: "/table_schema", body: "NO", is_admin: true },
+        { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
+        { method: "GET", path: "/all", body: "NO", is_admin: true },
+        { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: true },
+        { method: "POST", path: "/insert", body: "JSON", is_admin: true },
+        { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
+        { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
+    ];
+    res.status(200).json(res.locals.is_admin ? routes : routes.filter(x => !x.is_admin));
+});
+
 users_router.use((req, res, next) => {
     if(!res.locals.is_admin)
         send_json(res, error_codes.UNAUTHORIZED(table_name));
@@ -38,6 +52,7 @@ users_router.get("/all", async (req, res) => {
     );
 });
 users_router.get("/filter_by_id", async (req, res) => {
+    if(req.query.ids === undefined) { send_json(res, error_codes.INVALID_QUERY("ids")); return; }
     const ids = (req.query.ids as string).split(",") || [];
     if(ids.length === 0) 
         send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));

@@ -59,6 +59,23 @@ function get_fields(req, language) {
     return DB_interface_1.req_types.get_fields(table_name, table_name).fields.concat(["monuments.".concat(language, "_name AS monument_name"), "ST_X(coordinates::geometry) AS longitude", "ST_Y(coordinates::geometry) AS latitude"]);
 }
 var join_fields_query = "\n    JOIN monuments ON monuments.id = visits.fk_monument_id\n";
+visits_router.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var routes;
+    return __generator(this, function (_a) {
+        routes = [
+            { method: "POST", path: "/create_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/table_schema", body: "NO", is_admin: false },
+            { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
+            { method: "GET", path: "/all", body: "NO", is_admin: false },
+            { method: "GET", path: "/filter_by_single_user", body: "NO", is_admin: false },
+            { method: "POST", path: "/insert", body: "JSON", is_admin: true },
+            { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
+            { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
+        ];
+        res.status(200).json(res.locals.is_admin ? routes : routes.filter(function (x) { return !x.is_admin; }));
+        return [2 /*return*/];
+    });
+}); });
 /************************************** TABLE ***************************************************/
 visits_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;

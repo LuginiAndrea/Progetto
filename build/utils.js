@@ -14,7 +14,8 @@ function send_json(res, result, args) {
     for (var _i = 0, _b = result; _i < _b.length; _i++) {
         var single = _b[_i];
         if (typeof single === "string") {
-            var destructured_error = single.split("_");
+            var _c = single.split("_"), first = _c[0], second = _c[1], rest = _c.slice(2);
+            var destructured_error = [first, second, rest.join("_")];
             var code = error || (0, utils_1.error_codes_to_status_code)(destructured_error);
             status.error_found = true;
             status.code = code;

@@ -39,10 +39,12 @@ exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("../utils");
 var utils_2 = require("../logic/tables/utils");
+var types_1 = require("../logic/db_interface/types");
+var utils_3 = require("../logic/users/utils");
 /******************** CONSTANTS ***********************/
-var languages_router = (0, express_1.Router)();
-var table_name = "languages";
-languages_router.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+var types_of_monuments = (0, express_1.Router)();
+var table_name = "types_of_monuments";
+types_of_monuments.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var routes;
     return __generator(this, function (_a) {
         routes = [
@@ -51,8 +53,6 @@ languages_router.get("/routes", function (req, res) { return __awaiter(void 0, v
             { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
             { method: "GET", path: "/all", body: "NO", is_admin: false },
             { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: false },
-            { method: "GET", path: "/filter_single_by_abbreviation/:abbreviation", body: "NO", is_admin: false },
-            { method: "GET", path: "/filter_by_users", body: "Query_String", is_admin: false },
             { method: "POST", path: "/insert", body: "JSON", is_admin: true },
             { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
             { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
@@ -62,7 +62,7 @@ languages_router.get("/routes", function (req, res) { return __awaiter(void 0, v
     });
 }); });
 /************************************** TABLE ***************************************************/
-languages_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+types_of_monuments.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -76,7 +76,7 @@ languages_router.post("/create_table", function (req, res) { return __awaiter(vo
         }
     });
 }); });
-languages_router["delete"]("/delete_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+types_of_monuments["delete"]("/delete_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -90,7 +90,7 @@ languages_router["delete"]("/delete_table", function (req, res) { return __await
         }
     });
 }); });
-languages_router.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+types_of_monuments.get("/table_schema", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -105,23 +105,27 @@ languages_router.get("/table_schema", function (req, res) { return __awaiter(voi
     });
 }); });
 /************************************** GET ***************************************************/
-languages_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, _a, _b;
+types_of_monuments.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
+            case 1:
+                language = _c.sent();
+                fields = types_1.exclude_fields_by_language[table_name](language).fields;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, "*", "ORDER BY language_name")];
-            case 1:
+                return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, fields)];
+            case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
         }
     });
 }); });
-languages_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, _a, _b;
+types_of_monuments.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var ids, db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -132,51 +136,25 @@ languages_router.get("/filter_by_id", function (req, res) { return __awaiter(voi
                 ids = req.query.ids.split(",") || [];
                 if (!(ids.length === 0)) return [3 /*break*/, 1];
                 (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 3];
+                return [3 /*break*/, 4];
             case 1:
                 db_interface = res.locals.DB_INTERFACE;
-                _a = utils_1.send_json;
-                _b = [res];
-                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, ids)];
+                return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
             case 2:
-                _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 3;
-            case 3: return [2 /*return*/];
-        }
-    });
-}); });
-languages_router.get("/filter_single_by_abbreviation/:abbreviation", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                db_interface = res.locals.DB_INTERFACE;
+                language = _c.sent();
+                fields = types_1.exclude_fields_by_language[table_name](language).fields;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "WHERE abbreviation = $1", [req.params.abbreviation])];
-            case 1:
+                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, ids, fields)];
+            case 3:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                return [2 /*return*/];
-        }
-    });
-}); });
-languages_router.get("/filter_by_users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                db_interface = res.locals.DB_INTERFACE;
-                _a = utils_1.send_json;
-                _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "id = (SELECT fk_language_id FROM Users WHERE id = $1)", [res.locals.UID])];
-            case 1:
-                _a.apply(void 0, _b.concat([_c.sent()]));
-                return [2 /*return*/];
+                _c.label = 4;
+            case 4: return [2 /*return*/];
         }
     });
 }); });
 /************************************** POST ***************************************************/
-languages_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+types_of_monuments.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -191,7 +169,7 @@ languages_router.post("/insert", function (req, res) { return __awaiter(void 0, 
     });
 }); });
 /************************************** PUT ***************************************************/
-languages_router.put("/update/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+types_of_monuments.put("/update/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -206,7 +184,7 @@ languages_router.put("/update/:id", function (req, res) { return __awaiter(void 
     });
 }); });
 /************************************** DELETE ***************************************************/
-languages_router["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+types_of_monuments["delete"]("/delete/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -220,4 +198,4 @@ languages_router["delete"]("/delete/:id", function (req, res) { return __awaiter
         }
     });
 }); });
-exports["default"] = languages_router;
+exports["default"] = types_of_monuments;
