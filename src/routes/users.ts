@@ -17,9 +17,11 @@ users_router.get("/routes", async (req, res) => {
         { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
         { method: "GET", path: "/all", body: "NO", is_admin: true },
         { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: true },
-        { method: "POST", path: "/insert", body: "JSON", is_admin: true },
-        { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
-        { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
+        { method: "GET", path: "/user", body: "NO", is_admin: false},
+        { method: "GET", path: "/exists", body: "NO", is_admin: false},
+        { method: "POST", path: "/insert", body: "JSON", is_admin: false },
+        { method: "PUT", path: "/update/:id", body: "JSON", is_admin: false },
+        { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: false },
     ];
     res.status(200).json(res.locals.is_admin ? routes : routes.filter(x => !x.is_admin));
 });
