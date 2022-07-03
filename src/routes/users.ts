@@ -67,12 +67,12 @@ users_router.get("/filter_by_id", authorize, async (req, res) => {
 
 users_router.get("/user", async (req, res) => {
     send_json(res, 
-        await values.get.by_id(table_name, res.locals.DB_INTERFACE, res.locals.UID)   
+        await values.get.by_id(table_name, res.locals.DB_INTERFACE, [res.locals.UID])   
     );
 })
 
 users_router.get("/exists", async(req, res) => {
-    const result = await values.get.by_id(table_name, res.locals.DB_INTERFACE, res.locals.UID)   
+    const result = await values.get.by_id(table_name, res.locals.DB_INTERFACE, [res.locals.UID])   
     if(typeof result === "string") 
         send_json(res, result);
     else

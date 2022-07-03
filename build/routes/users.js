@@ -171,7 +171,7 @@ users_router.get("/user", function (req, res) { return __awaiter(void 0, void 0,
             case 0:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, res.locals.UID)];
+                return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, [res.locals.UID])];
             case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
@@ -182,7 +182,7 @@ users_router.get("/exists", function (req, res) { return __awaiter(void 0, void 
     var result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, res.locals.UID)];
+            case 0: return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, [res.locals.UID])];
             case 1:
                 result = _a.sent();
                 if (typeof result === "string")
