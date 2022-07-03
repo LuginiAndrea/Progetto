@@ -19,7 +19,7 @@ async function authenticate_user(req: Request, res: Response, next: NextFunction
             next();
         }
         catch(error) {
-            console.log(error);
+            console.log(`Token ${auth_token} not valid`);
             send_json(res, error_codes.NOT_VALID_TOKEN("authentication"));
         }
     }
