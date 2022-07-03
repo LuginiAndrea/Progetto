@@ -65,20 +65,25 @@ users_router.get("/routes", function (req, res) { return __awaiter(void 0, void 
             { method: "DELETE", path: "/delete_table", body: "NO", is_admin: true },
             { method: "GET", path: "/all", body: "NO", is_admin: true },
             { method: "GET", path: "/filter_by_id", body: "Query_String", is_admin: true },
-            { method: "POST", path: "/insert", body: "JSON", is_admin: true },
-            { method: "PUT", path: "/update/:id", body: "JSON", is_admin: true },
-            { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: true },
+            { method: "GET", path: "/user", body: "NO", is_admin: false },
+            { method: "GET", path: "/exists", body: "NO", is_admin: false },
+            { method: "POST", path: "/insert", body: "JSON", is_admin: false },
+            { method: "PUT", path: "/update/:id", body: "JSON", is_admin: false },
+            { method: "DELETE", path: "/delete/:id", body: "NO", is_admin: false },
         ];
         res.status(200).json(res.locals.is_admin ? routes : routes.filter(function (x) { return !x.is_admin; }));
         return [2 /*return*/];
     });
 }); });
-users_router.use(function (req, res, next) {
-    if (!res.locals.is_admin)
-        (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
-    else
-        next();
-});
+var authorize = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        if (!res.locals.is_admin)
+            (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
+        else
+            next();
+        return [2 /*return*/];
+    });
+}); };
 users_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
@@ -121,7 +126,7 @@ users_router.get("/table_schema", function (req, res) { return __awaiter(void 0,
         }
     });
 }); });
-users_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+users_router.get("/all", authorize, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -135,7 +140,7 @@ users_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, 
         }
     });
 }); });
-users_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+users_router.get("/filter_by_id", authorize, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var ids, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -159,22 +164,46 @@ users_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0,
         }
     });
 }); });
+users_router.get("/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, res.locals.UID)];
+            case 1:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
+        }
+    });
+}); });
+users_router.get("/exists", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, res.locals.UID)];
+            case 1:
+                result = _a.sent();
+                if (typeof result === "string")
+                    (0, utils_1.send_json)(res, result);
+                else
+                    res.status(200).json({ exists: result[0].rowCount === 1 });
+                return [2 /*return*/];
+        }
+    });
+}); });
 users_router.post("/insert", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                if (!(!res.locals.is_admin && req.body.is_admin === true)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
-                return [3 /*break*/, 3];
-            case 1:
                 _a = utils_1.send_json;
                 _b = [res];
                 return [4 /*yield*/, utils_2.values.insert(table_name, res.locals.DB_INTERFACE, true, __assign({ id: res.locals.UID }, req.body))];
-            case 2:
+            case 1:
                 _a.apply(void 0, _b.concat([_c.sent(), { success: 201 }]));
-                _c.label = 3;
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });
@@ -183,8 +212,6 @@ users_router.put("/update/:id", function (req, res) { return __awaiter(void 0, v
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                if (!res.locals.is_admin && req.body.is_admin !== undefined)
-                    (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
                 _a = utils_1.send_json;
                 _b = [res];
                 return [4 /*yield*/, utils_2.values.update(table_name, res.locals.DB_INTERFACE, true, req.body, res.locals.UID)];

@@ -61,7 +61,7 @@ function authenticate_user(req, res, next) {
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();
-                    console.log(error_1);
+                    console.log("Token ".concat(auth_token, " not valid"));
                     (0, utils_2.send_json)(res, utils_1.error_codes.NOT_VALID_TOKEN("authentication"));
                     return [3 /*break*/, 4];
                 case 4: return [3 /*break*/, 6];
