@@ -269,32 +269,30 @@ monuments_router.delete("/delete/:id", async (req, res) => {
 
 monuments_router.post("/predict", upload.single("photo"), async (req, res) => {
     console.log(req.file);
-    res.send("X");
     let not_sent = true;    
-    // try {
-    //     const proc = chproc.spawn("python3", ["./main.py", ]);
-    //     await new Promise(resolve => {
-    //         proc.stdout.on("data", (data) => {
-    //             console.log(data);
-    //             console.log("cazzo")
-    //             if(not_sent) {
-    //                 res.status(200).send({result: data});
-    //                 not_sent = false;
-    //             }
-    //             resolve(0);
-    //         });
-    //         proc.on("exit", (k) => {
-    //             if(not_sent) {
-    //                 res.status(200).send({exit: k});
-    //                 not_sent = false;
-    //             }
-    //             resolve(0);
-    //         });
-    //     });
-    // } catch(e) {
-    //     console.log(e);
-    // }
-    // res.send("KKK")
+    try {
+        const proc = chproc.spawn("python3", ["./main.py", ]);
+        await new Promise(resolve => {
+            proc.stdout.on("data", (data) => {
+                console.log(data);
+                console.log("cazzo")
+                if(not_sent) {
+                    res.status(200).send({result: data});
+                    not_sent = false;
+                }
+                resolve(0);
+            });
+            proc.on("exit", (k) => {
+                if(not_sent) {
+                    res.status(200).send({exit: k});
+                    not_sent = false;
+                }
+                resolve(0);
+            });
+        });
+    } catch(e) {
+        console.log(e);
+    }
 });
 
 
