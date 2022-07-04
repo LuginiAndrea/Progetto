@@ -270,7 +270,7 @@ monuments_router.delete("/delete/:id", async (req, res) => {
 monuments_router.post("/predict", upload.single("photo"), async (req, res) => {
     console.log(req.file);
     res.send("X");
-    let not_sent = true;
+    let not_sent = true;    
     // try {
     //     const proc = chproc.spawn("python3", ["./main.py", ]);
     //     await new Promise(resolve => {
@@ -294,7 +294,7 @@ monuments_router.post("/predict", upload.single("photo"), async (req, res) => {
     // } catch(e) {
     //     console.log(e);
     // }
-    res.send("KKK")
+    // res.send("KKK")
 });
 
 
