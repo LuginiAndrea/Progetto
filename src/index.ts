@@ -2,7 +2,8 @@ import { app } from "./app"
 import { get_db_uri, DB_interface } from "./logic/db_interface/DB_interface";
 import { send_generic_error_email } from "./logic/email/email";
 import * as admin from "firebase-admin";
-import * as fs from "fs/promises"
+import * as fs from "fs/promises";
+import * as child_process from "child_process"
 
 app.listen(process.env.PORT || 8080, async () => { // On start connect to Database
     try {
@@ -11,6 +12,7 @@ app.listen(process.env.PORT || 8080, async () => { // On start connect to Databa
         }, true);
     } 
     catch (error) {
+        console.log(error);
         await send_generic_error_email("Error initializing database: ", error);
         process.exit(3);
     }
@@ -36,5 +38,23 @@ app.listen(process.env.PORT || 8080, async () => { // On start connect to Databa
         console.log(error);
         await send_generic_error_email("Error initializing firebase: ", error);
         process.exit(2);
+    }
+    try { //Download asset from dropbox with the python sdk
+        const proc = child_process.spawn("python3", ["./download.py"])
+        proc.on("exit", exit_code => {
+            if(exit_code === 0) {
+                app.locals.MODEL_READY_TO_USE = true;
+                console.log("Ready to use");
+            }
+            else {
+                console.log(exit_code)
+                process.exit(4);
+            }
+        });
+    }  
+    catch(error) {
+        console.log(error);
+        await send_generic_error_email("Error downloading dropbox: ", error);
+        process.exit(4);
     }
 });

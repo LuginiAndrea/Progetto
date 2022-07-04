@@ -63,8 +63,9 @@ var app_1 = require("./app");
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var email_1 = require("./logic/email/email");
 var admin = __importStar(require("firebase-admin"));
+var child_process = __importStar(require("child_process"));
 app_1.app.listen(process.env.PORT || 8080, function () { return __awaiter(void 0, void 0, void 0, function () {
-    var error_1, service_account, error_2;
+    var error_1, service_account, error_2, proc, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -75,6 +76,7 @@ app_1.app.listen(process.env.PORT || 8080, function () { return __awaiter(void 0
                 return [3 /*break*/, 3];
             case 1:
                 error_1 = _a.sent();
+                console.log(error_1);
                 return [4 /*yield*/, (0, email_1.send_generic_error_email)("Error initializing database: ", error_1)];
             case 2:
                 _a.sent();
@@ -107,7 +109,29 @@ app_1.app.listen(process.env.PORT || 8080, function () { return __awaiter(void 0
                 _a.sent();
                 process.exit(2);
                 return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+            case 6:
+                _a.trys.push([6, 7, , 9]);
+                proc = child_process.spawn("python3", ["./download.py"]);
+                proc.on("exit", function (exit_code) {
+                    if (exit_code === 0) {
+                        app_1.app.locals.MODEL_READY_TO_USE = true;
+                        console.log("Ready to use");
+                    }
+                    else {
+                        console.log(exit_code);
+                        process.exit(4);
+                    }
+                });
+                return [3 /*break*/, 9];
+            case 7:
+                error_3 = _a.sent();
+                console.log(error_3);
+                return [4 /*yield*/, (0, email_1.send_generic_error_email)("Error downloading dropbox: ", error_3)];
+            case 8:
+                _a.sent();
+                process.exit(4);
+                return [3 /*break*/, 9];
+            case 9: return [2 /*return*/];
         }
     });
 }); });

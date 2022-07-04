@@ -4,9 +4,10 @@ import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
 import { get_language_of_user } from '../logic/users/utils';
 import { getStorage } from "firebase-admin/storage";
-import * as chproc from "child_process";
+import * as child_process from "child_process";
 import multer from "multer";
 const upload = multer({ dest: 'uploads/' })
+import { app } from "../app";
 
 /******************** CONSTANTS ***********************/
 const monuments_router = Router();
@@ -269,22 +270,28 @@ monuments_router.delete("/delete/:id", async (req, res) => {
 
 monuments_router.post("/predict", upload.single("photo"), async (req, res) => {
     console.log(req.file);
-    if(req.file) {
+    if(!app.locals.MODEL_READY_TO_USE) {
+        send_json(res, "Problem with the model");
+        return;
+    }
+    // if(req.file) {
         let not_sent = true;    
         try {
-            const proc = chproc.spawn("python3", ["./main.py", req.file.filename]);
+            const proc = child_process.spawn("python3", ["./predict.py", "img.jpg"]);
             await new Promise(resolve => {
                 proc.stdout.on("data", (data) => {
-                    console.log(data);
+                    console.log("Data");
+                    const id = parseInt(data.toString());
                     if(not_sent) {
-                        res.status(200).send({result: data});
+                        res.status(200).send({result: id});
                         not_sent = false;
                     }
                     resolve(0);
                 });
-                proc.on("exit", (k) => {
+                proc.on("exit", (exit_code) => {
+                    console.log("Exit");
                     if(not_sent) {
-                        res.status(200).send({exit: k});
+                        res.status(200).send({exit: exit_code});
                         not_sent = false;
                     }
                     resolve(0);
@@ -293,9 +300,10 @@ monuments_router.post("/predict", upload.single("photo"), async (req, res) => {
         } catch(e) {
             console.log(e);
         }
-    }
-    else 
-        send_json(res, "error with photo");
+    // }
+    // else 
+    //     send_json(res, "error with photo");
+
 });
 
 

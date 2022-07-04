@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -54,8 +77,10 @@ var DB_interface_1 = require("../logic/db_interface/DB_interface");
 var utils_2 = require("../logic/tables/utils");
 var utils_3 = require("../logic/users/utils");
 var storage_1 = require("firebase-admin/storage");
+var child_process = __importStar(require("child_process"));
 var multer_1 = __importDefault(require("multer"));
 var upload = (0, multer_1["default"])({ dest: 'uploads/' });
+var app_1 = require("../app");
 /******************** CONSTANTS ***********************/
 var monuments_router = (0, express_1.Router)();
 var table_name = "monuments";
@@ -425,36 +450,48 @@ monuments_router["delete"]("/delete/:id", function (req, res) { return __awaiter
     });
 }); });
 monuments_router.post("/predict", upload.single("photo"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var not_sent;
+    var not_sent, proc_1, e_1;
     return __generator(this, function (_a) {
-        console.log(req.file);
-        res.send("X");
-        not_sent = true;
-        // try {
-        //     const proc = chproc.spawn("python3", ["./main.py", ]);
-        //     await new Promise(resolve => {
-        //         proc.stdout.on("data", (data) => {
-        //             console.log(data);
-        //             console.log("cazzo")
-        //             if(not_sent) {
-        //                 res.status(200).send({result: data});
-        //                 not_sent = false;
-        //             }
-        //             resolve(0);
-        //         });
-        //         proc.on("exit", (k) => {
-        //             if(not_sent) {
-        //                 res.status(200).send({exit: k});
-        //                 not_sent = false;
-        //             }
-        //             resolve(0);
-        //         });
-        //     });
-        // } catch(e) {
-        //     console.log(e);
-        // }
-        res.send("KKK");
-        return [2 /*return*/];
+        switch (_a.label) {
+            case 0:
+                console.log(req.file);
+                if (!app_1.app.locals.MODEL_READY_TO_USE) {
+                    (0, utils_1.send_json)(res, "Problem with the model");
+                    return [2 /*return*/];
+                }
+                not_sent = true;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                proc_1 = child_process.spawn("python3", ["./predict.py", "img.jpg"]);
+                return [4 /*yield*/, new Promise(function (resolve) {
+                        proc_1.stdout.on("data", function (data) {
+                            console.log("Data");
+                            var id = parseInt(data.toString());
+                            if (not_sent) {
+                                res.status(200).send({ result: id });
+                                not_sent = false;
+                            }
+                            resolve(0);
+                        });
+                        proc_1.on("exit", function (exit_code) {
+                            console.log("Exit");
+                            if (not_sent) {
+                                res.status(200).send({ exit: exit_code });
+                                not_sent = false;
+                            }
+                            resolve(0);
+                        });
+                    })];
+            case 2:
+                _a.sent();
+                return [3 /*break*/, 4];
+            case 3:
+                e_1 = _a.sent();
+                console.log(e_1);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
     });
 }); });
 exports["default"] = monuments_router;
