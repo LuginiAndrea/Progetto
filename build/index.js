@@ -63,26 +63,27 @@ var app_1 = require("./app");
 var DB_interface_1 = require("./logic/db_interface/DB_interface");
 var email_1 = require("./logic/email/email");
 var admin = __importStar(require("firebase-admin"));
+var tf = __importStar(require("@tensorflow/tfjs-node"));
 app_1.app.listen(process.env.PORT || 8080, function () { return __awaiter(void 0, void 0, void 0, function () {
-    var error_1, service_account, error_2;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var error_1, service_account, error_2, _a, error_3;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
-                _a.trys.push([0, 1, , 3]);
+                _b.trys.push([0, 1, , 3]);
                 app_1.app.locals.DEFAULT_DB_INTERFACE = new DB_interface_1.DB_interface({
                     connectionString: (0, DB_interface_1.get_db_uri)()
                 }, true);
                 return [3 /*break*/, 3];
             case 1:
-                error_1 = _a.sent();
+                error_1 = _b.sent();
                 console.log(error_1);
                 return [4 /*yield*/, (0, email_1.send_generic_error_email)("Error initializing database: ", error_1)];
             case 2:
-                _a.sent();
+                _b.sent();
                 process.exit(3);
                 return [3 /*break*/, 3];
             case 3:
-                _a.trys.push([3, 4, , 6]);
+                _b.trys.push([3, 4, , 6]);
                 service_account = {
                     type: process.env.FIREBASE_TYPE,
                     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -101,14 +102,26 @@ app_1.app.listen(process.env.PORT || 8080, function () { return __awaiter(void 0
                 });
                 return [3 /*break*/, 6];
             case 4:
-                error_2 = _a.sent();
+                error_2 = _b.sent();
                 console.log(error_2);
                 return [4 /*yield*/, (0, email_1.send_generic_error_email)("Error initializing firebase: ", error_2)];
             case 5:
-                _a.sent();
+                _b.sent();
                 process.exit(2);
                 return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+            case 6:
+                _b.trys.push([6, 8, , 9]);
+                _a = app_1.app.locals;
+                return [4 /*yield*/, tf.loadLayersModel("file://./model/model.json")];
+            case 7:
+                _a.MODEL = _b.sent();
+                return [3 /*break*/, 9];
+            case 8:
+                error_3 = _b.sent();
+                console.log(error_3);
+                process.exit(3);
+                return [3 /*break*/, 9];
+            case 9: return [2 /*return*/];
         }
     });
 }); });

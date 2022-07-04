@@ -2,8 +2,7 @@ import { app } from "./app"
 import { get_db_uri, DB_interface } from "./logic/db_interface/DB_interface";
 import { send_generic_error_email } from "./logic/email/email";
 import * as admin from "firebase-admin";
-import * as fs from "fs/promises";
-import * as child_process from "child_process"
+import * as tf from "@tensorflow/tfjs-node";
 
 app.listen(process.env.PORT || 8080, async () => { // On start connect to Database
     try {
@@ -38,5 +37,11 @@ app.listen(process.env.PORT || 8080, async () => { // On start connect to Databa
         console.log(error);
         await send_generic_error_email("Error initializing firebase: ", error);
         process.exit(2);
+    }
+    try {
+        app.locals.MODEL = await tf.loadLayersModel("file://./model/model.json");
+    } catch(error) {
+        console.log(error);
+        process.exit(3);
     }
 });

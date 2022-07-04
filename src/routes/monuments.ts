@@ -8,6 +8,7 @@ import multer from "multer";
 const upload = multer({ dest: 'uploads/' })
 import * as fs from "fs/promises";
 import * as tf from '@tensorflow/tfjs-node'
+import { app } from "../app";
 
 
 
@@ -277,13 +278,12 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         return;
     }
     const file_name: string = req.file.path;
-    const model = await tf.loadLayersModel("file://./model/model.json");
     let img_buffer = await fs.readFile("./" + file_name);
     let img_tensor = tf.expandDims(
         tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]),
         0
     );
-    let x = model.predict(img_tensor);
+    let x = app.locals.MODEL.predict(img_tensor);
     if(!Array.isArray(x)) {
         let tensorData = x.dataSync();
         let curr_idx = 0;
