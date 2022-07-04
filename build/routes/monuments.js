@@ -462,6 +462,7 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                     return [2 /*return*/];
                 }
                 file_name = req.file.path;
+                tf.engine().startScope();
                 return [4 /*yield*/, fs.readFile("./" + file_name)];
             case 1:
                 img_buffer = _a.sent();
@@ -480,6 +481,7 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                     id = idx_to_id[curr_idx];
                     res.status(200).send({ id: id });
                 }
+                tf.engine().endScope();
                 fs.unlink("./" + file_name);
                 return [2 /*return*/];
         }

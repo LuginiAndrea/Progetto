@@ -278,6 +278,7 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         return;
     }
     const file_name: string = req.file.path;
+    tf.engine().startScope()
     let img_buffer = await fs.readFile("./" + file_name);
     let img_tensor = tf.expandDims(
         tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]),
@@ -297,6 +298,8 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         let id = idx_to_id[curr_idx];
         res.status(200).send({id: id})
     }
+
+    tf.engine().endScope()
     fs.unlink("./" + file_name);
 });
 
