@@ -46,14 +46,6 @@ function authenticate_user(req, res, next) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    Authenticate;
-                    user;
-                    with (firebase)
-                        admin;
-                    puts;
-                    the;
-                    user;
-                    UID in res.locals.UID;
                     firebase_app = app_1.app.locals.FIREBASE_APP;
                     auth_token = req.headers.authorization;
                     if (!auth_token) return [3 /*break*/, 5];

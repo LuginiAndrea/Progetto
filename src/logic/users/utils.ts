@@ -6,8 +6,8 @@ import { error_codes } from "../tables/utils";
 import { send_json } from "../../utils";
 
 async function authenticate_user(req: Request, res: Response, next: NextFunction) {
-    Authenticate user with firebase admin
-    puts the user UID in res.locals.UID
+    // Authenticate user with firebase admin
+    // puts the user UID in res.locals.UID
     /******************** ENABLE IN PROD ***************/
     const firebase_app = app.locals.FIREBASE_APP as admin.app.App;
     const auth_token = req.headers.authorization;
