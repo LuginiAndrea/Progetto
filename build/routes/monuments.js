@@ -77,10 +77,10 @@ var DB_interface_1 = require("../logic/db_interface/DB_interface");
 var utils_2 = require("../logic/tables/utils");
 var utils_3 = require("../logic/users/utils");
 var storage_1 = require("firebase-admin/storage");
-var child_process = __importStar(require("child_process"));
 var multer_1 = __importDefault(require("multer"));
 var upload = (0, multer_1["default"])({ dest: 'uploads/' });
-var app_1 = require("../app");
+var fs = __importStar(require("fs"));
+var tf = __importStar(require("@tensorflow/tfjs-node"));
 /******************** CONSTANTS ***********************/
 var monuments_router = (0, express_1.Router)();
 var table_name = "monuments";
@@ -450,47 +450,37 @@ monuments_router["delete"]("/delete/:id", function (req, res) { return __awaiter
     });
 }); });
 monuments_router.post("/predict", upload.single("photo"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var not_sent, proc_1, e_1;
+    var idx_to_id, file_name, model, img_buffer, img_tensor, x, tensorData, curr_idx, curr_max, idx, id;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                console.log(req.file);
-                if (!app_1.app.locals.MODEL_READY_TO_USE) {
-                    (0, utils_1.send_json)(res, "Problem with the model");
+                idx_to_id = [1, 2, 7];
+                if (!req.file) {
+                    console.log("==");
+                    (0, utils_1.send_json)(res, "No photo");
                     return [2 /*return*/];
                 }
-                not_sent = true;
-                _a.label = 1;
+                file_name = req.file.path;
+                return [4 /*yield*/, tf.loadLayersModel("file://./model/model.json")];
             case 1:
-                _a.trys.push([1, 3, , 4]);
-                proc_1 = child_process.spawn("python3", ["./predict.py", "img.jpg"]);
-                return [4 /*yield*/, new Promise(function (resolve) {
-                        proc_1.stdout.on("data", function (data) {
-                            console.log("Data");
-                            var id = parseInt(data.toString());
-                            if (not_sent) {
-                                res.status(200).send({ result: id });
-                                not_sent = false;
-                            }
-                            resolve(0);
-                        });
-                        proc_1.on("exit", function (exit_code) {
-                            console.log("Exit");
-                            if (not_sent) {
-                                res.status(200).send({ exit: exit_code });
-                                not_sent = false;
-                            }
-                            resolve(0);
-                        });
-                    })];
-            case 2:
-                _a.sent();
-                return [3 /*break*/, 4];
-            case 3:
-                e_1 = _a.sent();
-                console.log(e_1);
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                model = _a.sent();
+                img_buffer = fs.readFileSync("./" + file_name);
+                img_tensor = tf.expandDims(tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]), 0);
+                x = model.predict(img_tensor);
+                if (!Array.isArray(x)) {
+                    tensorData = x.dataSync();
+                    curr_idx = 0;
+                    curr_max = tensorData[0];
+                    for (idx = 1; idx < tensorData.length; idx++) {
+                        if (tensorData[idx] > curr_max) {
+                            curr_max = tensorData[idx];
+                            curr_idx = idx;
+                        }
+                    }
+                    id = idx_to_id[curr_idx];
+                    res.status(200).send({ id: id });
+                }
+                return [2 /*return*/];
         }
     });
 }); });

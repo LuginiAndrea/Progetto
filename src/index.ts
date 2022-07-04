@@ -39,22 +39,4 @@ app.listen(process.env.PORT || 8080, async () => { // On start connect to Databa
         await send_generic_error_email("Error initializing firebase: ", error);
         process.exit(2);
     }
-    try { //Download asset from dropbox with the python sdk
-        const proc = child_process.spawn("python3", ["./download.py"])
-        proc.on("exit", exit_code => {
-            if(exit_code === 0) {
-                app.locals.MODEL_READY_TO_USE = true;
-                console.log("Ready to use");
-            }
-            else {
-                console.log(exit_code)
-                process.exit(4);
-            }
-        });
-    }  
-    catch(error) {
-        console.log(error);
-        await send_generic_error_email("Error downloading dropbox: ", error);
-        process.exit(4);
-    }
 });

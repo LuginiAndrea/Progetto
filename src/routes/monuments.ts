@@ -4,10 +4,12 @@ import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
 import { get_language_of_user } from '../logic/users/utils';
 import { getStorage } from "firebase-admin/storage";
-import * as child_process from "child_process";
 import multer from "multer";
 const upload = multer({ dest: 'uploads/' })
-import { app } from "../app";
+import * as fs from "fs";
+import * as tf from '@tensorflow/tfjs-node'
+
+
 
 /******************** CONSTANTS ***********************/
 const monuments_router = Router();
@@ -267,45 +269,34 @@ monuments_router.delete("/delete/:id", async (req, res) => {
 });
 
 
-
-monuments_router.post("/predict", upload.single("photo"), async (req, res) => {
-    console.log(req.file);
-    if(!app.locals.MODEL_READY_TO_USE) {
-        send_json(res, "Problem with the model");
+monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
+    const idx_to_id = [1, 2, 7];
+    if(!req.file) {
+        console.log("==");
+        send_json(res, "No photo");
         return;
     }
-    // if(req.file) {
-        let not_sent = true;    
-        try {
-            const proc = child_process.spawn("python3", ["./predict.py", "img.jpg"]);
-            await new Promise(resolve => {
-                proc.stdout.on("data", (data) => {
-                    console.log("Data");
-                    const id = parseInt(data.toString());
-                    if(not_sent) {
-                        res.status(200).send({result: id});
-                        not_sent = false;
-                    }
-                    resolve(0);
-                });
-                proc.on("exit", (exit_code) => {
-                    console.log("Exit");
-                    if(not_sent) {
-                        res.status(200).send({exit: exit_code});
-                        not_sent = false;
-                    }
-                    resolve(0);
-                });
-            });
-        } catch(e) {
-            console.log(e);
+    const file_name = req.file.path;
+    const model = await tf.loadLayersModel("file://./model/model.json");
+    let img_buffer = fs.readFileSync("./" + file_name);
+    let img_tensor = tf.expandDims(
+        tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]),
+        0
+    );
+    let x = model.predict(img_tensor);
+    if(!Array.isArray(x)) {
+        let tensorData = x.dataSync();
+        let curr_idx = 0;
+        let curr_max = tensorData[0];
+        for(let idx = 1; idx < tensorData.length; idx++) {
+            if(tensorData[idx] > curr_max) {
+                curr_max = tensorData[idx];
+                curr_idx = idx;
+            }
         }
-    // }
-    // else 
-    //     send_json(res, "error with photo");
-
+        let id = idx_to_id[curr_idx];
+        res.status(200).send({id: id})
+    }
 });
-
-
 
 export default monuments_router;

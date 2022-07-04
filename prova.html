@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <form id="uploadform" target="upiframe" action="upload.php" method="post" enctype="multipart/form-data">
+        <input type="file" id="fileToUpload" class="test" onchange="send()">
+      </form>
+
+    <script>
+        function send() {
+            const fileInput = document.getElementById("fileToUpload");
+            const formData = new FormData();
+
+            formData.append('photo', fileInput.files[0]);
+
+            const options = {
+                method: 'POST',
+                body: formData,
+            };
+
+            fetch('http://localhost:8080/monuments/predict', options);
+        }
+    </script>
+</html>
