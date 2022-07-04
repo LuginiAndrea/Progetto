@@ -470,6 +470,8 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                 x = app_1.app.locals.MODEL.predict(img_tensor);
                 if (!Array.isArray(x)) {
                     tensorData = x.dataSync();
+                    x.dispose();
+                    img_tensor.dispose();
                     curr_idx = 0;
                     curr_max = tensorData[0];
                     for (idx = 1; idx < tensorData.length; idx++) {

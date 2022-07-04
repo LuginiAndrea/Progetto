@@ -284,9 +284,11 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]),
         0
     );
-    let x = app.locals.MODEL.predict(img_tensor);
+    let x = (app.locals.MODEL as tf.LayersModel).predict(img_tensor);
     if(!Array.isArray(x)) {
         let tensorData = x.dataSync();
+        x.dispose();
+        img_tensor.dispose();
         let curr_idx = 0;
         let curr_max = tensorData[0];
         for(let idx = 1; idx < tensorData.length; idx++) {
