@@ -79,7 +79,7 @@ var utils_3 = require("../logic/users/utils");
 var storage_1 = require("firebase-admin/storage");
 var multer_1 = __importDefault(require("multer"));
 var upload = (0, multer_1["default"])({ dest: 'uploads/' });
-var fs = __importStar(require("fs"));
+var fs = __importStar(require("fs/promises"));
 var tf = __importStar(require("@tensorflow/tfjs-node"));
 /******************** CONSTANTS ***********************/
 var monuments_router = (0, express_1.Router)();
@@ -464,7 +464,9 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                 return [4 /*yield*/, tf.loadLayersModel("file://./model/model.json")];
             case 1:
                 model = _a.sent();
-                img_buffer = fs.readFileSync("./" + file_name);
+                return [4 /*yield*/, fs.readFile("./" + file_name)];
+            case 2:
+                img_buffer = _a.sent();
                 img_tensor = tf.expandDims(tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]), 0);
                 x = model.predict(img_tensor);
                 if (!Array.isArray(x)) {
@@ -480,6 +482,7 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                     id = idx_to_id[curr_idx];
                     res.status(200).send({ id: id });
                 }
+                fs.unlink("./" + file_name);
                 return [2 /*return*/];
         }
     });

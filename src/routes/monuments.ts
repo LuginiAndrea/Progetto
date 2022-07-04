@@ -6,7 +6,7 @@ import { get_language_of_user } from '../logic/users/utils';
 import { getStorage } from "firebase-admin/storage";
 import multer from "multer";
 const upload = multer({ dest: 'uploads/' })
-import * as fs from "fs";
+import * as fs from "fs/promises";
 import * as tf from '@tensorflow/tfjs-node'
 
 
@@ -276,9 +276,9 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         send_json(res, "No photo");
         return;
     }
-    const file_name = req.file.path;
+    const file_name: string = req.file.path;
     const model = await tf.loadLayersModel("file://./model/model.json");
-    let img_buffer = fs.readFileSync("./" + file_name);
+    let img_buffer = await fs.readFile("./" + file_name);
     let img_tensor = tf.expandDims(
         tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]),
         0
@@ -297,6 +297,7 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         let id = idx_to_id[curr_idx];
         res.status(200).send({id: id})
     }
+    fs.unlink("./" + file_name);
 });
 
 export default monuments_router;

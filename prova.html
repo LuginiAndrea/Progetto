@@ -9,11 +9,15 @@
             const fileInput = document.getElementById("fileToUpload");
             const formData = new FormData();
 
+            const jwt_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjUwYTdhYTlkNzg5MmI1MmE4YzgxMzkwMzIzYzVjMjJlMTkwMzI1ZDgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGltZS10cmF2ZWwtYTI2MmUiLCJhdWQiOiJ0aW1lLXRyYXZlbC1hMjYyZSIsImF1dGhfdGltZSI6MTY1Njk2ODc3NSwidXNlcl9pZCI6IjlpYTJFY25ZVm5oQllOQVJzYXVZWmtyQVdnNDMiLCJzdWIiOiI5aWEyRWNuWVZuaEJZTkFSc2F1WVprckFXZzQzIiwiaWF0IjoxNjU2OTY4Nzc1LCJleHAiOjE2NTY5NzIzNzUsImVtYWlsIjoidGltZXRyYXZlbGJwQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJ0aW1ldHJhdmVsYnBAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.A9ELoRraReZMmOW6WntXiS4bfRNPH0YypYYHigcK9gWlAX-ude9eMXS601E54ny_2Jm7Oiry10yUXOlgHPLldlcRAxAeKX-fSAISXsOE12q7X3QumQCWOgJq4EUicVzoDlS6MRbRm9mEcg2eUSgkYtSPVrq9JQT_TIlecjNKZrW4KaJtWLU8V7iwQNzoywA1WPeIFNtD9Ib5buZtxFwuQQmaU2g2l9LbXrJgyLdDvwQlUmbVI6Co60S3GoAF7lFgVVpsR8VT4pl1sYyKTJ5VZ6nL4Z9xhbNrsIpnqPAe2oL-zmyyE91wxyenwAEd6uvc8Wwys2Zae9mEyCC5n9_K-A";
             formData.append('photo', fileInput.files[0]);
 
             const options = {
                 method: 'POST',
                 body: formData,
+                headers: {
+                    "authorization": jwt_token
+                }
             };
 
             fetch('https://time-travel-bp.herokuapp.com/monuments/predict', options)
