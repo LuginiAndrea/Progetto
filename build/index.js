@@ -94,7 +94,6 @@ app_1.app.listen(process.env.PORT || 8080, function () { return __awaiter(void 0
                     auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
                     client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
                 };
-                console.log(service_account.private_key);
                 app_1.app.locals.FIREBASE_APP = admin.initializeApp({
                     credential: admin.credential.cert(service_account),
                     storageBucket: process.env.FIREBASE_BUCKET_URL

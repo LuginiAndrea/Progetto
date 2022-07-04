@@ -2,6 +2,7 @@ import { app } from "./app"
 import { get_db_uri, DB_interface } from "./logic/db_interface/DB_interface";
 import { send_generic_error_email } from "./logic/email/email";
 import * as admin from "firebase-admin";
+import * as fs from "fs/promises"
 
 app.listen(process.env.PORT || 8080, async () => { // On start connect to Database
     try {
@@ -26,7 +27,6 @@ app.listen(process.env.PORT || 8080, async () => { // On start connect to Databa
             auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
             client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
         } as any; //Has to be put as any or cert admin.credential.cert will throw type error
-        console.log(service_account.private_key);
         app.locals.FIREBASE_APP = admin.initializeApp({
             credential: admin.credential.cert(service_account),
             storageBucket: process.env.FIREBASE_BUCKET_URL

@@ -20,7 +20,7 @@ const app = express();
 app.use(validate_db_status);
 app.use(cors());
 // Authenticate user
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '10mb'}));
 app.use(authenticate_user)
 
 app.use("/languages", languages_router);

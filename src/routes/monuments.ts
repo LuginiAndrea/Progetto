@@ -4,6 +4,9 @@ import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
 import { get_language_of_user } from '../logic/users/utils';
 import { getStorage } from "firebase-admin/storage";
+import * as chproc from "child_process";
+import multer from "multer";
+const upload = multer({ dest: 'uploads/' })
 
 /******************** CONSTANTS ***********************/
 const monuments_router = Router();
@@ -261,5 +264,39 @@ monuments_router.delete("/delete/:id", async (req, res) => {
     }
     send_json(res, result);
 });
+
+
+
+monuments_router.post("/predict", upload.single("photo"), async (req, res) => {
+    console.log(req.file);
+    res.send("X");
+    let not_sent = true;
+    // try {
+    //     const proc = chproc.spawn("python3", ["./main.py", ]);
+    //     await new Promise(resolve => {
+    //         proc.stdout.on("data", (data) => {
+    //             console.log(data);
+    //             console.log("cazzo")
+    //             if(not_sent) {
+    //                 res.status(200).send({result: data});
+    //                 not_sent = false;
+    //             }
+    //             resolve(0);
+    //         });
+    //         proc.on("exit", (k) => {
+    //             if(not_sent) {
+    //                 res.status(200).send({exit: k});
+    //                 not_sent = false;
+    //             }
+    //             resolve(0);
+    //         });
+    //     });
+    // } catch(e) {
+    //     console.log(e);
+    // }
+    res.send("KKK")
+});
+
+
 
 export default monuments_router;

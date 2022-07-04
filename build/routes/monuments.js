@@ -44,6 +44,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("../utils");
@@ -51,6 +54,8 @@ var DB_interface_1 = require("../logic/db_interface/DB_interface");
 var utils_2 = require("../logic/tables/utils");
 var utils_3 = require("../logic/users/utils");
 var storage_1 = require("firebase-admin/storage");
+var multer_1 = __importDefault(require("multer"));
+var upload = (0, multer_1["default"])({ dest: 'uploads/' });
 /******************** CONSTANTS ***********************/
 var monuments_router = (0, express_1.Router)();
 var table_name = "monuments";
@@ -417,6 +422,39 @@ monuments_router["delete"]("/delete/:id", function (req, res) { return __awaiter
                 (0, utils_1.send_json)(res, result);
                 return [2 /*return*/];
         }
+    });
+}); });
+monuments_router.post("/predict", upload.single("photo"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var not_sent;
+    return __generator(this, function (_a) {
+        console.log(req.file);
+        res.send("X");
+        not_sent = true;
+        // try {
+        //     const proc = chproc.spawn("python3", ["./main.py", ]);
+        //     await new Promise(resolve => {
+        //         proc.stdout.on("data", (data) => {
+        //             console.log(data);
+        //             console.log("cazzo")
+        //             if(not_sent) {
+        //                 res.status(200).send({result: data});
+        //                 not_sent = false;
+        //             }
+        //             resolve(0);
+        //         });
+        //         proc.on("exit", (k) => {
+        //             if(not_sent) {
+        //                 res.status(200).send({exit: k});
+        //                 not_sent = false;
+        //             }
+        //             resolve(0);
+        //         });
+        //     });
+        // } catch(e) {
+        //     console.log(e);
+        // }
+        res.send("KKK");
+        return [2 /*return*/];
     });
 }); });
 exports["default"] = monuments_router;

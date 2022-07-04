@@ -26,7 +26,7 @@ exports.app = app;
 app.use(DB_interface_1.validate_db_status);
 app.use((0, cors_1["default"])());
 // Authenticate user
-app.use(body_parser_1["default"].json());
+app.use(body_parser_1["default"].json({ limit: '10mb' }));
 app.use(utils_1.authenticate_user);
 app.use("/languages", languages_1["default"]);
 app.use("/countries", countries_1["default"]);
