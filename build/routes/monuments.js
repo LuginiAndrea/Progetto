@@ -451,7 +451,7 @@ monuments_router["delete"]("/delete/:id", function (req, res) { return __awaiter
     });
 }); });
 monuments_router.post("/predict", upload.single("photo"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var idx_to_id, file_name, img_buffer, img_tensor, x, tensorData, curr_idx, curr_max, idx, id;
+    var idx_to_id, file_name, img_buffer, decoded, resized, img_tensor, x, tensorData, curr_idx, curr_max, idx, id;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -462,16 +462,16 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                     return [2 /*return*/];
                 }
                 file_name = req.file.path;
-                tf.engine().startScope();
                 return [4 /*yield*/, fs.readFile("./" + file_name)];
             case 1:
                 img_buffer = _a.sent();
-                img_tensor = tf.expandDims(tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]), 0);
+                decoded = tf.node.decodeJpeg(img_buffer);
+                resized = decoded.resizeBilinear([244, 244]);
+                img_tensor = tf.expandDims(resized, 0);
                 x = app_1.app.locals.MODEL.predict(img_tensor);
                 if (!Array.isArray(x)) {
                     tensorData = x.dataSync();
-                    x.dispose();
-                    img_tensor.dispose();
+                    tf.dispose([decoded, resized, img_tensor, x]);
                     curr_idx = 0;
                     curr_max = tensorData[0];
                     for (idx = 1; idx < tensorData.length; idx++) {
@@ -483,7 +483,6 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                     id = idx_to_id[curr_idx];
                     res.status(200).send({ id: id });
                 }
-                tf.engine().endScope();
                 fs.unlink("./" + file_name);
                 return [2 /*return*/];
         }

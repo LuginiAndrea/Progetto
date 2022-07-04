@@ -278,17 +278,17 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         return;
     }
     const file_name: string = req.file.path;
-    tf.engine().startScope()
     let img_buffer = await fs.readFile("./" + file_name);
+    let decoded = tf.node.decodeJpeg(img_buffer);
+    let resized = decoded.resizeBilinear([244, 244]);
     let img_tensor = tf.expandDims(
-        tf.node.decodeJpeg(img_buffer).resizeBilinear([244, 244]),
+        resized,
         0
     );
     let x = (app.locals.MODEL as tf.LayersModel).predict(img_tensor);
     if(!Array.isArray(x)) {
         let tensorData = x.dataSync();
-        x.dispose();
-        img_tensor.dispose();
+        tf.dispose([decoded, resized, img_tensor, x]);
         let curr_idx = 0;
         let curr_max = tensorData[0];
         for(let idx = 1; idx < tensorData.length; idx++) {
@@ -301,7 +301,6 @@ monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
         res.status(200).send({id: id})
     }
 
-    tf.engine().endScope()
     fs.unlink("./" + file_name);
 });
 
