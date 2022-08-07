@@ -254,28 +254,22 @@ monuments_router.get("/filter_by_id", function (req, res) { return __awaiter(voi
         }
     });
 }); });
-monuments_router.get("/filter_by_rating", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, valid, operator, rating, db_interface, language, fields, _b, _c;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+monuments_router.get("/filter_by_rating", utils_1.validate_rating, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                _a = (0, utils_2.validate_rating)(req), valid = _a.valid, operator = _a.operator, rating = _a.rating;
-                if (!!valid) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.INVALID_BODY(table_name));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2:
-                language = _d.sent();
+            case 1:
+                language = _c.sent();
                 fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
-                _b = utils_1.send_json;
-                _c = [res];
-                return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE rating ").concat(operator, " ").concat(rating))];
-            case 3:
-                _b.apply(void 0, _c.concat([_d.sent()]));
-                _d.label = 4;
-            case 4: return [2 /*return*/];
+                _a = utils_1.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_2.values.get.all(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE rating ").concat(res.locals.operator, " ").concat(res.locals.rating))];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
         }
     });
 }); });
@@ -427,7 +421,7 @@ monuments_router["delete"]("/delete/:id", function (req, res) { return __awaiter
     });
 }); });
 monuments_router.post("/predict", upload.single("photo"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var idx_to_id, file_name, img_buffer, decoded, resized, img_tensor, x, tensorData, curr_idx, curr_max, idx, id;
+    var idx_to_id, file_name, img_buffer, decoded, resized, img_tensor, x, tensorData, curr_max_idx, idx, id;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -446,15 +440,11 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                 x = app_1.app.locals.MODEL.predict(img_tensor);
                 if (!Array.isArray(x)) {
                     tensorData = x.dataSync();
-                    curr_idx = 0;
-                    curr_max = tensorData[0];
-                    for (idx = 1; idx < tensorData.length; idx++) {
-                        if (tensorData[idx] > curr_max) {
-                            curr_max = tensorData[idx];
-                            curr_idx = idx;
-                        }
-                    }
-                    id = idx_to_id[curr_idx];
+                    curr_max_idx = 0;
+                    for (idx = 1; idx < tensorData.length; idx++)
+                        if (tensorData[idx] > tensorData[curr_max_idx])
+                            curr_max_idx = idx;
+                    id = idx_to_id[curr_max_idx];
                     res.status(200).send({ id: id });
                 }
                 tf.dispose([decoded, resized, img_tensor, x]);

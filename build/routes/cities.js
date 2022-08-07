@@ -160,28 +160,22 @@ cities_router.get("/filter_by_id", utils_2.validate_ids, function (req, res) { r
         }
     });
 }); });
-cities_router.get("/filter_by_rating", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, valid, operator, rating, db_interface, language, fields, _b, _c;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+cities_router.get("/filter_by_rating", utils_2.validate_rating, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                _a = (0, utils_3.validate_rating)(req), valid = _a.valid, operator = _a.operator, rating = _a.rating;
-                if (!!valid) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, utils_3.error_codes.INVALID_BODY(table_name));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2:
-                language = _d.sent();
+            case 1:
+                language = _c.sent();
                 fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
-                _b = utils_2.send_json;
-                _c = [res];
-                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE rating ").concat(operator, " ").concat(rating))];
-            case 3:
-                _b.apply(void 0, _c.concat([_d.sent()]));
-                _d.label = 4;
-            case 4: return [2 /*return*/];
+                _a = utils_2.send_json;
+                _b = [res];
+                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE rating ").concat(res.locals.operator, " ").concat(res.locals.rating))];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
         }
     });
 }); });

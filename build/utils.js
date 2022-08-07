@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.validate_ids = exports.send_json = void 0;
+exports.validate_rating = exports.validate_ids = exports.send_json = void 0;
 var utils_1 = require("./logic/tables/utils");
 function send_json(res, result, args) {
     return __awaiter(this, void 0, void 0, function () {
@@ -89,3 +89,26 @@ function validate_ids(req, res, next) {
     });
 }
 exports.validate_ids = validate_ids;
+function validate_rating(req, res, next) {
+    return __awaiter(this, void 0, void 0, function () {
+        var operator, rating, valid;
+        return __generator(this, function (_a) {
+            operator = req.query.operator.toUpperCase();
+            rating = req.query.rating === "NULL" ?
+                "NULL" :
+                parseInt(req.query.rating);
+            if (!operator || !rating)
+                send_json(res, utils_1.error_codes.INVALID_QUERY("Rating parameters"));
+            valid = (rating === "NULL" && ["IS", "IS NOT"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
+            if (valid) {
+                res.locals.rating = rating;
+                res.locals.operator = operator;
+                next();
+            }
+            else
+                send_json(res, utils_1.error_codes.INVALID_QUERY("Rating parameters"));
+            return [2 /*return*/];
+        });
+    });
+}
+exports.validate_rating = validate_rating;

@@ -45,7 +45,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 exports.__esModule = true;
-exports.convert_error_code = exports.validate_rating = exports.error_codes_to_status_code = exports.error_codes = exports.values = exports.table = void 0;
+exports.convert_error_code = exports.error_codes_to_status_code = exports.error_codes = exports.values = exports.table = void 0;
 var tables_1 = require("../../sql/tables");
 var functions_1 = require("../../sql/functions");
 var triggers_1 = require("../../sql/triggers");
@@ -337,14 +337,3 @@ var values = {
     }
 };
 exports.values = values;
-function validate_rating(req) {
-    var operator = req.query.operator.toUpperCase(); //rating are correct
-    var rating = req.query.rating === "NULL" ?
-        "NULL" :
-        parseInt(req.query.rating);
-    if (!operator || !rating)
-        return { valid: false, operator: operator, rating: rating };
-    var valid = (rating === "NULL" && ["IS", "IS NOT"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
-    return { valid: valid, operator: operator, rating: rating };
-}
-exports.validate_rating = validate_rating;
