@@ -120,70 +120,48 @@ monument_types.get("/all", function (req, res) { return __awaiter(void 0, void 0
         }
     });
 }); });
-monument_types.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, _a, _b;
+monument_types.get("/filter_by_id", utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                if (req.query.ids === undefined) {
-                    (0, utils_1.send_json)(res, utils_2.error_codes.INVALID_QUERY("ids"));
-                    return [2 /*return*/];
-                }
-                ids = req.query.ids.split(",") || [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 3];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, ids)];
-            case 2:
+                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, res.locals.ids)];
+            case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 3;
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });
-monument_types.get("/filter_by_monuments", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, _a, _b;
+monument_types.get("/filter_by_monuments", utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                ids = req.query.ids.split(",") || [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 3];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "WHERE fk_monument_id = ANY($1)", [ids])];
-            case 2:
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "WHERE fk_monument_id = ANY($1)", [res.locals.ids])];
+            case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 3;
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });
-monument_types.get("/filter_by_types", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, _a, _b;
+monument_types.get("/filter_by_types", utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                ids = req.query.ids.split(",") || [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 3];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "WHERE fk_type_id = ANY($1)", [ids])];
-            case 2:
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, "*", "WHERE fk_type_id = ANY($1)", [res.locals.ids])];
+            case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 3;
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });

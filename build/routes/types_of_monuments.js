@@ -124,32 +124,22 @@ types_of_monuments.get("/all", function (req, res) { return __awaiter(void 0, vo
         }
     });
 }); });
-types_of_monuments.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, language, fields, _a, _b;
+types_of_monuments.get("/filter_by_id", utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                if (req.query.ids === undefined) {
-                    (0, utils_1.send_json)(res, utils_2.error_codes.INVALID_QUERY("ids"));
-                    return [2 /*return*/];
-                }
-                ids = req.query.ids.split(",") || [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2:
+            case 1:
                 language = _c.sent();
                 fields = types_1.exclude_fields_by_language[table_name](language).fields;
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, ids, fields)];
-            case 3:
+                return [4 /*yield*/, utils_2.values.get.by_id(table_name, db_interface, res.locals.ids, fields)];
+            case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 4;
-            case 4: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });

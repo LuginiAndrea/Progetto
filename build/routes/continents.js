@@ -119,77 +119,59 @@ continents_router.post("/insert", function (req, res) { return __awaiter(void 0,
 }); });
 /************************************** GET ***************************************************/
 continents_router.get("/all", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var db_interface, _a, _b, _c, _d, _e, _f, _g;
-    return __generator(this, function (_h) {
-        switch (_h.label) {
+    var db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
+            case 1:
+                language = _c.sent();
+                fields = DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields;
                 _a = utils_2.send_json;
                 _b = [res];
-                _d = (_c = utils_3.values.get).all;
-                _e = [table_name, db_interface];
-                _g = (_f = DB_interface_1.req_types.exclude_fields_by_language)[table_name];
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
-            case 1: return [4 /*yield*/, _d.apply(_c, _e.concat([_g.apply(_f, [_h.sent()]).fields, "ORDER BY id"]))];
+                return [4 /*yield*/, utils_3.values.get.all(table_name, db_interface, fields, "ORDER BY id")];
             case 2:
-                _a.apply(void 0, _b.concat([_h.sent()]));
+                _a.apply(void 0, _b.concat([_c.sent()]));
                 return [2 /*return*/];
         }
     });
 }); });
-continents_router.get("/filter_by_id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, _a, _b, _c, _d, _e, _f, _g;
-    return __generator(this, function (_h) {
-        switch (_h.label) {
+continents_router.get("/filter_by_id", utils_2.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                if (req.query.ids === undefined) {
-                    (0, utils_2.send_json)(res, utils_3.error_codes.INVALID_QUERY("ids"));
-                    return [2 /*return*/];
-                }
-                ids = req.query.ids.split(",") || [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, utils_3.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
+            case 1:
+                language = _c.sent();
+                fields = DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields;
                 _a = utils_2.send_json;
                 _b = [res];
-                _d = (_c = utils_3.values.get).by_id;
-                _e = [table_name, db_interface, ids];
-                _g = (_f = DB_interface_1.req_types.exclude_fields_by_language)[table_name];
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2: return [4 /*yield*/, _d.apply(_c, _e.concat([_g.apply(_f, [_h.sent()]).fields, "ORDER BY id"]))];
-            case 3:
-                _a.apply(void 0, _b.concat([_h.sent()]));
-                _h.label = 4;
-            case 4: return [2 /*return*/];
+                return [4 /*yield*/, utils_3.values.get.by_id(table_name, db_interface, res.locals.ids, fields, "ORDER BY id")];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
         }
     });
 }); });
-continents_router.get("/filter_by_countries", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, _a, _b, _c, _d, _e, _f, _g;
-    return __generator(this, function (_h) {
-        switch (_h.label) {
+continents_router.get("/filter_by_countries", utils_2.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                ids = req.query.ids.split(",") || [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_2.send_json)(res, utils_3.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
+                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
+            case 1:
+                language = _c.sent();
+                fields = DB_interface_1.req_types.exclude_fields_by_language[table_name](language).fields;
                 _a = utils_2.send_json;
                 _b = [res];
-                _d = (_c = utils_3.values.get).generic;
-                _e = [table_name, db_interface];
-                _g = (_f = DB_interface_1.req_types.exclude_fields_by_language)[table_name];
-                return [4 /*yield*/, (0, utils_1.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2: return [4 /*yield*/, _d.apply(_c, _e.concat([_g.apply(_f, [_h.sent()]).fields,
-                    "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id",
-                    [ids]]))];
-            case 3:
-                _a.apply(void 0, _b.concat([_h.sent()]));
-                _h.label = 4;
-            case 4: return [2 /*return*/];
+                return [4 /*yield*/, utils_3.values.get.generic(table_name, db_interface, fields, "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id", [res.locals.ids])];
+            case 2:
+                _a.apply(void 0, _b.concat([_c.sent()]));
+                return [2 /*return*/];
         }
     });
 }); });

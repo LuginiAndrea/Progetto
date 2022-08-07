@@ -1,15 +1,15 @@
 
-import { Response } from "express";
-import { DB_result, QueryResult } from "./logic/db_interface/DB_interface";
-import { error_codes_to_status_code } from "./logic/tables/utils";
+import { Response, Request, NextFunction } from "express";
+import { DB_result } from "./logic/db_interface/DB_interface";
+import { error_codes_to_status_code, error_codes } from "./logic/tables/utils";
 
-type func = (arg: Array<QueryResult<any>>) => Object;
+
 type optional_args = {
     success?: number,
     error?: number,
 };
 
-function send_json(res: Response, result: DB_result | DB_result[], args?: optional_args) {
+async function send_json(res: Response, result: DB_result | DB_result[], args?: optional_args) {
     let {success, error} = args || {};
     let status = {
         code: 200,
@@ -36,4 +36,36 @@ function send_json(res: Response, result: DB_result | DB_result[], args?: option
     res.status(status.code).json(to_send);
 }
 
-export {send_json, optional_args};
+async function validate_ids(req: Request, res: Response, next: NextFunction) {
+    if(req.query.ids === undefined) 
+        send_json(res, error_codes.INVALID_QUERY("ids")); 
+    else {
+        res.locals.ids = (req.query.ids as string).split(",") || [];
+        if(res.locals.ids.length === 0) 
+            send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
+        else 
+            next()
+    }
+}
+
+async function validate_rating(req: Request, res: Response, next: NextFunction) { //Function to check if the parameters for comparing
+    const operator = (req.query.operator as string).toUpperCase(); //rating are correct
+    const rating = req.query.rating === "NULL" ?
+        "NULL" :
+        parseInt(req.query.rating as string)
+    if(!operator || !rating)
+        send_json(res, error_codes.INVALID_QUERY("Rating parameters"));
+
+    const valid = (rating === "NULL" && ["IS", "IS NOT"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
+    if(valid) {
+        res.locals.rating = rating;
+        res.locals.operator = operator;
+        next();
+    }
+    else 
+        send_json(res, error_codes.INVALID_QUERY("Rating parameters"))
+}
+    
+
+
+export {send_json, optional_args, validate_ids, validate_rating};

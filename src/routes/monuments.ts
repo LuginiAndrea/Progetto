@@ -1,7 +1,7 @@
 import { Router, Request } from 'express';
-import { send_json } from '../utils';
+import { send_json, validate_ids, validate_rating} from '../utils';
 import { req_types as types } from '../logic/db_interface/DB_interface';
-import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
+import { table, values, error_codes } from '../logic/tables/utils';
 import { get_language_of_user } from '../logic/users/utils';
 import { getStorage } from "firebase-admin/storage";
 import multer from "multer";
@@ -61,7 +61,7 @@ monuments_router.get("/routes", async (req, res) => {
 monuments_router.post("/create_table", async (req, res) => {
     send_json(res,
         await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
-        {success: 201}
+        { success: 201 }
     );
 });
 monuments_router.delete("/delete_table", async (req, res) => {
@@ -126,72 +126,50 @@ monuments_router.get("/filter_by_id", async (req, res) => {
             WHERE visits.fk_user_id = $1 AND monuments.id = ANY ($2)`, [res.locals.UID,ids]) 
     ); 
 });
-monuments_router.get("/filter_by_rating", async (req, res) => {
-    const {valid, operator, rating} = validate_rating(req);
-    if(!valid)
-        send_json(res, error_codes.INVALID_BODY(table_name));
-    else {
-        const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(res.locals.UID, db_interface);
-        const fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
-        send_json(res, 
-            await values.get.all(table_name, db_interface, fields, `${join_fields_query} WHERE rating ${operator} ${rating}`)
-        );
-    }
+monuments_router.get("/filter_by_rating", validate_rating, async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = get_fields(req, language).concat("(votes_sum / NULLIF(number_of_votes, 0)) as rating");
+    send_json(res, 
+        await values.get.all(table_name, db_interface, fields, 
+            `${join_fields_query} WHERE rating ${res.locals.operator} ${res.locals.rating}`
+        )
+    );
 });
-monuments_router.get("/filter_by_cities", async (req, res) => {
-    const ids = req.query.ids ? 
-        (req.query.ids as string).split(",") :
-        [];
-    if(ids.length === 0) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
-    else {
-        const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(res.locals.UID, db_interface);
-        const fields = get_fields(req, language);
-        send_json(res,
-            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_city_id = ANY ($1)`, [ids])
-        );
-    }
+monuments_router.get("/filter_by_cities", validate_ids, async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = get_fields(req, language);
+    send_json(res,
+        await values.get.generic(table_name, db_interface, fields, `${join_fields_query} WHERE fk_city_id = ANY ($1)`, [res.locals.ids])
+    );
 });
-monuments_router.get("/filter_by_visits", async (req, res) => {
-    const ids = req.query.ids ? 
-        (req.query.ids as string).split(",") :
-        [];
-    if(ids.length === 0) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
-    else {
-        const db_interface = res.locals.DB_INTERFACE
-        const language = await get_language_of_user(res.locals.UID, db_interface);
-        const fields = get_fields(req, language);
-        send_json(res,
-            await values.get.generic(table_name, db_interface, fields, 
-                `${join_fields_query} WHERE id = ANY (SELECT fk_monument_id = ANY ($1))`, 
-                [ids]
-            )
-        );
-    }
+monuments_router.get("/filter_by_visits", validate_ids, async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = get_fields(req, language);
+    send_json(res,
+        await values.get.generic(
+            table_name, db_interface, fields, 
+            `${join_fields_query} WHERE id = ANY (SELECT fk_monument_id = ANY ($1))`, 
+            [res.locals.ids]
+        )
+    );
 });
-monuments_router.get("/filter_by_types", async (req, res) => {
-    const ids = req.query.ids ?
-        (req.query.ids as string).split(",") :
-        [];
-    if(ids.length === 0)
-        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
-    else {
-        const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(res.locals.UID, db_interface);
-        const fields = get_fields(req, language).concat([
-            `types_of_monuments.${language}_name AS type_name`, `types_of_monuments.real_name AS type_real_name`
-        ]);
-        send_json(res,
-            await values.get.generic(table_name, db_interface, fields, `${join_fields_query} 
-                JOIN monument_types ON monuments.id = monument_types.fk_monument_id    
-                JOIN types_of_monuments ON types_of_monuments.id = monument_types.fk_type_id
-                WHERE monument_types.fk_type_id = ANY($1)`, [ids]
-            )
-        );
-    }
+monuments_router.get("/filter_by_types", validate_ids, async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = get_fields(req, language).concat([
+        `types_of_monuments.${language}_name AS type_name`, `types_of_monuments.real_name AS type_real_name`
+    ]);
+    send_json(res,
+        await values.get.generic(
+            table_name, db_interface, fields, `${join_fields_query} 
+            JOIN monument_types ON monuments.id = monument_types.fk_monument_id    
+            JOIN types_of_monuments ON types_of_monuments.id = monument_types.fk_type_id
+            WHERE monument_types.fk_type_id = ANY($1)`, [res.locals.ids]
+        )
+    );
 });
 /* 3 raccomandazioni:
     - 1: monumento non visitato col rating più alto in generale
@@ -243,7 +221,7 @@ monuments_router.get("/discover", async (req, res) => {
 monuments_router.post("/insert", async (req, res) => {
     send_json(res,
         await values.insert(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.body),
-        {success: 201}
+        { success: 201 }
     );
 });
 /************************************** PUT ***************************************************/
@@ -256,7 +234,7 @@ monuments_router.put("/update/:id", async (req, res) => {
 monuments_router.delete("/delete/:id", async (req, res) => {
     const result = await values.delete(table_name, res.locals.DB_INTERFACE, res.locals.is_admin, req.params.id);
     if(typeof result !== "string") {
-        try {
+        try { //Delete photos from storage
             const bucket = getStorage().bucket();
             await bucket.deleteFiles({
                 prefix: `${req.params.id}_`
@@ -273,34 +251,28 @@ monuments_router.delete("/delete/:id", async (req, res) => {
 monuments_router.post("/predict", upload.single("photo"),  async(req, res) => {
     const idx_to_id = [1, 2, 7];
     if(!req.file) {
-        console.log("==");
         send_json(res, "No photo");
         return;
     }
     const file_name: string = req.file.path;
-    let img_buffer = await fs.readFile("./" + file_name);
-    let decoded = tf.node.decodeJpeg(img_buffer);
-    let resized = decoded.resizeBilinear([244, 244]);
-    let img_tensor = tf.expandDims(
+    const img_buffer = await fs.readFile("./" + file_name);
+    const decoded = tf.node.decodeJpeg(img_buffer);
+    const resized = decoded.resizeBilinear([244, 244]);
+    const img_tensor = tf.expandDims(
         resized,
         0
     );
-    let x = (app.locals.MODEL as tf.LayersModel).predict(img_tensor);
+    const x = (app.locals.MODEL as tf.LayersModel).predict(img_tensor);
     if(!Array.isArray(x)) {
-        let tensorData = x.dataSync();
-        tf.dispose([decoded, resized, img_tensor, x]);
-        let curr_idx = 0;
-        let curr_max = tensorData[0];
-        for(let idx = 1; idx < tensorData.length; idx++) {
-            if(tensorData[idx] > curr_max) {
-                curr_max = tensorData[idx];
-                curr_idx = idx;
-            }
-        }
-        let id = idx_to_id[curr_idx];
+        const tensorData = x.dataSync();
+        let curr_max_idx = 0;
+        for(let idx = 1; idx < tensorData.length; idx++)
+            if(tensorData[idx] > tensorData[curr_max_idx]) 
+            curr_max_idx = idx;
+        let id = idx_to_id[curr_max_idx];
         res.status(200).send({id: id})
     }
-
+    tf.dispose([decoded, resized, img_tensor, x]);
     fs.unlink("./" + file_name);
 });
 

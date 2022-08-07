@@ -2,7 +2,7 @@ import { Router, Request } from 'express';
 import { get_language_of_user } from "../logic/users/utils";
 import { send_json } from "../utils"
 import { req_types as types } from "../logic/db_interface/DB_interface";
-import { table, values, error_codes, validate_rating } from '../logic/tables/utils';
+import { table, values } from '../logic/tables/utils';
 
 /******************** CONSTANTS ***********************/
 const visits_router: Router = Router();

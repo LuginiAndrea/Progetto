@@ -1,6 +1,6 @@
-import {Router, Request, Response} from 'express';
+import { Router } from 'express';
 import { get_language_of_user } from "../logic/users/utils";
-import { send_json } from '../utils';
+import { send_json, validate_ids } from '../utils';
 import { req_types as types } from '../logic/db_interface/DB_interface';
 import { table, values, error_codes } from '../logic/tables/utils';
 
@@ -24,7 +24,7 @@ continents_router.get("/routes", async (req, res) => {
 continents_router.post("/create_table", async (req, res) => {
     send_json(res, 
         await table.create(table_name, res.locals.DB_INTERFACE, res.locals.is_admin),
-        {success: 201}
+        { success: 201 }
     );
 });
 continents_router.delete("/delete_table", async (req, res) => {
@@ -50,50 +50,38 @@ continents_router.post("/insert", async (req, res) => {
         (7, 'Oceania', 'Oceania'), 
         (8, 'Antartica', 'Antarctica');`
     );
-    send_json(res, result, {success: 201});
+    send_json(res, result, { success: 201 });
 });
 /************************************** GET ***************************************************/
 continents_router.get("/all", async (req, res) => {
     const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = types.exclude_fields_by_language[table_name](language).fields;
     send_json(res,
-        await values.get.all(table_name, db_interface, types.exclude_fields_by_language[table_name](
-                await get_language_of_user(res.locals.UID, db_interface),
-            ).fields, "ORDER BY id"
-        )
+        await values.get.all(table_name, db_interface, fields, "ORDER BY id")
     );
 });
 
-continents_router.get("/filter_by_id", async (req, res) => {
-    if(req.query.ids === undefined) { send_json(res, error_codes.INVALID_QUERY("ids")); return; }
-    const ids = (req.query.ids as string).split(",") || [];
-    if(ids.length === 0) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
-    else {
-        const db_interface = res.locals.DB_INTERFACE;
-        send_json(res,
-            await values.get.by_id(table_name, db_interface, ids, types.exclude_fields_by_language[table_name](
-                    await get_language_of_user(res.locals.UID, db_interface),
-                ).fields, "ORDER BY id"
-            ),
-        );
-    }
+continents_router.get("/filter_by_id", validate_ids, async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = types.exclude_fields_by_language[table_name](language).fields;
+    send_json(res,
+        await values.get.by_id(table_name, db_interface, res.locals.ids, fields, "ORDER BY id")
+    );
 });
 
-continents_router.get("/filter_by_countries", async (req, res) => {
-    const ids = (req.query.ids as string).split(",") || [];
-    if(ids.length === 0) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
-    else {
-        const db_interface = res.locals.DB_INTERFACE;
-        send_json(res,
-            await values.get.generic(table_name, db_interface, types.exclude_fields_by_language[table_name](
-                    await get_language_of_user(res.locals.UID, db_interface),
-                ).fields, 
-                "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id", 
-                [ids]
-            )
-        );
-    }
+continents_router.get("/filter_by_countries", validate_ids, async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = types.exclude_fields_by_language[table_name](language).fields;
+    send_json(res,
+        await values.get.generic(
+            table_name, db_interface, fields,
+            "WHERE id = ANY (SELECT fk_continent_id FROM Countries WHERE id = ANY($1)) ORDER BY id", 
+            [res.locals.ids]
+        )
+    );
 });
 
 export default continents_router;

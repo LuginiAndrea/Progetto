@@ -279,75 +279,52 @@ monuments_router.get("/filter_by_rating", function (req, res) { return __awaiter
         }
     });
 }); });
-monuments_router.get("/filter_by_cities", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, language, fields, _a, _b;
+monuments_router.get("/filter_by_cities", utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                ids = req.query.ids ?
-                    req.query.ids.split(",") :
-                    [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2:
+            case 1:
                 language = _c.sent();
                 fields = get_fields(req, language);
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE fk_city_id = ANY ($1)"), [ids])];
-            case 3:
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE fk_city_id = ANY ($1)"), [res.locals.ids])];
+            case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 4;
-            case 4: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });
-monuments_router.get("/filter_by_visits", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, language, fields, _a, _b;
+monuments_router.get("/filter_by_visits", utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                ids = req.query.ids ?
-                    req.query.ids.split(",") :
-                    [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2:
+            case 1:
                 language = _c.sent();
                 fields = get_fields(req, language);
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE id = ANY (SELECT fk_monument_id = ANY ($1))"), [ids])];
-            case 3:
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " WHERE id = ANY (SELECT fk_monument_id = ANY ($1))"), [res.locals.ids])];
+            case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 4;
-            case 4: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });
-monuments_router.get("/filter_by_types", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, db_interface, language, fields, _a, _b;
+monuments_router.get("/filter_by_types", utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_interface, language, fields, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                ids = req.query.ids ?
-                    req.query.ids.split(",") :
-                    [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 4];
-            case 1:
                 db_interface = res.locals.DB_INTERFACE;
                 return [4 /*yield*/, (0, utils_3.get_language_of_user)(res.locals.UID, db_interface)];
-            case 2:
+            case 1:
                 language = _c.sent();
                 fields = get_fields(req, language).concat([
                     "types_of_monuments.".concat(language, "_name AS type_name"),
@@ -355,11 +332,10 @@ monuments_router.get("/filter_by_types", function (req, res) { return __awaiter(
                 ]);
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " \n                JOIN monument_types ON monuments.id = monument_types.fk_monument_id    \n                JOIN types_of_monuments ON types_of_monuments.id = monument_types.fk_type_id\n                WHERE monument_types.fk_type_id = ANY($1)"), [ids])];
-            case 3:
+                return [4 /*yield*/, utils_2.values.get.generic(table_name, db_interface, fields, "".concat(join_fields_query, " \n            JOIN monument_types ON monuments.id = monument_types.fk_monument_id    \n            JOIN types_of_monuments ON types_of_monuments.id = monument_types.fk_type_id\n            WHERE monument_types.fk_type_id = ANY($1)"), [res.locals.ids])];
+            case 2:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 4;
-            case 4: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });
@@ -457,7 +433,6 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
             case 0:
                 idx_to_id = [1, 2, 7];
                 if (!req.file) {
-                    console.log("==");
                     (0, utils_1.send_json)(res, "No photo");
                     return [2 /*return*/];
                 }
@@ -471,7 +446,6 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                 x = app_1.app.locals.MODEL.predict(img_tensor);
                 if (!Array.isArray(x)) {
                     tensorData = x.dataSync();
-                    tf.dispose([decoded, resized, img_tensor, x]);
                     curr_idx = 0;
                     curr_max = tensorData[0];
                     for (idx = 1; idx < tensorData.length; idx++) {
@@ -483,6 +457,7 @@ monuments_router.post("/predict", upload.single("photo"), function (req, res) { 
                     id = idx_to_id[curr_idx];
                     res.status(200).send({ id: id });
                 }
+                tf.dispose([decoded, resized, img_tensor, x]);
                 fs.unlink("./" + file_name);
                 return [2 /*return*/];
         }

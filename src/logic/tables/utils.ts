@@ -2,7 +2,7 @@ import { table_creates } from "../../sql/tables";
 import { update_city_rating, update_monument_rating } from "../../sql/functions";
 import { update_monument_rating_trigger, update_visits_rating_trigger } from "../../sql/triggers";
 import { DB_interface, req_types as types } from "../db_interface/DB_interface";
-import { Request } from "express";
+import { NextFunction, Request } from "express";
 
 function gen_error_code(error_code: string) {
     return function(table_name: string) {
@@ -219,17 +219,5 @@ const values = {
         generic: get_generic,
     }
 };
-function validate_rating(req: Request) { //Function to check if the parameters for comparing
-    const operator = (req.query.operator as string).toUpperCase(); //rating are correct
-    const rating = req.query.rating === "NULL" ?
-        "NULL" :
-        parseInt(req.query.rating as string)
-    if(!operator || !rating)
-        return {valid: false, operator, rating};
 
-    const valid = (rating === "NULL" && ["IS", "IS NOT"].includes(operator)) || (["=", "!=", ">", "<", ">=", "<="].includes(operator) && rating >= 0 && rating <= 5);
-    return {valid, operator, rating};
-}
-
-export {table, values, error_codes, error_codes_to_status_code, validate_rating, convert_error_code};
-    
+export {table, values, error_codes, error_codes_to_status_code, convert_error_code};

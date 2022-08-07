@@ -15,6 +15,7 @@ import { authenticate_user } from "./logic/users/utils";
 import bodyParser from "body-parser";
 import { send_json } from "./utils";
 import { error_codes } from "./logic/tables/utils";
+import { validate_ids } from "./utils";
 const app = express();
 
 app.use(validate_db_status);
@@ -33,7 +34,7 @@ app.use("/visits", visits_router);
 app.use("/monument_types", monument_types);
 app.use("/types_of_monuments", types_of_monuments);
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
     res.status(200).send({status: "Running"});
 });
 
@@ -62,7 +63,7 @@ app.connect("/reconnect_db", (req, res) => {
         send_json(res, error_codes.UNAUTHORIZED("reconnect db"));
 });
 
-app.use("*", (req, res) => {
+app.use("*", async (req, res) => {
     send_json(res, "Method not found", { error: 404 })
 });
 

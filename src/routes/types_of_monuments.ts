@@ -1,6 +1,6 @@
-import { Router, Request, Response } from 'express';
-import { send_json } from '../utils';
-import { table, values, error_codes } from "../logic/tables/utils";
+import { Router } from 'express';
+import { send_json, validate_ids } from '../utils';
+import { table, values } from "../logic/tables/utils";
 import { exclude_fields_by_language } from '../logic/db_interface/types';
 import { get_language_of_user } from '../logic/users/utils';
 
@@ -49,19 +49,13 @@ types_of_monuments.get("/all", async (req, res) => {
     );
 });
 
-types_of_monuments.get("/filter_by_id", async (req, res) => {
-    if(req.query.ids === undefined) { send_json(res, error_codes.INVALID_QUERY("ids")); return; }
-    const ids = (req.query.ids as string).split(",") || [];
-    if(ids.length === 0) 
-        send_json(res, error_codes.NO_REFERENCED_ITEM("ids"));
-    else {
-        const db_interface = res.locals.DB_INTERFACE;
-        const language = await get_language_of_user(res.locals.UID, db_interface);
-        const fields = exclude_fields_by_language[table_name](language).fields;
-        send_json(res,
-            await values.get.by_id(table_name, db_interface, ids, fields)
-        );
-    }
+types_of_monuments.get("/filter_by_id", validate_ids, async (req, res) => {
+    const db_interface = res.locals.DB_INTERFACE;
+    const language = await get_language_of_user(res.locals.UID, db_interface);
+    const fields = exclude_fields_by_language[table_name](language).fields;
+    send_json(res,
+        await values.get.by_id(table_name, db_interface, res.locals.ids, fields)
+    );
 });
 
 /************************************** POST ***************************************************/

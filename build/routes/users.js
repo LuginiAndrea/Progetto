@@ -50,10 +50,6 @@ exports.__esModule = true;
 var express_1 = require("express");
 var utils_1 = require("../utils");
 var utils_2 = require("../logic/tables/utils");
-/*TODO: Implement use of firebase API such as:
-    - retrieve data in selects
-    - retrieve user by email
-*/
 var users_router = (0, express_1.Router)();
 var table_name = "users";
 users_router.get("/routes", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -75,15 +71,18 @@ users_router.get("/routes", function (req, res) { return __awaiter(void 0, void 
         return [2 /*return*/];
     });
 }); });
-var authorize = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        if (!res.locals.is_admin)
-            (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
-        else
-            next();
-        return [2 /*return*/];
+function authorize(req, res, next) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (!res.locals.is_admin)
+                (0, utils_1.send_json)(res, utils_2.error_codes.UNAUTHORIZED(table_name));
+            else
+                next();
+            return [2 /*return*/];
+        });
     });
-}); };
+}
+;
 users_router.post("/create_table", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
     return __generator(this, function (_c) {
@@ -140,27 +139,17 @@ users_router.get("/all", authorize, function (req, res) { return __awaiter(void 
         }
     });
 }); });
-users_router.get("/filter_by_id", authorize, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, _a, _b;
+users_router.get("/filter_by_id", authorize, utils_1.validate_ids, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                if (req.query.ids === undefined) {
-                    (0, utils_1.send_json)(res, utils_2.error_codes.INVALID_QUERY("ids"));
-                    return [2 /*return*/];
-                }
-                ids = req.query.ids.split(",") || [];
-                if (!(ids.length === 0)) return [3 /*break*/, 1];
-                (0, utils_1.send_json)(res, utils_2.error_codes.NO_REFERENCED_ITEM("ids"));
-                return [3 /*break*/, 3];
-            case 1:
                 _a = utils_1.send_json;
                 _b = [res];
-                return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, ids)];
-            case 2:
+                return [4 /*yield*/, utils_2.values.get.by_id(table_name, res.locals.DB_INTERFACE, res.locals.ids)];
+            case 1:
                 _a.apply(void 0, _b.concat([_c.sent()]));
-                _c.label = 3;
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); });
